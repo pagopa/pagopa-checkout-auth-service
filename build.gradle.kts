@@ -17,7 +17,7 @@ version = "0.1.0"
 
 description = "pagopa-checkout-auth-service"
 
-sourceSets { main { java { srcDirs("$buildDir/generated/src/main/java") } } }
+sourceSets { main { java { srcDirs("${layout.buildDirectory}/generated/src/main/java") } } }
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
@@ -26,9 +26,27 @@ springBoot {
   buildInfo { properties { additional.set(mapOf("description" to project.description)) } }
 }
 
+object Deps {
+  const val ecsLoggingVersion = "1.5.0"
+  const val openTelemetryVersion = "1.46.0"
+  const val openTelemetryInstrumentationVersion = "2.12.0"
+  const val springBootVersion = "3.4.2"
+}
+
 repositories { mavenCentral() }
 
-val ecsLoggingVersion = "1.5.0"
+dependencyManagement {
+  imports {
+    mavenBom("org.springframework.boot:spring-boot-dependencies:${Deps.springBootVersion}")
+  }
+  // otel BOM
+  imports {
+    mavenBom("io.opentelemetry:opentelemetry-bom:${Deps.openTelemetryVersion}")
+    mavenBom(
+      "io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom:${Deps.openTelemetryInstrumentationVersion}"
+    )
+  }
+}
 
 dependencies {
   implementation("org.springframework.boot:spring-boot-starter-webflux")
@@ -41,9 +59,12 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("io.arrow-kt:arrow-core:2.0.1")
   implementation("io.swagger.core.v3:swagger-annotations:2.2.28")
+  // otel api
+  implementation("io.opentelemetry:opentelemetry-api")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-reactor-3.1:2.12.0-alpha")
 
   // ECS logback encoder
-  implementation("co.elastic.logging:logback-ecs-encoder:$ecsLoggingVersion")
+  implementation("co.elastic.logging:logback-ecs-encoder:${Deps.ecsLoggingVersion}")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("io.projectreactor:reactor-test")
@@ -55,7 +76,7 @@ dependencies {
 
 kotlin { compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict") } }
 
-tasks.create("applySemanticVersionPlugin") {
+tasks.register("applySemanticVersionPlugin") {
   dependsOn("prepareKotlinBuildScriptModel")
   apply(plugin = "com.dipien.semantic-version")
 }
