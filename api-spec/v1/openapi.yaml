@@ -160,7 +160,7 @@ paths:
             schema:
               type: object
               properties:
-                token:
+                authToken:
                   type: string
       responses:
         '200':
