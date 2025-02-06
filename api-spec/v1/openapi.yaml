@@ -53,12 +53,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemJson'
   /auth/users:
-    get:
+    post:
       tags:
         - sample
       operationId: authUsers
       summary: Get user information
       description: 'GET user information'
+      requestBody:
+        $ref: '#/components/requestBodies/AuthToken'
       responses:
         '200':
           description: Successful retrieval of user information
@@ -91,6 +93,8 @@ paths:
       operationId: authLogout
       summary: Logout endpoint
       description: 'POST logout endpoint'
+      requestBody:
+        $ref: '#/components/requestBodies/AuthToken'
       responses:
         '204':
           description: Successful logout
@@ -112,7 +116,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemJson'
-  /auth/auth:
+  /auth/token:
     post:
       tags:
         - sample
@@ -255,4 +259,13 @@ components:
             type: object
             properties:
               authCode:
+                type: string
+    AuthToken:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              authToken:
                 type: string
