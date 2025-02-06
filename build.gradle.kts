@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 plugins {
   kotlin("jvm") version "2.1.0"
   kotlin("plugin.spring") version "2.1.0"
@@ -101,6 +103,40 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
     trimTrailingWhitespace()
     endWithNewline()
   }
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v1") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v1/openapi.yaml")
+  outputDir.set("$buildDir/generated")
+  apiPackage.set("it.pagopa.generated.checkout.authservice")
+  modelPackage.set("it.pagopa.generated.checkout.authservice")
+  generateApiTests.set(false)
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
+tasks.withType<KotlinCompile> {
+  dependsOn("auth-v1")
+  kotlinOptions.jvmTarget = "21"
 }
 
 tasks.test { useJUnitPlatform() }
