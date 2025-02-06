@@ -158,14 +158,7 @@ paths:
       summary: Validate a token
       description: 'POST endpoint to validate a token'
       requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                authToken:
-                  type: string
+        $ref: '#/components/requestBodies/AuthToken'
       responses:
         '200':
           description: Token is valid
