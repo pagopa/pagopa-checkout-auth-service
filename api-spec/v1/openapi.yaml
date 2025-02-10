@@ -57,7 +57,8 @@ paths:
   /auth/users:
     post:
       tags:
-        - sample
+        - authService
+
       operationId: authUsers
       summary: Get user information
       description: 'GET user information'
