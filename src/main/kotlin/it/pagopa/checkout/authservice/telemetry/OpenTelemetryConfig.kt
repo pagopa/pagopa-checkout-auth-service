@@ -26,9 +26,6 @@ class OpenTelemetryConfig {
      */
     @Bean
     fun tracer(openTelemetry: OpenTelemetry): Tracer {
-        return openTelemetry.getTracer(
-            "checkout-auth-service",
-            "0.1.0"
-        )
+        return openTelemetry.getTracer("checkout-auth-service", "0.1.0")
     }
 }

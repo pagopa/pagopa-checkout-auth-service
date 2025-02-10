@@ -11,6 +11,7 @@ plugins {
   id("com.diffplug.spotless") version "7.0.2"
   id("com.dipien.semantic-version") version "2.0.0" apply false
   id("org.sonarqube") version "6.0.1.5171"
+  jacoco
 }
 
 group = "it.pagopa.checkout.authservice"
@@ -139,7 +140,25 @@ tasks.withType<KotlinCompile> {
   kotlinOptions.jvmTarget = "21"
 }
 
-tasks.test { useJUnitPlatform() }
+
+tasks.test {
+  useJUnitPlatform()
+  finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
+}
+
+tasks.jacocoTestReport {
+  dependsOn(tasks.test) // tests are required to run before generating the report
+  classDirectories.setFrom(
+    files(
+      classDirectories.files.map {
+        fileTree(it).matching {
+          exclude("it/pagopa/checkout/authservice/PagopaCheckoutAuthserviceApplicationKt.class")
+        }
+      }
+    )
+  )
+  reports { xml.required.set(true) }
+}
 
 tasks.processResources { filesMatching("application.properties") { expand(project.properties) } }
 
