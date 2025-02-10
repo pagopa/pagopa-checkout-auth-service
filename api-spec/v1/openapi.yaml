@@ -18,7 +18,6 @@ paths:
     get:
       tags:
         - authService
-
       operationId: authLogin
       summary: Login endpoint
       description: 'GET login endpoint with reCAPTCHA code'
@@ -55,15 +54,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemJson'
   /auth/users:
-    post:
+    get:
       tags:
         - authService
 
       operationId: authUsers
       summary: Get user information
       description: 'GET user information'
-      requestBody:
-        $ref: '#/components/requestBodies/AuthToken'
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Successful retrieval of user information
@@ -90,15 +89,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemJson'
   /auth/logout:
-    post:
+    get:
       tags:
         - authService
-
       operationId: authLogout
       summary: Logout endpoint
       description: 'POST logout endpoint'
-      requestBody:
-        $ref: '#/components/requestBodies/AuthToken'
+      security:
+        - bearerAuth: []
       responses:
         '204':
           description: Successful logout
@@ -124,7 +122,6 @@ paths:
     post:
       tags:
         - authService
-
       operationId: authenticateWithAuthToken
       summary: Authentication endpoint
       description: 'POST authentication endpoint with auth code'
@@ -156,14 +153,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemJson'
   /auth/validate:
-    post:
+    get:
       tags:
         - authService
       operationId: validateToken
       summary: Validate a token
       description: 'POST endpoint to validate a token'
-      requestBody:
-        $ref: '#/components/requestBodies/AuthToken'
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Token is valid
@@ -180,7 +177,14 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemJson'
 
+
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     LoginResponse:
       type: object
@@ -257,13 +261,4 @@ components:
             type: object
             properties:
               authCode:
-                type: string
-    AuthToken:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              authToken:
                 type: string
