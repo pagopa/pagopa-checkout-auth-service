@@ -17,7 +17,8 @@ paths:
   /auth/login:
     get:
       tags:
-        - sample
+        - authService
+
       operationId: authLogin
       summary: Login endpoint
       description: 'GET login endpoint with reCAPTCHA code'
