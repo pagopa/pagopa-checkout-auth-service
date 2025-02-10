@@ -94,7 +94,7 @@ paths:
         - authService
       operationId: authLogout
       summary: Logout endpoint
-      description: 'POST logout endpoint'
+      description: 'GET logout endpoint'
       security:
         - bearerAuth: []
       responses:
@@ -158,7 +158,7 @@ paths:
         - authService
       operationId: validateToken
       summary: Validate a token
-      description: 'POST endpoint to validate a token'
+      description: 'GET endpoint to validate a token'
       security:
         - bearerAuth: []
       responses:
