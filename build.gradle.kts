@@ -140,7 +140,6 @@ tasks.withType<KotlinCompile> {
   kotlinOptions.jvmTarget = "21"
 }
 
-
 tasks.test {
   useJUnitPlatform()
   finalizedBy(tasks.jacocoTestReport) // report is always generated after tests run
