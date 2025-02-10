@@ -92,7 +92,8 @@ paths:
   /auth/logout:
     post:
       tags:
-        - sample
+        - authService
+
       operationId: authLogout
       summary: Logout endpoint
       description: 'POST logout endpoint'
