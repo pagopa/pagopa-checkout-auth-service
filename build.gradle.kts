@@ -115,49 +115,61 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
   }
 }
 
-val commonOpenApiConfig =
-  mapOf(
-    "swaggerAnnotations" to "false",
-    "openApiNullable" to "true",
-    "interfaceOnly" to "true",
-    "hideGenerationTimestamp" to "true",
-    "skipDefaultInterface" to "false",
-    "useSwaggerUI" to "false",
-    "reactive" to "true",
-    "useSpringBoot3" to "true",
-    "oas3" to "true",
-    "generateSupportingFiles" to "true",
-    "enumPropertyNaming" to "MACRO_CASE",
-  )
-
 tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v1") {
   generatorName.set("spring")
   inputSpec.set("$rootDir/api-spec/v1/openapi.yaml")
   outputDir.set("$buildDir/generated")
-  apiPackage.set("it.pagopa.generated.checkout.authservice")
-  modelPackage.set("it.pagopa.generated.checkout.authservice")
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v1.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v1.model")
   generateApiDocumentation.set(false)
   generateApiTests.set(false)
   generateModelTests.set(false)
   library.set("spring-boot")
   modelNameSuffix.set("Dto")
-  configOptions.set(commonOpenApiConfig)
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "false",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
 }
 
 tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("oneidentity") {
   description = "Generates the OneIdentity classes for this project."
-  group = JavaBasePlugin.DOCUMENTATION_GROUP
-  generatorName.set("spring")
+  group = "openapi-generation"
+  generatorName.set("java")
   inputSpec.set("$rootDir/api-spec/oneidentity/openapi.yaml")
   outputDir.set("$buildDir/generated-oneidentity")
-  apiPackage.set("it.pagopa.generated.checkout.oneidentity")
-  modelPackage.set("it.pagopa.generated.checkout.oneidentity")
+  apiPackage.set("it.pagopa.generated.checkout.oneidentity.api")
+  modelPackage.set("it.pagopa.generated.checkout.oneidentity.model")
   generateApiDocumentation.set(false)
   generateApiTests.set(false)
   generateModelTests.set(false)
-  library.set("spring-boot")
+  library.set("webclient")
   modelNameSuffix.set("Dto")
-  configOptions.set(commonOpenApiConfig)
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "false",
+    )
+  )
 }
 
 tasks.withType<KotlinCompile> {
