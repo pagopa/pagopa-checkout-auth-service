@@ -122,7 +122,7 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("aut
     mapOf(
       "swaggerAnnotations" to "false",
       "openApiNullable" to "true",
-      "interfaceOnly" to "true",
+      "interfaceOnly" to "false",
       "hideGenerationTimestamp" to "true",
       "skipDefaultInterface" to "true",
       "useSwaggerUI" to "false",
