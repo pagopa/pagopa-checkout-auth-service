@@ -158,7 +158,6 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("one
   library.set("spring-boot")
   modelNameSuffix.set("Dto")
   configOptions.set(commonOpenApiConfig)
-  validateSpec.set(false) // TEMP, TO REMOVE
 }
 
 tasks.withType<KotlinCompile> {
