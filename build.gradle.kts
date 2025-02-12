@@ -79,7 +79,7 @@ dependencies {
 
 kotlin { compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict") } }
 
-tasks.register("applySemanticVersionPlugin") {
+tasks.create("applySemanticVersionPlugin") {
   dependsOn("prepareKotlinBuildScriptModel")
   apply(plugin = "com.dipien.semantic-version")
 }
