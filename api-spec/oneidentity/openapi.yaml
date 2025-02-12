@@ -24,7 +24,7 @@ paths:
       tags:
         - Authorization Server APIs
       description: Initializes an OAuth 2.0 flow using a response_type. See RFC 6749 (https://tools.ietf.org/html/rfc6749) for more details. Authorization Servers MUST support the use of the HTTP GET and POST methods defined in RFC 7231 [RFC7231] at the Authorization Endpoint. Clients MAY use the HTTP GET or POST methods to send the Authorization Request to the Authorization Server. If using the HTTP GET method, the request parameters are serialized using URI Query String Serialization, per Section 13.1. If using the HTTP POST method, the request parameters are serialized using Form Serialization, per Section 13.2.
-      operationId: Get_request_authorization
+      operationId: getRequestAuthorization
       parameters:
         - name: idp
           in: query
@@ -105,7 +105,7 @@ paths:
       tags:
         - Token Server APIs
       description: 'Request access_token or refresh_token using OAuth 2.0 grant_type: password authorization_code refresh_token client_credentials urn:ietf:params:oauth:grant-type:jwt-bearer urn:ietf:params:oauth:grant-type:saml2-bearer. See RFC 6749 for more details.'
-      operationId: Create_request_token
+      operationId: createRequestToken
       requestBody:
         content:
           application/x-www-form-urlencoded:
@@ -156,7 +156,7 @@ paths:
     get:
       tags:
         - Authorization Server APIs
-      operationId: Get_jwk_set_
+      operationId: getJwkSet
       description: This endpoint implements the JWKS_URI as specified at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
       responses:
         "200":
@@ -190,7 +190,7 @@ paths:
     get:
       tags:
         - Authorization Server APIs
-      operationId: Get_OpenIDDiscovery
+      operationId: getOpenIdDiscovery
       responses:
         "200":
           description: OpenID Discovery Configuration
