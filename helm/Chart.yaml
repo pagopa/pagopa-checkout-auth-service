@@ -1,0 +1,10 @@
+apiVersion: v2
+type: application
+version: 0.1.2
+appVersion: 0.1.2
+name: pagopa-checkout-auth-service
+description: Microservice that provides the auth flow related to the checkout process
+dependencies:
+  - name: microservice-chart
+    repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
+    version: 7.3.1

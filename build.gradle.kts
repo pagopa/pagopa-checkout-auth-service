@@ -16,7 +16,7 @@ plugins {
 
 group = "it.pagopa.checkout.authservice"
 
-version = "0.1.0"
+version = "0.1.2"
 
 description = "pagopa-checkout-auth-service"
 
@@ -79,7 +79,7 @@ dependencies {
 
 kotlin { compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict") } }
 
-tasks.register("applySemanticVersionPlugin") {
+tasks.create("applySemanticVersionPlugin") {
   dependsOn("prepareKotlinBuildScriptModel")
   apply(plugin = "com.dipien.semantic-version")
 }

@@ -1,0 +1,118 @@
+microservice-chart:
+  namespace: "checkout"
+  nameOverride: ""
+  fullnameOverride: "pagopa-checkout-auth-service"
+  image:
+    repository: pagopapcommonacr.azurecr.io/pagopacheckoutauthservice
+    tag: "0.1.2"
+    pullPolicy: Always
+  livenessProbe:
+    handlerType: httpGet
+    httpGet:
+      path: /actuator/health/liveness
+      port: 8080
+    initialDelaySeconds: 30
+    failureThreshold: 6
+    periodSeconds: 10
+  readinessProbe:
+    handlerType: httpGet
+    httpGet:
+      path: /actuator/health/readiness
+      port: 8080
+    initialDelaySeconds: 30
+    failureThreshold: 6
+    periodSeconds: 10
+  deployment:
+    create: true
+    replicas: 5
+  service:
+    create: true
+    type: ClusterIP
+    ports:
+      - 8080
+  ingress:
+    create: true
+    host: "weuprod.checkout.internal.platform.pagopa.it"
+    path: /pagopa-checkout-auth-service/(.*)
+    servicePort: 8080
+  serviceAccount:
+    name: "checkout-workload-identity"
+  podAnnotations: {}
+  podSecurityContext:
+    seccompProfile:
+      type: RuntimeDefault
+  securityContext:
+    readOnlyRootFilesystem: true
+    allowPrivilegeEscalation: false
+    capabilities:
+      drop:
+        - all
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "150m"
+    limits:
+      memory: "256Mi"
+      cpu: "150m"
+  autoscaling:
+    enable: true
+    minReplica: 3
+    maxReplica: 10
+    pollingInterval: 10 # seconds
+    cooldownPeriod: 50 # seconds
+    triggers:
+      - type: cpu
+        metadata:
+          # Required
+          type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
+          value: "75"
+    advanced:
+      horizontalPodAutoscalerConfig:
+        behavior:
+          scaleUp:
+            stabilizationWindowSeconds: 60
+  strategy:
+    type: "RollingUpdate"
+    rollingUpdate:
+      maxSurge: 2
+      maxUnavailable: 0
+  envConfig:
+    DEFAULT_LOGGING_LEVEL: "info"
+    APP_LOGGING_LEVEL: "info"
+    WEB_LOGGING_LEVEL: "info"
+    ECS_SERVICE_NAME: "pagopa-checkout-auth-service"
+    ECS_SERVICE_ENVIRONMENT: "prod"
+    OTEL_RESOURCE_ATTRIBUTES: "service.name=pagopa-checkout-auth-service,deployment.environment=prod"
+    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
+    OTEL_LOGS_EXPORTER: none
+    OTEL_TRACES_SAMPLER: "always_on"
+  envSecret:
+    OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
+  keyvault:
+    name: "pagopa-p-checkout-kv"
+    tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
+  nodeSelector: {}
+  tolerations: []
+  affinity:
+    nodeAffinity:
+      requiredDuringSchedulingIgnoredDuringExecution:
+        nodeSelectorTerms:
+          - matchExpressions:
+              - key: node_type
+                operator: In
+                values:
+                  - user
+    podAntiAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app.kubernetes.io/instance: pagopacheckoutauthservice
+            namespaces: ["checkout"]
+            topologyKey: topology.kubernetes.io/zone
+  secretProviderClass:
+    secretProviderClass:
+      create: false
+  azure:
+    workloadIdentityClientId: "e643e9cf-4622-4a4e-a061-b02418154b2b" # TODO: Modify
