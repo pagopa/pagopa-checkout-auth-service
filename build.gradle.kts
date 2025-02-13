@@ -123,7 +123,7 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("aut
       "openApiNullable" to "true",
       "interfaceOnly" to "true",
       "hideGenerationTimestamp" to "true",
-      "skipDefaultInterface" to "false",
+      "skipDefaultInterface" to "true",
       "useSwaggerUI" to "false",
       "reactive" to "true",
       "useSpringBoot3" to "true",
