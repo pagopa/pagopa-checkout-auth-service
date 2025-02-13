@@ -20,16 +20,7 @@ version = "0.1.0"
 
 description = "pagopa-checkout-auth-service"
 
-sourceSets {
-  main {
-    java {
-      srcDirs(
-        "${layout.buildDirectory}/generated/src/main/java",
-        "${layout.buildDirectory}/generated-oneidentity/src/main/java",
-      )
-    }
-  }
-}
+sourceSets { main { java { srcDirs("${layout.buildDirectory}/generated/src/main/java") } } }
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
@@ -148,7 +139,7 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("one
   group = "openapi-generation"
   generatorName.set("java")
   inputSpec.set("$rootDir/api-spec/oneidentity/openapi.yaml")
-  outputDir.set("$buildDir/generated-oneidentity")
+  outputDir.set("$buildDir/generated")
   apiPackage.set("it.pagopa.generated.checkout.oneidentity.api")
   modelPackage.set("it.pagopa.generated.checkout.oneidentity.model")
   generateApiDocumentation.set(false)
