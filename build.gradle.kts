@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
@@ -79,10 +80,9 @@ dependencies {
 
 kotlin { compilerOptions { freeCompilerArgs.addAll("-Xjsr305=strict") } }
 
-tasks.create("applySemanticVersionPlugin") {
-  dependsOn("prepareKotlinBuildScriptModel")
-  apply(plugin = "com.dipien.semantic-version")
-}
+tasks
+  .register("applySemanticVersionPlugin") { dependsOn("prepareKotlinBuildScriptModel") }
+  .apply { apply(plugin = "com.dipien.semantic-version") }
 
 configure<com.diffplug.gradle.spotless.SpotlessExtension> {
   kotlin {
@@ -109,7 +109,7 @@ configure<com.diffplug.gradle.spotless.SpotlessExtension> {
 tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v1") {
   generatorName.set("spring")
   inputSpec.set("$rootDir/api-spec/v1/openapi.yaml")
-  outputDir.set("$buildDir/generated")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
   apiPackage.set("it.pagopa.generated.checkout.authservice.v1.api")
   modelPackage.set("it.pagopa.generated.checkout.authservice.v1.model")
   generateApiDocumentation.set(false)
@@ -139,7 +139,7 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("one
   group = "openapi-generation"
   generatorName.set("java")
   inputSpec.set("$rootDir/api-spec/oneidentity/openapi.yaml")
-  outputDir.set("$buildDir/generated")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
   apiPackage.set("it.pagopa.generated.checkout.oneidentity.api")
   modelPackage.set("it.pagopa.generated.checkout.oneidentity.model")
   generateApiDocumentation.set(false)
@@ -165,7 +165,7 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("one
 
 tasks.withType<KotlinCompile> {
   dependsOn("auth-v1", "oneidentity")
-  kotlinOptions.jvmTarget = "21"
+  compilerOptions { jvmTarget.set(JvmTarget.JVM_21) }
 }
 
 tasks.test {
