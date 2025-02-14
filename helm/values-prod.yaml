@@ -115,4 +115,4 @@ microservice-chart:
     secretProviderClass:
       create: false
   azure:
-    workloadIdentityClientId: "e643e9cf-4622-4a4e-a061-b02418154b2b" # TODO: Modify
+    workloadIdentityClientId: "603a1c15-c6da-4eea-a755-d78493b8d7b4"
