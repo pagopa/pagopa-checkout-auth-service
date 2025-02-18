@@ -21,7 +21,9 @@ version = "0.3.1"
 
 description = "pagopa-checkout-auth-service"
 
-sourceSets { main { java { srcDirs("${layout.buildDirectory}/generated/src/main/java") } } }
+sourceSets {
+  main { java.srcDirs("src/main/java", layout.buildDirectory.dir("generated/src/main/java")) }
+}
 
 java { toolchain { languageVersion = JavaLanguageVersion.of(21) } }
 
@@ -159,6 +161,7 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("one
       "useSpringBoot3" to "true",
       "oas3" to "true",
       "generateSupportingFiles" to "false",
+      "useJakartaEe" to "true",
     )
   )
 }

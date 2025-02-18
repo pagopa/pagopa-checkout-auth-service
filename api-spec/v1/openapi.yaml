@@ -23,13 +23,6 @@ paths:
       operationId: authLogin
       summary: Login endpoint
       description: 'GET login endpoint with reCAPTCHA code'
-      parameters:
-        - in: query
-          name: recaptcha
-          required: true
-          description: reCAPTCHA code
-          schema:
-            type: string
       responses:
         '200':
           description: Successful login
