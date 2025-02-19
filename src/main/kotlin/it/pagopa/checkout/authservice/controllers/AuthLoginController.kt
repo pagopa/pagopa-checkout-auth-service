@@ -7,6 +7,7 @@ import it.pagopa.generated.checkout.authservice.v1.model.AuthenticateWithAuthTok
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ServerWebExchange
@@ -34,7 +35,7 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
      *   (status code 500)
      */
     override fun authLogout(exchange: ServerWebExchange?): Mono<ResponseEntity<Void>> {
-        TODO("Not yet implemented")
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
     }
 
     /**
@@ -47,7 +48,7 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
     override fun authUsers(
         exchange: ServerWebExchange?
     ): Mono<ResponseEntity<UserInfoResponseDto>> {
-        TODO("Not yet implemented")
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
     }
 
     /**
@@ -62,7 +63,7 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
         authenticateWithAuthTokenRequestDto: Mono<AuthenticateWithAuthTokenRequestDto>?,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<AuthResponseDto>> {
-        TODO("Not yet implemented")
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
     }
 
     /**
@@ -72,6 +73,6 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
      *   (status code 401) or Internal server error (status code 500)
      */
     override fun validateToken(exchange: ServerWebExchange?): Mono<ResponseEntity<Void>> {
-        TODO("Not yet implemented")
+        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
     }
 }
