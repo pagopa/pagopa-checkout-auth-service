@@ -75,8 +75,11 @@ microservice-chart:
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
+    ONEIDENTITY_BASE_URL: "https://mock-u.example.com"                   # TODO: adjust for uat environment
+    ONEIDENTITY_REDIRECT_URI: "https://mock-u.example.com/client/login"  # TODO: adjust for uat environment
   envSecret:
     OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
+    ONEIDENTITY_CLIENT_ID: client-id
   keyvault:
     name: "pagopa-u-checkout-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
