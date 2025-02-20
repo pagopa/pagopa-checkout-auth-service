@@ -22,13 +22,15 @@ class AuthLoginControllerTest {
 
     @Test
     fun `authLogin should return successful response when service returns login URL`() {
-
         val loginResponse = LoginResponseDto()
         loginResponse.urlRedirect = "https://mock.example.com/login?param=value"
 
-        whenever(authLoginService.login()).thenReturn(Mono.just(loginResponse))
+        val xForwardedFor = "127.0.0.1"
+        val xNoticeNumber = null
 
-        val result = authLoginController.authLogin(null)
+        whenever(authLoginService.login("N/A")).thenReturn(Mono.just(loginResponse))
+
+        val result = authLoginController.authLogin(xForwardedFor, xNoticeNumber, null)
 
         StepVerifier.create(result)
             .expectNextMatches { response ->
@@ -36,6 +38,33 @@ class AuthLoginControllerTest {
                     response.body?.urlRedirect == "https://mock.example.com/login?param=value"
             }
             .verifyComplete()
+    }
+
+    @Test
+    fun `authLogin should handle service errors with null notice number`() {
+        // Setup
+        val xForwardedFor = "127.0.0.1"
+        val xNoticeNumber = null
+        val expectedError = RuntimeException("Test error message")
+
+        whenever(authLoginService.login("N/A")).thenReturn(Mono.error(expectedError))
+
+        StepVerifier.create(authLoginController.authLogin(xForwardedFor, xNoticeNumber, null))
+            .expectErrorMatches { error -> error.message == "Test error message" }
+            .verify()
+    }
+
+    @Test
+    fun `authLogin should handle service errors with provided notice number`() {
+        val xForwardedFor = "127.0.0.1"
+        val xNoticeNumber = "mock-notice-number"
+        val expectedError = RuntimeException("Test error message")
+
+        whenever(authLoginService.login(xNoticeNumber)).thenReturn(Mono.error(expectedError))
+
+        StepVerifier.create(authLoginController.authLogin(xForwardedFor, xNoticeNumber, null))
+            .expectErrorMatches { error -> error.message == "Test error message" }
+            .verify()
     }
 
     @Test

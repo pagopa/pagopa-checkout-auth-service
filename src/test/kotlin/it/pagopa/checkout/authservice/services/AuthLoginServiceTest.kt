@@ -21,11 +21,11 @@ class AuthLoginServiceTest {
 
     @Test
     fun `login should return LoginResponseDto with redirect URL from OneIdentityClient`() {
-
         val expectedUrl = "https://mock.example.com/login?param=value"
+        val noticeNumber = "mock-notice-number"
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(expectedUrl)
 
-        val result = authLoginService.login()
+        val result = authLoginService.login(noticeNumber)
 
         StepVerifier.create(result)
             .assertNext { response -> assertEquals(expectedUrl, response.urlRedirect) }
@@ -34,11 +34,11 @@ class AuthLoginServiceTest {
 
     @Test
     fun `login should return Mono with properly constructed LoginResponseDto`() {
-
         val expectedUrl = "https://mock.example.com/login?param=value"
+        val noticeNumber = "mock-notice-number"
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(expectedUrl)
 
-        val result = authLoginService.login()
+        val result = authLoginService.login(noticeNumber)
 
         StepVerifier.create(result)
             .assertNext { response ->
@@ -46,5 +46,19 @@ class AuthLoginServiceTest {
                 assertEquals(expectedUrl, response.urlRedirect)
             }
             .verifyComplete()
+    }
+
+    @Test
+    fun `login should handle OneIdentityClient errors properly`() {
+        val noticeNumber = "mock-notice-number"
+        val expectedError = RuntimeException("Failed to build URL")
+
+        whenever(oneIdentityClient.buildLoginUrl()).thenThrow(expectedError)
+
+        StepVerifier.create(authLoginService.login(noticeNumber))
+            .expectErrorMatches { error ->
+                error == expectedError && error.message == "Failed to build URL"
+            }
+            .verify()
     }
 }

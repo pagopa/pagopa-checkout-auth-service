@@ -23,6 +23,19 @@ paths:
       operationId: authLogin
       summary: Login endpoint
       description: 'GET login endpoint with reCAPTCHA code'
+      parameters:
+        - in: header
+          name: X-Forwarded-For
+          required: true
+          description: Client Source IP Address
+          schema:
+            type: string
+        - in: header
+          name: X-Notice-Number
+          required: false
+          description: Optional notice number for tracking login attempts
+          schema:
+            type: string
       responses:
         '200':
           description: Successful login

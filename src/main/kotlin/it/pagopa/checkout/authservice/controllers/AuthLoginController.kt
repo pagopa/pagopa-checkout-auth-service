@@ -6,6 +6,7 @@ import it.pagopa.generated.checkout.authservice.v1.model.AuthResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.AuthenticateWithAuthTokenRequestDto
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -15,16 +16,44 @@ import reactor.core.publisher.Mono
 
 @RestController
 class AuthLoginController(@Autowired private val authLoginService: AuthLoginService) : AuthApi {
+    private val logger = LoggerFactory.getLogger(this.javaClass)
+
     /**
      * GET /auth/login : Login endpoint GET login endpoint
      *
      * @return Successful login (status code 200) or Formally invalid input (status code 400) or
      *   User not found (status code 404) or Internal server error (status code 500)
      */
-    override fun authLogin(exchange: ServerWebExchange?): Mono<ResponseEntity<LoginResponseDto>> {
-        return authLoginService.login().map { loginResponse: LoginResponseDto ->
-            ResponseEntity.ok(loginResponse)
-        }
+    override fun authLogin(
+        xForwardedFor: String,
+        xNoticeNumber: String?,
+        exchange: ServerWebExchange?,
+    ): Mono<ResponseEntity<LoginResponseDto>> {
+        logger.info(
+            "Received login request from IP: [{}] related to noticeNumber: [{}]",
+            xForwardedFor,
+            xNoticeNumber ?: "N/A",
+        )
+
+        return authLoginService
+            .login(xNoticeNumber ?: "N/A")
+            .map { loginResponse: LoginResponseDto ->
+                logger.debug(
+                    "Response ready related to noticeNumber: [{}] from IP [{}], redirecting to: [{}]",
+                    xNoticeNumber,
+                    xForwardedFor,
+                    loginResponse.urlRedirect,
+                )
+                ResponseEntity.ok(loginResponse)
+            }
+            .doOnError { error ->
+                logger.error(
+                    "Request failed related to noticeNumber: [{}] from IP: [{}] with error: {}",
+                    xNoticeNumber,
+                    xForwardedFor,
+                    error.message,
+                )
+            }
     }
 
     /**
