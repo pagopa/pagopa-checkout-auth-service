@@ -10,7 +10,14 @@ This service leverages Kotlin's native compilation to achieve optimal performanc
 - Spring Boot (native)
 
 ### Environment variables
--- TODO --
+
+These are all environment variables needed by the application:
+
+| Variable name            | Description                                                                                              | type   | default |
+|--------------------------|----------------------------------------------------------------------------------------------------------|--------|---------|
+| ONEIDENTITY_BASE_URL     | One Identity base URL                                                                                    | string |         |
+| ONEIDENTITY_CLIENT_ID    | This is the 'client_id' of the requesting client, provided by One Identity after registering the service | string |         |
+| ONEIDENTITY_REDIRECT_URI | The 'redirect_uri' that was registered for this client by One Identity                                   | string |         |
 
 An example configuration of these environment variables is in the `.env.example` file.
 
