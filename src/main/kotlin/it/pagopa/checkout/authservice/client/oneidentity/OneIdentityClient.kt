@@ -5,6 +5,7 @@ import java.nio.charset.StandardCharsets
 import java.util.*
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
+import org.springframework.web.util.UriComponentsBuilder
 
 @Component
 class OneIdentityClient(
@@ -24,15 +25,15 @@ class OneIdentityClient(
 
         val encodedUrl = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString())
 
-        return "$oneIdentityBaseUrl/login?" +
-            listOf(
-                    "response_type=code",
-                    "scope=openid",
-                    "client_id=$clientId",
-                    "state=$state",
-                    "nonce=$nonce",
-                    "redirect_uri=$encodedUrl",
-                )
-                .joinToString("&")
+        return UriComponentsBuilder.fromUriString(oneIdentityBaseUrl)
+            .path("/login")
+            .queryParam("response_type", "code")
+            .queryParam("scope", "openid")
+            .queryParam("client_id", clientId)
+            .queryParam("state", state)
+            .queryParam("nonce", nonce)
+            .queryParam("redirect_uri", encodedUrl)
+            .build()
+            .toUriString()
     }
 }
