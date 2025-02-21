@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 class OneIdentityClient(
     @Value("\${oneidentity.base-url}") private val oneIdentityBaseUrl: String,
     @Value("\${oneidentity.redirect-uri}") private val redirectUri: String,
-    @Value("\${openid.client-id}") private val clientId: String,
+    @Value("\${oneidentity.client-id}") private val clientId: String,
 ) {
     fun buildLoginUrl(): String {
 

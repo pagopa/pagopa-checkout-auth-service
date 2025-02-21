@@ -13,7 +13,7 @@ class OneIdentityClientTest {
 
     private val baseUrl = "https://mock.example.com"
     private val redirectUri = "https://mock.example.com/client/login"
-    private val clientId = "openid-client-id"
+    private val clientId = "oneidentity-client-id"
 
     @BeforeEach
     fun setup() {
