@@ -26,21 +26,21 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
      */
     override fun authLogin(
         xForwardedFor: String,
-        xNoticeNumber: String?,
+        xRptId: String?,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<LoginResponseDto>> {
         logger.info(
-            "Received login request from IP: [{}] related to noticeNumber: [{}]",
+            "Received login request from IP: [{}] related to RPTID: [{}]",
             xForwardedFor,
-            xNoticeNumber ?: "N/A",
+            xRptId ?: "N/A",
         )
 
         return authLoginService
-            .login(xNoticeNumber ?: "N/A")
+            .login(xRptId ?: "N/A")
             .map { loginResponse: LoginResponseDto ->
                 logger.debug(
-                    "Response ready related to noticeNumber: [{}] from IP [{}], redirecting to: [{}]",
-                    xNoticeNumber,
+                    "Response ready related to RPTID: [{}] from IP [{}], redirecting to: [{}]",
+                    xRptId,
                     xForwardedFor,
                     loginResponse.urlRedirect,
                 )
@@ -48,8 +48,8 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
             }
             .doOnError { error ->
                 logger.error(
-                    "Request failed related to noticeNumber: [{}] from IP: [{}] with error: {}",
-                    xNoticeNumber,
+                    "Request failed related to RPTID: [{}] from IP: [{}] with error: {}",
+                    xRptId,
                     xForwardedFor,
                     error.message,
                 )

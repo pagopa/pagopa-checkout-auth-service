@@ -10,22 +10,19 @@ import reactor.core.publisher.Mono
 class AuthLoginService(private val oneIdentityClient: OneIdentityClient) {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
-    fun login(noticeNumber: String): Mono<LoginResponseDto> {
-        logger.info("Starting login process related to noticeNumber: [{}]", noticeNumber)
+    fun login(rptId: String): Mono<LoginResponseDto> {
+        logger.info("Starting login process related to RPTID: [{}]", rptId)
 
         return try {
             val redirectUrl = oneIdentityClient.buildLoginUrl()
-            logger.debug("Login URL successfully built related to noticeNumber: [{}]", noticeNumber)
+            logger.debug("Login URL successfully built related to RPTID: [{}]", rptId)
             Mono.just(LoginResponseDto().urlRedirect(redirectUrl)).doOnSuccess {
-                logger.info(
-                    "Login process related to noticeNumber: [{}] completed successfully",
-                    noticeNumber,
-                )
+                logger.info("Login process related to RPTID: [{}] completed successfully", rptId)
             }
         } catch (e: Exception) {
             logger.error(
-                "Error building login URL for noticeNumber: [{}] with error: {}",
-                noticeNumber,
+                "Error building login URL for RPTID: [{}] with error: {}",
+                rptId,
                 e.message,
             )
             Mono.error(e)

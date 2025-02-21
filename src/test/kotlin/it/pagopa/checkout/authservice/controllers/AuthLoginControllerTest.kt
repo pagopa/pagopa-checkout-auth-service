@@ -26,11 +26,11 @@ class AuthLoginControllerTest {
         loginResponse.urlRedirect = "https://mock.example.com/login?param=value"
 
         val xForwardedFor = "127.0.0.1"
-        val xNoticeNumber = null
+        val xRptId = null
 
         whenever(authLoginService.login("N/A")).thenReturn(Mono.just(loginResponse))
 
-        val result = authLoginController.authLogin(xForwardedFor, xNoticeNumber, null)
+        val result = authLoginController.authLogin(xForwardedFor, xRptId, null)
 
         StepVerifier.create(result)
             .expectNextMatches { response ->
@@ -41,28 +41,28 @@ class AuthLoginControllerTest {
     }
 
     @Test
-    fun `authLogin should handle service errors with null notice number`() {
+    fun `authLogin should handle service errors with null rptid`() {
         // Setup
         val xForwardedFor = "127.0.0.1"
-        val xNoticeNumber = null
+        val xRptId = null
         val expectedError = RuntimeException("Test error message")
 
         whenever(authLoginService.login("N/A")).thenReturn(Mono.error(expectedError))
 
-        StepVerifier.create(authLoginController.authLogin(xForwardedFor, xNoticeNumber, null))
+        StepVerifier.create(authLoginController.authLogin(xForwardedFor, xRptId, null))
             .expectErrorMatches { error -> error.message == "Test error message" }
             .verify()
     }
 
     @Test
-    fun `authLogin should handle service errors with provided notice number`() {
+    fun `authLogin should handle service errors with provided rptid`() {
         val xForwardedFor = "127.0.0.1"
-        val xNoticeNumber = "mock-notice-number"
+        val xRptId = "mock-rptid"
         val expectedError = RuntimeException("Test error message")
 
-        whenever(authLoginService.login(xNoticeNumber)).thenReturn(Mono.error(expectedError))
+        whenever(authLoginService.login(xRptId)).thenReturn(Mono.error(expectedError))
 
-        StepVerifier.create(authLoginController.authLogin(xForwardedFor, xNoticeNumber, null))
+        StepVerifier.create(authLoginController.authLogin(xForwardedFor, xRptId, null))
             .expectErrorMatches { error -> error.message == "Test error message" }
             .verify()
     }
