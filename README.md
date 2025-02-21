@@ -16,8 +16,8 @@ These are all environment variables needed by the application:
 | Variable name            | Description                                                                                              | type   | default |
 |--------------------------|----------------------------------------------------------------------------------------------------------|--------|---------|
 | ONEIDENTITY_BASE_URL     | One Identity base URL                                                                                    | string |         |
-| ONEIDENTITY_CLIENT_ID    | This is the 'client_id' of the requesting client, provided by One Identity after registering the service | string |         |
 | ONEIDENTITY_REDIRECT_URI | The 'redirect_uri' that was registered for this client by One Identity                                   | string |         |
+| OPENID_CLIENT_ID         | This is the 'client_id' of the requesting client, provided by One Identity after registering the service | string |         |
 
 An example configuration of these environment variables is in the `.env.example` file.
 

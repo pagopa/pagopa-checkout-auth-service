@@ -12,12 +12,12 @@ class OneIdentityClientTest {
     private lateinit var oneIdentityClient: OneIdentityClient
 
     private val baseUrl = "https://mock.example.com"
-    private val clientId = "mock-client-id"
     private val redirectUri = "https://mock.example.com/client/login"
+    private val clientId = "openid-client-id"
 
     @BeforeEach
     fun setup() {
-        oneIdentityClient = OneIdentityClient(baseUrl, clientId, redirectUri)
+        oneIdentityClient = OneIdentityClient(baseUrl, redirectUri, clientId)
     }
 
     @Test

@@ -79,7 +79,7 @@ microservice-chart:
     ONEIDENTITY_REDIRECT_URI: "https://mock-u.example.com/client/login"  # TODO: adjust for uat environment
   envSecret:
     OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
-    ONEIDENTITY_CLIENT_ID: client-id
+    OPENID_CLIENT_ID: openid-client-id
   keyvault:
     name: "pagopa-u-checkout-kv"
     tenantId: "7788edaf-0346-4068-9d79-c868aed15b3d"
