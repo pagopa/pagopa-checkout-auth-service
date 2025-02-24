@@ -75,6 +75,9 @@ microservice-chart:
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
+    ONEIDENTITY_BASE_URL: "https://mock-d.example.com"                   # TODO: adjust for dev environment
+    ONEIDENTITY_REDIRECT_URI: "https://mock-d.example.com/client/login"  # TODO: adjust for dev environment
+    ONEIDENTITY_CLIENT_ID: "oneidentity-client-id"
   envSecret:
     OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
   keyvault:
