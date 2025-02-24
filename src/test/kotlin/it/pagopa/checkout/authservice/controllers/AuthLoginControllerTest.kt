@@ -77,7 +77,7 @@ class AuthLoginControllerTest {
             .expectNextMatches { response -> response.statusCode == HttpStatus.NOT_IMPLEMENTED }
             .verifyComplete()
 
-        StepVerifier.create(authLoginController.authenticateWithAuthToken(null, null))
+        StepVerifier.create(authLoginController.authenticateWithAuthToken(Mono.empty(), null))
             .expectNextMatches { response -> response.statusCode == HttpStatus.NOT_IMPLEMENTED }
             .verifyComplete()
 
