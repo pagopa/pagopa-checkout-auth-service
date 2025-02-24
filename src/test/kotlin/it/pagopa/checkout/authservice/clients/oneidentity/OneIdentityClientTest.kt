@@ -1,4 +1,4 @@
-package it.pagopa.checkout.authservice.client.oneidentity
+package it.pagopa.checkout.authservice.clients.oneidentity
 
 import it.pagopa.checkout.authservice.exception.OneIdentityClientException
 import java.net.URLDecoder

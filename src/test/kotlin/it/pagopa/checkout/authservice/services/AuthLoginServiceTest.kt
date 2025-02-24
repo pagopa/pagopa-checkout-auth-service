@@ -1,6 +1,6 @@
 package it.pagopa.checkout.authservice.services
 
-import it.pagopa.checkout.authservice.client.oneidentity.OneIdentityClient
+import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.exception.OneIdentityClientException
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import org.junit.jupiter.api.Test
