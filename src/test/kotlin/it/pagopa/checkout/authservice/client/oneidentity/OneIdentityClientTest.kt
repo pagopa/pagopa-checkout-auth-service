@@ -1,11 +1,13 @@
 package it.pagopa.checkout.authservice.client.oneidentity
 
+import it.pagopa.checkout.authservice.exception.OneIdentityClientException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import reactor.test.StepVerifier
 
@@ -92,5 +94,52 @@ class OneIdentityClientTest {
         } catch (e: IllegalArgumentException) {
             false
         }
+    }
+
+    @Test
+    fun `buildLoginUrl should throw OneIdentityClientException when configuration parameters are missing`() {
+        val clientWithBlankBaseUrl =
+            OneIdentityClient(
+                oneIdentityBaseUrl = "",
+                redirectUri = redirectUri,
+                clientId = clientId,
+            )
+
+        val exceptionBlankBaseUrl =
+            assertThrows<OneIdentityClientException> {
+                clientWithBlankBaseUrl.buildLoginUrl().block()
+            }
+        assertEquals(
+            "Required OneIdentity configuration parameters are missing",
+            exceptionBlankBaseUrl.message,
+        )
+
+        val clientWithBlankRedirectUri =
+            OneIdentityClient(oneIdentityBaseUrl = baseUrl, redirectUri = "", clientId = clientId)
+
+        val exceptionBlankRedirectUri =
+            assertThrows<OneIdentityClientException> {
+                clientWithBlankRedirectUri.buildLoginUrl().block()
+            }
+        assertEquals(
+            "Required OneIdentity configuration parameters are missing",
+            exceptionBlankRedirectUri.message,
+        )
+
+        val clientWithBlankClientId =
+            OneIdentityClient(
+                oneIdentityBaseUrl = baseUrl,
+                redirectUri = redirectUri,
+                clientId = "",
+            )
+
+        val exceptionBlankClientId =
+            assertThrows<OneIdentityClientException> {
+                clientWithBlankClientId.buildLoginUrl().block()
+            }
+        assertEquals(
+            "Required OneIdentity configuration parameters are missing",
+            exceptionBlankClientId.message,
+        )
     }
 }

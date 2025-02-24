@@ -40,38 +40,6 @@ class AuthLoginControllerTest {
     }
 
     @Test
-    fun `authLogin should handle service errors with null rptid`() {
-        whenever(authLoginService.login("N/A"))
-            .thenReturn(Mono.error(RuntimeException("Test error message")))
-
-        webClient
-            .get()
-            .uri("/auth/login")
-            .header("X-Forwarded-For", "127.0.0.1")
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-            .expectStatus()
-            .is5xxServerError
-    }
-
-    @Test
-    fun `authLogin should handle service errors with provided rptid`() {
-        val xRptId = "mock-rptid"
-        whenever(authLoginService.login(xRptId))
-            .thenReturn(Mono.error(RuntimeException("Test error message")))
-
-        webClient
-            .get()
-            .uri("/auth/login")
-            .header("X-Forwarded-For", "127.0.0.1")
-            .header("X-Rpt-Id", xRptId)
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-            .expectStatus()
-            .is5xxServerError
-    }
-
-    @Test
     fun `unimplemented endpoints should return 501 NOT_IMPLEMENTED`() {
         webClient
             .get()

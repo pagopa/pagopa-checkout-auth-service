@@ -1,5 +1,6 @@
 package it.pagopa.checkout.authservice.client.oneidentity
 
+import it.pagopa.checkout.authservice.exception.OneIdentityClientException
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -15,24 +16,35 @@ class OneIdentityClient(
     @Value("\${oneidentity.client-id}") private val clientId: String,
 ) {
     fun buildLoginUrl(): Mono<String> {
-        // Value opaque to the server, used by the client to track its session.
-        // It will be returned as received.
-        val state = UUID.randomUUID().toString()
-        // Represents a cryptographically strong random string that is used to prevent
-        // intercepted responses from being reused.
-        val nonce = UUID.randomUUID().toString()
-        val encodedUrl = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString())
-        return Mono.just(oneIdentityBaseUrl).map {
-            UriComponentsBuilder.fromUriString(it)
-                .path("/login")
-                .queryParam("response_type", "code")
-                .queryParam("scope", "openid")
-                .queryParam("client_id", clientId)
-                .queryParam("state", state)
-                .queryParam("nonce", nonce)
-                .queryParam("redirect_uri", encodedUrl)
-                .build()
-                .toUriString()
+        if (oneIdentityBaseUrl.isBlank() || redirectUri.isBlank() || clientId.isBlank()) {
+            throw OneIdentityClientException(
+                "Required OneIdentity configuration parameters are missing"
+            )
+        }
+
+        return try {
+            // Value opaque to the server, used by the client to track its session.
+            // It will be returned as received.
+            val state = UUID.randomUUID().toString()
+            // Represents a cryptographically strong random string that is used to prevent
+            // intercepted responses from being reused.
+            val nonce = UUID.randomUUID().toString()
+            val encodedUrl = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString())
+
+            Mono.just(oneIdentityBaseUrl).map {
+                UriComponentsBuilder.fromUriString(it)
+                    .path("/login")
+                    .queryParam("response_type", "code")
+                    .queryParam("scope", "openid")
+                    .queryParam("client_id", clientId)
+                    .queryParam("state", state)
+                    .queryParam("nonce", nonce)
+                    .queryParam("redirect_uri", encodedUrl)
+                    .build()
+                    .toUriString()
+            }
+        } catch (e: Exception) {
+            throw OneIdentityClientException("Failed to build login URL: ${e.message}")
         }
     }
 }

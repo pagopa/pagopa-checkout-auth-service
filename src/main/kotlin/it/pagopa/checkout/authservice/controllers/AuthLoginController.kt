@@ -1,5 +1,6 @@
 package it.pagopa.checkout.authservice.controllers
 
+import it.pagopa.checkout.authservice.exception.AuthenticationException
 import it.pagopa.checkout.authservice.services.AuthLoginService
 import it.pagopa.generated.checkout.authservice.v1.api.AuthApi
 import it.pagopa.generated.checkout.authservice.v1.model.AuthResponseDto
@@ -29,31 +30,25 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
         xRptId: String?,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<LoginResponseDto>> {
+        if (xForwardedFor.isBlank()) {
+            throw AuthenticationException("X-Forwarded-For (Source IP) header is required")
+        }
+
         logger.info(
             "Received login request from IP: [{}] related to RPTID: [{}]",
             xForwardedFor,
             xRptId ?: "N/A",
         )
 
-        return authLoginService
-            .login(xRptId ?: "N/A")
-            .map { loginResponse: LoginResponseDto ->
-                logger.debug(
-                    "Response ready related to RPTID: [{}] from IP [{}], redirecting to: [{}]",
-                    xRptId,
-                    xForwardedFor,
-                    loginResponse.urlRedirect,
-                )
-                ResponseEntity.ok(loginResponse)
-            }
-            .doOnError { error ->
-                logger.error(
-                    "Request failed related to RPTID: [{}] from IP: [{}] with error: {}",
-                    xRptId,
-                    xForwardedFor,
-                    error.message,
-                )
-            }
+        return authLoginService.login(xRptId ?: "N/A").map { loginResponse ->
+            logger.debug(
+                "Response ready related to RPTID: [{}] from IP [{}], redirecting to: [{}]",
+                xRptId,
+                xForwardedFor,
+                loginResponse.urlRedirect,
+            )
+            ResponseEntity.ok(loginResponse)
+        }
     }
 
     /**
