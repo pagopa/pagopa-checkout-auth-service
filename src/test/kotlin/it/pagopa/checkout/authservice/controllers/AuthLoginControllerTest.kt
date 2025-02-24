@@ -2,83 +2,87 @@ package it.pagopa.checkout.authservice.controllers
 
 import it.pagopa.checkout.authservice.services.AuthLoginService
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.web.reactive.server.WebTestClient
 import reactor.core.publisher.Mono
+import reactor.test.StepVerifier
 
-@WebFluxTest(AuthLoginController::class)
 class AuthLoginControllerTest {
+    private lateinit var authLoginController: AuthLoginController
+    private lateinit var authLoginService: AuthLoginService
 
-    @Autowired private lateinit var webClient: WebTestClient
-
-    @MockitoBean private lateinit var authLoginService: AuthLoginService
+    @BeforeEach
+    fun setup() {
+        authLoginService = mock()
+        authLoginController = AuthLoginController(authLoginService)
+    }
 
     @Test
     fun `authLogin should return successful response when service returns login URL`() {
         val loginResponse = LoginResponseDto()
         loginResponse.urlRedirect = "https://mock.example.com/login?param=value"
 
-        whenever(authLoginService.login()).thenReturn(Mono.just(loginResponse))
+        val xForwardedFor = "127.0.0.1"
+        val xRptId = null
 
-        webClient
-            .get()
-            .uri("/auth/login")
-            .header("127.0.0.1")
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-            .expectStatus()
-            .is2xxSuccessful
-            .expectBody()
-            .jsonPath("$.urlRedirect")
-            .isEqualTo("https://mock.example.com/login?param=value")
+        whenever(authLoginService.login("N/A")).thenReturn(Mono.just(loginResponse))
+
+        val result = authLoginController.authLogin(xForwardedFor, xRptId, null)
+
+        StepVerifier.create(result)
+            .expectNextMatches { response ->
+                response.statusCode.is2xxSuccessful &&
+                    response.body?.urlRedirect == "https://mock.example.com/login?param=value"
+            }
+            .verifyComplete()
+    }
+
+    @Test
+    fun `authLogin should handle service errors with null rptid`() {
+        // Setup
+        val xForwardedFor = "127.0.0.1"
+        val xRptId = null
+        val expectedError = RuntimeException("Test error message")
+
+        whenever(authLoginService.login("N/A")).thenReturn(Mono.error(expectedError))
+
+        StepVerifier.create(authLoginController.authLogin(xForwardedFor, xRptId, null))
+            .expectErrorMatches { error -> error.message == "Test error message" }
+            .verify()
+    }
+
+    @Test
+    fun `authLogin should handle service errors with provided rptid`() {
+        val xForwardedFor = "127.0.0.1"
+        val xRptId = "mock-rptid"
+        val expectedError = RuntimeException("Test error message")
+
+        whenever(authLoginService.login(xRptId)).thenReturn(Mono.error(expectedError))
+
+        StepVerifier.create(authLoginController.authLogin(xForwardedFor, xRptId, null))
+            .expectErrorMatches { error -> error.message == "Test error message" }
+            .verify()
     }
 
     @Test
     fun `unimplemented endpoints should return 501 NOT_IMPLEMENTED`() {
-        webClient
-            .get()
-            .uri("/auth/users")
-            .exchange()
-            .expectStatus()
-            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
-            .expectBody()
-            .isEmpty()
+        StepVerifier.create(authLoginController.authUsers(null))
+            .expectNextMatches { response -> response.statusCode == HttpStatus.NOT_IMPLEMENTED }
+            .verifyComplete()
 
-        webClient
-            .post()
-            .uri("/auth/logout")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue("{}")
-            .exchange()
-            .expectStatus()
-            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
-            .expectBody()
-            .isEmpty()
+        StepVerifier.create(authLoginController.authLogout(null))
+            .expectNextMatches { response -> response.statusCode == HttpStatus.NOT_IMPLEMENTED }
+            .verifyComplete()
 
-        webClient
-            .post()
-            .uri("/auth/token")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue("{}")
-            .exchange()
-            .expectStatus()
-            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
-            .expectBody()
-            .isEmpty()
+        StepVerifier.create(authLoginController.authenticateWithAuthToken(Mono.empty(), null))
+            .expectNextMatches { response -> response.statusCode == HttpStatus.NOT_IMPLEMENTED }
+            .verifyComplete()
 
-        webClient
-            .get()
-            .uri("/auth/validate")
-            .exchange()
-            .expectStatus()
-            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
-            .expectBody()
-            .isEmpty()
+        StepVerifier.create(authLoginController.validateToken(null))
+            .expectNextMatches { response -> response.statusCode == HttpStatus.NOT_IMPLEMENTED }
+            .verifyComplete()
     }
 }
