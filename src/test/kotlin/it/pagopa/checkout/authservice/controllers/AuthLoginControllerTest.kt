@@ -24,7 +24,7 @@ class AuthLoginControllerTest {
         val loginResponse = LoginResponseDto()
         loginResponse.urlRedirect = "https://mock.example.com/login?param=value"
 
-        whenever(authLoginService.login("N/A")).thenReturn(Mono.just(loginResponse))
+        whenever(authLoginService.login()).thenReturn(Mono.just(loginResponse))
 
         webClient
             .get()
