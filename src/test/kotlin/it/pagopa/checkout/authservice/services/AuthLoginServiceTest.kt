@@ -26,7 +26,7 @@ class AuthLoginServiceTest {
         val rptId = rptId
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(expectedUrl))
 
-        StepVerifier.create(authLoginService.login(rptId))
+        StepVerifier.create(authLoginService.login())
             .expectNextMatches { response -> response.urlRedirect == expectedUrl }
             .verifyComplete()
     }
@@ -37,7 +37,7 @@ class AuthLoginServiceTest {
         val rptId = rptId
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(expectedUrl))
 
-        StepVerifier.create(authLoginService.login(rptId))
+        StepVerifier.create(authLoginService.login())
             .expectNextMatches { response ->
                 response.javaClass == LoginResponseDto::class.java &&
                     response.urlRedirect == expectedUrl
@@ -52,7 +52,7 @@ class AuthLoginServiceTest {
 
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.error(expectedError))
 
-        StepVerifier.create(authLoginService.login(rptId))
+        StepVerifier.create(authLoginService.login())
             .expectError(RuntimeException::class.java)
             .verify()
     }
@@ -62,7 +62,7 @@ class AuthLoginServiceTest {
         val rptId = rptId
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(""))
 
-        StepVerifier.create(authLoginService.login(rptId))
+        StepVerifier.create(authLoginService.login())
             .expectError(OneIdentityClientException::class.java)
             .verify()
     }
