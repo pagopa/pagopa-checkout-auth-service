@@ -10,3 +10,25 @@ services:
       - ./.env
     ports:
       - "8080:8080"
+    networks:
+      - pagopa-checkout-auth-net
+  pagopa-checkout-redis:
+    container_name: pagopa-checkout-redis
+    image: redis:6.2.17@sha256:5e58de7cf5eec1feffed3ac5984c7a5b8e0a5b407be2103cca4830ed15de16f2
+    command: [ "sh", "-c", 'exec redis-server --requirepass "$$REDIS_PASSWORD"' ]
+    ports:
+      - "6379:6379"
+    networks:
+      - pagopa-checkout-auth-net
+
+  pagopa-checkout-redis-insight:
+    container_name: pagopa-checkout-redis-insight
+    image: redislabs/redisinsight@sha256:e3af8fca1272243632adba175af4db0c439618f83649d8a12bbf617d3c9ff284
+    ports:
+      - "5540:5540"
+    networks:
+      - pagopa-checkout-auth-net
+
+networks:
+  pagopa-checkout-auth-net:
+    driver: bridge
