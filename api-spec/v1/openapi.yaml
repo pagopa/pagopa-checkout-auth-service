@@ -138,8 +138,19 @@ paths:
       operationId: authenticateWithAuthToken
       summary: Authentication endpoint
       description: 'POST authentication endpoint with auth code'
-      requestBody:
-        $ref: '#/components/requestBodies/AuthRequest'
+      parameters:
+        - in: header
+          name: x-auth-code
+          required: true
+          description: OIDC authentication code, used to retrieve authentication result and data
+          schema:
+            type: string
+        - in: header
+          name: x-state
+          schema:
+            type: string
+          required: true
+          description: OIDC state, used to trace authentication state and link login request to callback call
       responses:
         '200':
           description: Successful authentication
@@ -275,13 +286,6 @@ components:
       properties:
         authToken:
           type: string
-  requestBodies:
-    AuthRequest:
-      required: true
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              authCode:
-                type: string
+          description: authentication opaque token
+      required:
+        - authToken

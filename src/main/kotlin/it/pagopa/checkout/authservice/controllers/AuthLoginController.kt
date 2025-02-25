@@ -3,7 +3,6 @@ package it.pagopa.checkout.authservice.controllers
 import it.pagopa.checkout.authservice.services.AuthLoginService
 import it.pagopa.generated.checkout.authservice.v1.api.AuthApi
 import it.pagopa.generated.checkout.authservice.v1.model.AuthResponseDto
-import it.pagopa.generated.checkout.authservice.v1.model.AuthenticateWithAuthTokenRequestDto
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
 import org.springframework.beans.factory.annotation.Autowired
@@ -53,16 +52,9 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
         return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
     }
 
-    /**
-     * POST /auth/token : Authentication endpoint POST authentication endpoint with auth code
-     *
-     * @param authenticateWithAuthTokenRequestDto (required)
-     * @return Successful authentication (status code 200) or Formally invalid input (status
-     *   code 400) or Unauthorized (status code 401) or User not found (status code 404) or Internal
-     *   server error (status code 500)
-     */
     override fun authenticateWithAuthToken(
-        authenticateWithAuthTokenRequestDto: Mono<AuthenticateWithAuthTokenRequestDto>,
+        xAuthCode: String,
+        xState: String,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<AuthResponseDto>> {
         return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
