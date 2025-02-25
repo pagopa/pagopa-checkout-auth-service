@@ -12,7 +12,12 @@ class MDCContextLifter<T>(private val coreSubscriber: CoreSubscriber<T>) : CoreS
 
     override fun onNext(obj: T) {
         copyToMdc(coreSubscriber.currentContext())
-        coreSubscriber.onNext(obj)
+        try {
+            coreSubscriber.onNext(obj)
+        } finally {
+            // clear to prevent leaks
+            MDC.clear()
+        }
     }
 
     /**
@@ -48,12 +53,19 @@ class MDCContextLifter<T>(private val coreSubscriber: CoreSubscriber<T>) : CoreS
     }
 
     override fun onError(t: Throwable) {
-        coreSubscriber.onError(t)
+        try {
+            coreSubscriber.onError(t)
+        } finally {
+            MDC.clear()
+        }
     }
 
     override fun onComplete() {
-        coreSubscriber.onComplete()
-        MDC.clear()
+        try {
+            coreSubscriber.onComplete()
+        } finally {
+            MDC.clear()
+        }
     }
 
     override fun currentContext(): Context {

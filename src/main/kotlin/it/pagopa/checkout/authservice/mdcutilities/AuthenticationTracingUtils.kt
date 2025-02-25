@@ -21,8 +21,8 @@ class AuthenticationTracingUtils {
     /** Authentication information record */
     // in Kotlin the data class provides equals(), toString() etc.
     data class AuthenticationInfo(
-        val rptId: String?,
         val clientIp: String,
+        val rptId: String?,
         val requestMethod: String,
         val requestUriPath: String,
     )

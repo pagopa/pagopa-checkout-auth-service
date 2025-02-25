@@ -29,7 +29,7 @@ class AuthLoginControllerTest {
         webClient
             .get()
             .uri("/auth/login")
-            .header("X-Forwarded-For", "127.0.0.1")
+            .header("x-forwarded-for", "127.0.0.1")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus()
