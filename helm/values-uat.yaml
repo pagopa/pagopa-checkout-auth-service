@@ -80,6 +80,9 @@ microservice-chart:
     ONEIDENTITY_CLIENT_ID: "oneidentity-client-id"
     REDIS_PORT: "6380"
     REDIS_SSL_ENABLED: "true"
+    AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS: "1800" #30 minutes
+    AUTH_SESSION_TOKEN_CACHE_TTL_SECONDS: "300" #5 minutes
+    OIDC_AUTH_STATE_CACHE_TTL_SECONDS: "300" #5 minutes
   envSecret:
     OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
     REDIS_HOST: redis-checkout-hostname
