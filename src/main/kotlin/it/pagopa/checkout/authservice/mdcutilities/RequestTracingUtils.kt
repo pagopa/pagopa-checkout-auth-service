@@ -17,7 +17,7 @@ class RequestTracingUtils {
         API_ID("apiId", "{api-id-not-found}"),
     }
 
-    /** Authentication information record */
+    /** Request tracing info */
     data class RequestTracingInfo(
         val rptId: String,
         val requestMethod: String,
@@ -25,11 +25,11 @@ class RequestTracingUtils {
     )
 
     /**
-     * Set authentication information into context taking information from the input
+     * Set request information into context taking values from the input
      * RequestTracingInfo
      *
-     * @param requestTracingInfo - the authentication information record from which retrieve
-     *   information to be set into context
+     * @param requestTracingInfo - the request information record from which retrieve
+     *   values to be set into context
      * @param reactorContext - the current reactor context
      * @return the updated context
      */
