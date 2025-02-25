@@ -20,11 +20,6 @@ class MDCFilter : WebFilter {
         val method = request.method.name()
         val path = request.uri.path
 
-        // debug logging
-        println("Headers received: ${headers.keys}")
-        println("x-forwarded-for: ${headers.getFirst(HEADER_FORWARDED_FOR)}")
-        println("x-rptid: ${headers.getFirst(HEADER_RPT_ID)}")
-
         // extract header values
         val clientIp =
             headers.getFirst(HEADER_FORWARDED_FOR)
