@@ -6,6 +6,7 @@ import it.pagopa.generated.checkout.authservice.v1.model.AuthResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.AuthenticateWithAuthTokenRequestDto
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -15,6 +16,7 @@ import reactor.core.publisher.Mono
 
 @RestController
 class AuthLoginController(@Autowired private val authLoginService: AuthLoginService) : AuthApi {
+    private val logger = LoggerFactory.getLogger(this.javaClass)
 
     /**
      * GET /auth/login : Login endpoint GET login endpoint
@@ -26,6 +28,7 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
         xRptId: String?,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<LoginResponseDto>> {
+        logger.info("Received login request")
         return authLoginService.login().map { loginResponse -> ResponseEntity.ok(loginResponse) }
     }
 
