@@ -25,12 +25,6 @@ paths:
       description: 'GET login endpoint with reCAPTCHA code'
       parameters:
         - in: header
-          name: x-forwarded-for
-          required: true
-          description: Client Source IP Address
-          schema:
-            type: string
-        - in: header
           name: x-rptid
           required: false
           description: Optional RPTID for tracking login attempts

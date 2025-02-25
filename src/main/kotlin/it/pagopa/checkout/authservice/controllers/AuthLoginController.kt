@@ -1,6 +1,5 @@
 package it.pagopa.checkout.authservice.controllers
 
-import it.pagopa.checkout.authservice.exception.AuthenticationException
 import it.pagopa.checkout.authservice.services.AuthLoginService
 import it.pagopa.generated.checkout.authservice.v1.api.AuthApi
 import it.pagopa.generated.checkout.authservice.v1.model.AuthResponseDto
@@ -26,14 +25,10 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
      *   User not found (status code 404) or Internal server error (status code 500)
      */
     override fun authLogin(
-        xForwardedFor: String,
         xRptId: String?,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<LoginResponseDto>> {
-        if (xForwardedFor.isBlank()) {
-            throw AuthenticationException("x-forwarded-for header is required")
-        }
-        logger.info("Received login request")
+		logger.info("Received login request")
         return authLoginService.login().map { loginResponse -> ResponseEntity.ok(loginResponse) }
     }
 
