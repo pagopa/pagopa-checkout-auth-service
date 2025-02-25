@@ -1,7 +1,12 @@
 package it.pagopa.checkout.authservice.services
 
+import it.pagopa.checkout.authservice.clients.oneidentity.LoginData
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
+import java.net.URI
+import java.util.*
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
@@ -14,10 +19,17 @@ class AuthLoginServiceTest {
 
     private val expectedUrl = "https://mock.example.com/client/login"
 
+    private val loginData =
+        LoginData(
+            loginRedirectUri = URI.create(expectedUrl),
+            state = OidcState(UUID.randomUUID()),
+            nonce = OidcNonce(UUID.randomUUID()),
+        )
+
     @Test
     fun `login should return LoginResponseDto with redirect URL from OneIdentityClient`() {
         val expectedUrl = expectedUrl
-        whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(expectedUrl))
+        whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(loginData))
 
         StepVerifier.create(authLoginService.login())
             .expectNextMatches { response -> response.urlRedirect == expectedUrl }
@@ -27,7 +39,7 @@ class AuthLoginServiceTest {
     @Test
     fun `login should return Mono with properly constructed LoginResponseDto`() {
         val expectedUrl = expectedUrl
-        whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(expectedUrl))
+        whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(loginData))
 
         StepVerifier.create(authLoginService.login())
             .expectNextMatches { response ->

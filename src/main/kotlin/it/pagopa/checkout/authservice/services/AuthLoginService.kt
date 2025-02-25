@@ -9,6 +9,8 @@ import reactor.core.publisher.Mono
 class AuthLoginService(private val oneIdentityClient: OneIdentityClient) {
 
     fun login(): Mono<LoginResponseDto> {
-        return oneIdentityClient.buildLoginUrl().map { LoginResponseDto().urlRedirect(it) }
+        return oneIdentityClient.buildLoginUrl().map {
+            LoginResponseDto().urlRedirect(it.loginRedirectUri.toString())
+        }
     }
 }

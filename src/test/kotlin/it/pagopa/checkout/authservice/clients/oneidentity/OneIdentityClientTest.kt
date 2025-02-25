@@ -5,6 +5,7 @@ import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.*
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -29,11 +30,14 @@ class OneIdentityClientTest {
     fun `buildLoginUrl should return URL with all required parameters`() {
         StepVerifier.create(oneIdentityClient.buildLoginUrl())
             .consumeNextWith { result ->
-                assertTrue(result.startsWith("$baseUrl/login"))
+                val loginUrl = result.loginRedirectUri.toString()
+                assertTrue(loginUrl.startsWith("$baseUrl/login"))
+                assertNotNull(result.nonce)
+                assertNotNull(result.state)
 
                 // convert parameters to key-value map by splitting them
                 val params =
-                    result
+                    loginUrl
                         .substringAfter("?")
                         .split("&")
                         .map { it.split("=") }
@@ -62,7 +66,8 @@ class OneIdentityClientTest {
             .consumeNextWith { firstResult ->
                 // convert parameters to key-value map by splitting them
                 val firstParams =
-                    firstResult
+                    firstResult.loginRedirectUri
+                        .toString()
                         .substringAfter("?")
                         .split("&")
                         .map { it.split("=") }
@@ -72,7 +77,8 @@ class OneIdentityClientTest {
                     .consumeNextWith { secondResult ->
                         // convert parameters to key-value map by splitting them
                         val secondParams =
-                            secondResult
+                            secondResult.loginRedirectUri
+                                .toString()
                                 .substringAfter("?")
                                 .split("&")
                                 .map { it.split("=") }
