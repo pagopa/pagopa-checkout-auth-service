@@ -1,6 +1,6 @@
 package it.pagopa.checkout.authservice.controllers
 
-import it.pagopa.checkout.authservice.services.AuthLoginService
+import it.pagopa.checkout.authservice.services.AuthenticationService
 import it.pagopa.generated.checkout.authservice.v1.api.AuthApi
 import it.pagopa.generated.checkout.authservice.v1.model.AuthResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
@@ -13,7 +13,7 @@ import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 
 @RestController
-class AuthLoginController(@Autowired private val authLoginService: AuthLoginService) : AuthApi {
+class AuthLoginController(@Autowired private val authenticationService: AuthenticationService) : AuthApi {
 
     /**
      * GET /auth/login : Login endpoint GET login endpoint
@@ -25,7 +25,7 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
         xRptId: String?,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<LoginResponseDto>> {
-        return authLoginService.login().map { loginResponse -> ResponseEntity.ok(loginResponse) }
+        return authenticationService.login().map { loginResponse -> ResponseEntity.ok(loginResponse) }
     }
 
     /**

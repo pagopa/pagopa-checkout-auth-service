@@ -15,18 +15,21 @@ This service leverages Kotlin's native compilation to achieve optimal performanc
 
 These are all environment variables needed by the application:
 
-| Variable name                                | Description                                                                                              | type    | default |
-|----------------------------------------------|----------------------------------------------------------------------------------------------------------|---------|---------|
-| ONEIDENTITY_BASE_URL                         | One Identity base URL                                                                                    | string  |         |
-| ONEIDENTITY_REDIRECT_URI                     | The 'redirect_uri' that was registered for this client by One Identity                                   | string  |         |
-| OPENID_CLIENT_ID                             | This is the 'client_id' of the requesting client, provided by One Identity after registering the service | string  |         |
-| REDIS_HOST                                   | Redis server hostname                                                                                    | string  |         |
-| REDIS_PASSWORD                               | Redis server password                                                                                    | string  |         |
-| REDIS_PORT                                   | Redis server listening port                                                                              | number  |         |
-| REDIS_SSL_ENABLED                            | Redis server boolean value indicating if ssl connection is enabled                                       | boolean |         |
-| AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS | Authenticated user session cache duration in seconds                                                     | number  |         |
-| AUTH_SESSION_TOKEN_CACHE_TTL_SECONDS         | Authentication session token cache duration in seconds                                                   | number  |         |
-| OIDC_AUTH_STATE_CACHE_TTL_SECONDS            | OIDC authentication state cache duration in seconds                                                      | number  |         |
+| Variable name                                 | Description                                                                                              | type    | default |
+|-----------------------------------------------|----------------------------------------------------------------------------------------------------------|---------|---------|
+| ONE_IDENTITY_BASE_URL                         | One Identity base URL                                                                                    | string  |         |
+| ONE_IDENTITY_REDIRECT_URI                     | The 'redirect_uri' that was registered for this client by One Identity                                   | string  |         |
+| OPENID_CLIENT_ID                              | This is the 'client_id' of the requesting client, provided by One Identity after registering the service | string  |         |
+| REDIS_HOST                                    | Redis server hostname                                                                                    | string  |         |
+| REDIS_PASSWORD                                | Redis server password                                                                                    | string  |         |
+| REDIS_PORT                                    | Redis server listening port                                                                              | number  |         |
+| REDIS_SSL_ENABLED                             | Redis server boolean value indicating if ssl connection is enabled                                       | boolean |         |
+| AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS  | Authenticated user session cache duration in seconds                                                     | number  |         |
+| AUTH_SESSION_TOKEN_CACHE_TTL_SECONDS          | Authentication session token cache duration in seconds                                                   | number  |         |
+| OIDC_AUTH_STATE_CACHE_TTL_SECONDS             | OIDC authentication state cache duration in seconds                                                      | number  |         |
+| ONE_IDENTITY_SERVER_URI                       | OIDC authentication backend identity provider uri                                                        | string  |         |
+| ONE_IDENTITY_SERVER_READ_TIMEOUT_MILLIS       | OIDC authentication backend identity provider requests read timeout (in milliseconds)                    | number  |         |
+| ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS | OIDC authentication backend identity provider requests connection timeout (in milliseconds)              | number  |         |
 
 An example configuration of these environment variables is in the `.env.example` file.
 

@@ -1,6 +1,6 @@
 package it.pagopa.checkout.authservice.controllers
 
-import it.pagopa.checkout.authservice.services.AuthLoginService
+import it.pagopa.checkout.authservice.services.AuthenticationService
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.whenever
@@ -15,16 +15,18 @@ import reactor.core.publisher.Mono
 @WebFluxTest(AuthLoginController::class)
 class AuthLoginControllerTest {
 
-    @Autowired private lateinit var webClient: WebTestClient
+    @Autowired
+    private lateinit var webClient: WebTestClient
 
-    @MockitoBean private lateinit var authLoginService: AuthLoginService
+    @MockitoBean
+    private lateinit var authenticationService: AuthenticationService
 
     @Test
     fun `authLogin should return successful response when service returns login URL`() {
         val loginResponse = LoginResponseDto()
         loginResponse.urlRedirect = "https://mock.example.com/login?param=value"
 
-        whenever(authLoginService.login()).thenReturn(Mono.just(loginResponse))
+        whenever(authenticationService.login()).thenReturn(Mono.just(loginResponse))
 
         webClient
             .get()

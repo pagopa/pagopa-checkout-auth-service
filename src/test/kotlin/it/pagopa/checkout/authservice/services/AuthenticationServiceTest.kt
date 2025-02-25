@@ -5,17 +5,17 @@ import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
-import java.net.URI
-import java.util.*
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
+import java.net.URI
+import java.util.*
 
-class AuthLoginServiceTest {
+class AuthenticationServiceTest {
     private val oneIdentityClient: OneIdentityClient = mock()
-    private val authLoginService = AuthLoginService(oneIdentityClient)
+    private val authenticationService = AuthenticationService(oneIdentityClient)
 
     private val expectedUrl = "https://mock.example.com/client/login"
 
@@ -31,7 +31,7 @@ class AuthLoginServiceTest {
         val expectedUrl = expectedUrl
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(loginData))
 
-        StepVerifier.create(authLoginService.login())
+        StepVerifier.create(authenticationService.login())
             .expectNextMatches { response -> response.urlRedirect == expectedUrl }
             .verifyComplete()
     }
@@ -41,10 +41,10 @@ class AuthLoginServiceTest {
         val expectedUrl = expectedUrl
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(loginData))
 
-        StepVerifier.create(authLoginService.login())
+        StepVerifier.create(authenticationService.login())
             .expectNextMatches { response ->
                 response.javaClass == LoginResponseDto::class.java &&
-                    response.urlRedirect == expectedUrl
+                        response.urlRedirect == expectedUrl
             }
             .verifyComplete()
     }
@@ -55,7 +55,7 @@ class AuthLoginServiceTest {
 
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.error(expectedError))
 
-        StepVerifier.create(authLoginService.login())
+        StepVerifier.create(authenticationService.login())
             .expectError(RuntimeException::class.java)
             .verify()
     }
