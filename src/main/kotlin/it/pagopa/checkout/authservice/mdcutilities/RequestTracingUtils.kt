@@ -25,11 +25,10 @@ class RequestTracingUtils {
     )
 
     /**
-     * Set request information into context taking values from the input
-     * RequestTracingInfo
+     * Set request information into context taking values from the input RequestTracingInfo
      *
-     * @param requestTracingInfo - the request information record from which retrieve
-     *   values to be set into context
+     * @param requestTracingInfo - the request information record from which retrieve values to be
+     *   set into context
      * @param reactorContext - the current reactor context
      * @return the updated context
      */
