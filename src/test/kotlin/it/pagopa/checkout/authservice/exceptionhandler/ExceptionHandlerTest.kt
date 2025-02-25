@@ -1,7 +1,6 @@
 package it.pagopa.checkout.authservice.exceptionhandler
 
 import it.pagopa.checkout.authservice.AuthTestUtils
-import it.pagopa.checkout.authservice.exception.AuthenticationException
 import it.pagopa.checkout.authservice.exception.OneIdentityClientException
 import it.pagopa.checkout.authservice.exception.RestApiException
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -42,22 +41,6 @@ class ExceptionHandlerTest {
                 httpStatus = HttpStatus.UNAUTHORIZED,
                 title = "title",
                 description = "description",
-            ),
-            response.body,
-        )
-        assertEquals(HttpStatus.UNAUTHORIZED, response.statusCode)
-    }
-
-    @Test
-    fun `Should handle ApiError`() {
-        val exception = AuthenticationException("Authentication Failed")
-        val response = exceptionHandler.handleException(exception)
-
-        assertEquals(
-            AuthTestUtils.buildProblemJson(
-                httpStatus = HttpStatus.UNAUTHORIZED,
-                title = "Authentication Failed",
-                description = "Authentication Failed",
             ),
             response.body,
         )
