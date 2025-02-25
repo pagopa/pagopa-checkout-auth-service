@@ -3,10 +3,10 @@ package it.pagopa.checkout.authservice.mdcutilities
 import reactor.util.context.Context
 
 /**
- * Tracing utility class that contains helper methods to set authentication information, such as
- * client IP and RPT ID into reactor context
+ * Tracing utility class that contains helper methods to set authentication information, such as RPT
+ * ID into reactor context
  */
-class AuthenticationTracingUtils {
+class RequestTracingUtils {
 
     /**
      * Tracing keys enumerations that contains both context key and default value, set in case such
@@ -14,53 +14,45 @@ class AuthenticationTracingUtils {
      */
     enum class TracingEntry(val key: String, val defaultValue: String) {
         RPT_ID("rptId", "{rptId-not-found}"),
-        CLIENT_IP("clientIp", "{client-ip-not-found}"),
         API_ID("apiId", "{api-id-not-found}"),
     }
 
     /** Authentication information record */
-    // in Kotlin the data class provides equals(), toString() etc.
-    data class AuthenticationInfo(
-        val clientIp: String,
-        val rptId: String?,
+    data class RequestTracingInfo(
+        val rptId: String,
         val requestMethod: String,
         val requestUriPath: String,
     )
 
     /**
      * Set authentication information into context taking information from the input
-     * AuthenticationInfo
+     * RequestTracingInfo
      *
-     * @param authenticationInfo - the authentication information record from which retrieve
+     * @param requestTracingInfo - the authentication information record from which retrieve
      *   information to be set into context
      * @param reactorContext - the current reactor context
      * @return the updated context
      */
-    fun setAuthInfoIntoReactorContext(
-        authenticationInfo: AuthenticationInfo,
+    fun setRequestInfoIntoReactorContext(
+        requestTracingInfo: RequestTracingInfo,
         reactorContext: Context,
     ): Context {
         // starting context
         var context = reactorContext
 
-        // add source IP to context
+        // add RPT ID
         context =
             putInReactorContextIfSetToDefault(
-                TracingEntry.CLIENT_IP,
-                authenticationInfo.clientIp,
+                TracingEntry.RPT_ID,
+                requestTracingInfo.rptId,
                 context,
             )
-
-        // add RPT ID if it's not null
-        authenticationInfo.rptId?.let {
-            context = putInReactorContextIfSetToDefault(TracingEntry.RPT_ID, it, context)
-        }
 
         // add API ID
         context =
             putInReactorContextIfSetToDefault(
                 TracingEntry.API_ID,
-                "API-ID-${authenticationInfo.requestMethod}-${authenticationInfo.requestUriPath}",
+                "API-ID-${requestTracingInfo.requestMethod}-${requestTracingInfo.requestUriPath}",
                 context,
             )
 

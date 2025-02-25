@@ -31,7 +31,7 @@ class MDCContextLifter<T>(private val coreSubscriber: CoreSubscriber<T>) : CoreS
             val mdcContextMap = MDC.getCopyOfContextMap() ?: HashMap()
             // create a map of values from reactor to be copied to MDC
             val reactorContextMap =
-                AuthenticationTracingUtils.TracingEntry.entries
+                RequestTracingUtils.TracingEntry.entries
                     // for each entry get the context value or the default one
                     .associate { tracingEntry ->
                         val value =

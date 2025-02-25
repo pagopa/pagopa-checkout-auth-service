@@ -28,7 +28,7 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
         xRptId: String?,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<LoginResponseDto>> {
-		logger.info("Received login request")
+        logger.info("Received login request")
         return authLoginService.login().map { loginResponse -> ResponseEntity.ok(loginResponse) }
     }
 

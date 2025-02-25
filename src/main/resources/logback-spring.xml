@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
     <springProperty name="ECS_SERVICE_VERSION" source="build.version"/>
-    <springProperty name="ECS_SERVICE_NAME" source="spring.application.name" defaultValue="checkout-auth-service"/>
-    <springProperty name="ECS_SERVICE_ENVIRONMENT" source="spring.profiles.active" defaultValue="local"/>
     <appender name="ECS_JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="co.elastic.logging.logback.EcsEncoder">
             <serviceName>${ECS_SERVICE_NAME:-undefined}</serviceName>
