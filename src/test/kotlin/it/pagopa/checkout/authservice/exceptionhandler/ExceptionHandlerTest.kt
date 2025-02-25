@@ -1,7 +1,7 @@
 package it.pagopa.checkout.authservice.exceptionhandler
 
 import it.pagopa.checkout.authservice.AuthTestUtils
-import it.pagopa.checkout.authservice.exception.OneIdentityClientException
+import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
 import it.pagopa.checkout.authservice.exception.RestApiException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -48,17 +48,17 @@ class ExceptionHandlerTest {
     }
 
     @Test
-    fun `Should handle OneIdentityClientException`() {
-        val exception = OneIdentityClientException("Connection failed")
+    fun `Should handle OneIdentityConfigurationException`() {
+        val exception = OneIdentityConfigurationException("Connection failed")
         val response = exceptionHandler.handleException(exception)
         assertEquals(
             AuthTestUtils.buildProblemJson(
-                httpStatus = HttpStatus.BAD_GATEWAY,
-                title = "OneIdentity client error",
+                httpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
+                title = "OneIdentity configuration error",
                 description = "Connection failed",
             ),
             response.body,
         )
-        assertEquals(HttpStatus.BAD_GATEWAY, response.statusCode)
+        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
     }
 }

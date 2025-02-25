@@ -1,6 +1,6 @@
 package it.pagopa.checkout.authservice.clients.oneidentity
 
-import it.pagopa.checkout.authservice.exception.OneIdentityClientException
+import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -17,21 +17,22 @@ class OneIdentityClient(
 ) {
     fun buildLoginUrl(): Mono<String> {
         if (oneIdentityBaseUrl.isBlank() || redirectUri.isBlank() || clientId.isBlank()) {
-            throw OneIdentityClientException(
-                "Required OneIdentity configuration parameters are missing"
+            return Mono.error(
+                OneIdentityConfigurationException(
+                    "Required OneIdentity configuration parameters are missing"
+                )
             )
         }
+        // Value opaque to the server, used by the client to track its session.
+        // It will be returned as received.
+        val state = UUID.randomUUID().toString()
+        // Represents a cryptographically strong random string that is used to prevent
+        // intercepted responses from being reused.
+        val nonce = UUID.randomUUID().toString()
+        val encodedUrl = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString())
 
-        return try {
-            // Value opaque to the server, used by the client to track its session.
-            // It will be returned as received.
-            val state = UUID.randomUUID().toString()
-            // Represents a cryptographically strong random string that is used to prevent
-            // intercepted responses from being reused.
-            val nonce = UUID.randomUUID().toString()
-            val encodedUrl = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8.toString())
-
-            Mono.just(oneIdentityBaseUrl).map {
+        return Mono.just(oneIdentityBaseUrl)
+            .map {
                 UriComponentsBuilder.fromUriString(it)
                     .path("/login")
                     .queryParam("response_type", "code")
@@ -43,8 +44,8 @@ class OneIdentityClient(
                     .build()
                     .toUriString()
             }
-        } catch (e: Exception) {
-            throw OneIdentityClientException("Failed to build login URL: ${e.message}")
-        }
+            .onErrorMap {
+                OneIdentityConfigurationException("Failed to build login URL: ${it.message}")
+            }
     }
 }

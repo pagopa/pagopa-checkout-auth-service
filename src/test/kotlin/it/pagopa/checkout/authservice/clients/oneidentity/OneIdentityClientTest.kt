@@ -1,6 +1,6 @@
 package it.pagopa.checkout.authservice.clients.oneidentity
 
-import it.pagopa.checkout.authservice.exception.OneIdentityClientException
+import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -106,7 +106,7 @@ class OneIdentityClientTest {
             )
 
         val exceptionBlankBaseUrl =
-            assertThrows<OneIdentityClientException> {
+            assertThrows<OneIdentityConfigurationException> {
                 clientWithBlankBaseUrl.buildLoginUrl().block()
             }
         assertEquals(
@@ -118,7 +118,7 @@ class OneIdentityClientTest {
             OneIdentityClient(oneIdentityBaseUrl = baseUrl, redirectUri = "", clientId = clientId)
 
         val exceptionBlankRedirectUri =
-            assertThrows<OneIdentityClientException> {
+            assertThrows<OneIdentityConfigurationException> {
                 clientWithBlankRedirectUri.buildLoginUrl().block()
             }
         assertEquals(
@@ -134,7 +134,7 @@ class OneIdentityClientTest {
             )
 
         val exceptionBlankClientId =
-            assertThrows<OneIdentityClientException> {
+            assertThrows<OneIdentityConfigurationException> {
                 clientWithBlankClientId.buildLoginUrl().block()
             }
         assertEquals(
