@@ -17,7 +17,8 @@ class OneIdentityClientTest {
 
     private val baseUrl = "https://mock.example.com"
     private val redirectUri = "https://mock.example.com/client/login"
-    private val clientId = "oneidentity-client-id"
+    private val clientId = "one-identity-client-id"
+    private val clientSecret = "one-identity-client-secret"
     private val tokenServerApisApi: TokenServerApisApi = mock()
 
     private val oneIdentityClient =
@@ -25,6 +26,7 @@ class OneIdentityClientTest {
             oneIdentityBaseUrl = baseUrl,
             redirectUri = redirectUri,
             clientId = clientId,
+            clientSecret = clientSecret,
             oneIdentityWebClient = tokenServerApisApi,
         )
 
@@ -112,6 +114,7 @@ class OneIdentityClientTest {
                 redirectUri = redirectUri,
                 clientId = clientId,
                 oneIdentityWebClient = tokenServerApisApi,
+                clientSecret = clientSecret,
             )
 
         val exceptionBlankBaseUrl =
@@ -129,6 +132,7 @@ class OneIdentityClientTest {
                 redirectUri = "",
                 clientId = clientId,
                 oneIdentityWebClient = tokenServerApisApi,
+                clientSecret = clientSecret,
             )
 
         val exceptionBlankRedirectUri =
@@ -146,6 +150,7 @@ class OneIdentityClientTest {
                 redirectUri = redirectUri,
                 clientId = "",
                 oneIdentityWebClient = tokenServerApisApi,
+                clientSecret = clientSecret,
             )
 
         val exceptionBlankClientId =

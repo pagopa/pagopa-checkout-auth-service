@@ -1,9 +1,11 @@
 package it.pagopa.checkout.authservice.services
 
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
+import it.pagopa.checkout.authservice.exception.AuthFailedException
 import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
+import it.pagopa.checkout.authservice.repositories.redis.bean.auth.UserInfo
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
@@ -40,11 +42,19 @@ class AuthenticationService(
             }
             .map { LoginResponseDto().urlRedirect(it.toString()) }
 
-    fun retrieveAuthToken(authCode: AuthCode, state: OidcState) {
+    fun retrieveAuthToken(authCode: AuthCode, state: OidcState): Mono<UserInfo> {
         logger.info("Retrieving authorization data for auth with state: [{}]", state)
         val oidcAuthState = oidcAuthStateDataRepository.findById(state.value.toString())
         if (oidcAuthState == null) {
-            TODO("return error for state not found")
+            return Mono.error(
+                AuthFailedException(
+                    state = state,
+                    message = "Cannot retrieve OIDC session for input auth state",
+                )
+            )
         }
+        return oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state).flatMap {
+            Mono.empty<UserInfo>()
+        } // TODO
     }
 }
