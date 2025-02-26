@@ -1,5 +1,6 @@
 package it.pagopa.checkout.authservice.controllers
 
+import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.checkout.authservice.services.AuthenticationService
@@ -56,10 +57,10 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
      *   (status code 400) or Unauthorized (status code 401) or User not found (status code 404) or
      *   Internal server error (status code 500)
      */
-    override fun authUsers(
-        exchange: ServerWebExchange?
-    ): Mono<ResponseEntity<UserInfoResponseDto>> {
-        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
+    override fun authUsers(exchange: ServerWebExchange): Mono<ResponseEntity<UserInfoResponseDto>> {
+        return authenticationService.getUserInfo(exchange.request).map { userInfo ->
+            ResponseEntity.ok(userInfo)
+        }
     }
 
     /**
