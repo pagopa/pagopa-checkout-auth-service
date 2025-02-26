@@ -27,6 +27,7 @@ These are all environment variables needed by the application:
 | AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS  | Authenticated user session cache duration in seconds                                                     | number  |         |
 | AUTH_SESSION_TOKEN_CACHE_TTL_SECONDS          | Authentication session token cache duration in seconds                                                   | number  |         |
 | OIDC_AUTH_STATE_CACHE_TTL_SECONDS             | OIDC authentication state cache duration in seconds                                                      | number  |         |
+| OIDC_KEYS_CACHE_TTL_SECONDS                   | OIDC JWT verification keys cache duration (in seconds)                                                   | number  |         |
 | ONE_IDENTITY_SERVER_URI                       | OIDC authentication backend identity provider uri                                                        | string  |         |
 | ONE_IDENTITY_SERVER_READ_TIMEOUT_MILLIS       | OIDC authentication backend identity provider requests read timeout (in milliseconds)                    | number  |         |
 | ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS | OIDC authentication backend identity provider requests connection timeout (in milliseconds)              | number  |         |

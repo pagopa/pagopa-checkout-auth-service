@@ -68,7 +68,7 @@ paths:
   /oidc/keys:
     get:
       tags:
-        - Authorization Server APIs
+        - Token Server APIs
       operationId: Get_jwk_set_
       description: This endpoint implements the JWKS_URI as specified at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
       x-amazon-apigateway-integration:

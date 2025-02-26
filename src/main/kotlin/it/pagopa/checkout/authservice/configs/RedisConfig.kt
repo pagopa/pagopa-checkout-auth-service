@@ -4,9 +4,11 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
+import it.pagopa.checkout.authservice.repositories.redis.OidcKeysRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.auth.AuthenticatedUserSession
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthSessionToken
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcKey
 import java.time.Duration
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
@@ -61,6 +63,20 @@ class RedisConfig {
         redisTemplate.keySerializer = StringRedisSerializer()
         redisTemplate.afterPropertiesSet()
         return OIDCAuthStateDataRepository(redisTemplate, Duration.ofSeconds(ttlSeconds))
+    }
+
+    @Bean
+    fun oidcKeyRepository(
+        redisConnectionFactory: RedisConnectionFactory,
+        @Value("\${oidc.keys.cache.ttlSeconds}") ttlSeconds: Long,
+    ): OidcKeysRepository {
+        val redisTemplate = RedisTemplate<String, OidcKey>()
+        redisTemplate.connectionFactory = redisConnectionFactory
+        val jackson2JsonRedisSerializer = buildJackson2RedisSerializer(OidcKey::class.java)
+        redisTemplate.valueSerializer = jackson2JsonRedisSerializer
+        redisTemplate.keySerializer = StringRedisSerializer()
+        redisTemplate.afterPropertiesSet()
+        return OidcKeysRepository(redisTemplate, Duration.ofSeconds(ttlSeconds))
     }
 
     private fun <T> buildJackson2RedisSerializer(clazz: Class<T>): Jackson2JsonRedisSerializer<T> {

@@ -76,6 +76,8 @@ dependencies {
 
   // io json web token (JWT) library
   implementation("io.jsonwebtoken:jjwt-api:${Deps.jsonWebTokenVersion}")
+  implementation("io.jsonwebtoken:jjwt-impl:${Deps.jsonWebTokenVersion}")
+  implementation("io.jsonwebtoken:jjwt-jackson:${Deps.jsonWebTokenVersion}")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("io.projectreactor:reactor-test")
