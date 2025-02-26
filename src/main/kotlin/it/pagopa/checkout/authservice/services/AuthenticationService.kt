@@ -16,10 +16,10 @@ import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.checkout.authservice.utils.JwtUtils
 import it.pagopa.checkout.authservice.utils.SessionTokenUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
+import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
-import java.util.*
 
 @Service
 class AuthenticationService(
@@ -66,9 +66,9 @@ class AuthenticationService(
                 )
         val cachedAuthUserInfo =
             Optional.ofNullable(
-                // find in session auth-code to sessionToken mapped cached value
-                authSessionTokenRepository.findById(authCode.value)
-            )
+                    // find in session auth-code to sessionToken mapped cached value
+                    authSessionTokenRepository.findById(authCode.value)
+                )
                 .map { authenticatedUserSessionRepository.findById(it.sessionToken.value) }
         return Mono.just(cachedAuthUserInfo)
             .filter { it.isPresent }
