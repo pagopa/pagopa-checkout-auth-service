@@ -62,8 +62,8 @@ class OneIdentityClient(
                             .queryParam("redirect_uri", redirectUrlEncoded)
                             .build()
                             .toUriString(),
-                    nonce = OidcNonce(nonce),
-                    state = OidcState(state),
+                    nonce = OidcNonce(nonce.toString()),
+                    state = OidcState(state.toString()),
                 )
             }
             .onErrorMap {
