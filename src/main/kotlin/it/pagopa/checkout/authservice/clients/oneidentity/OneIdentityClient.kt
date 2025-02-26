@@ -92,7 +92,10 @@ class OneIdentityClient(
                 Mono.error(exception)
             }
             .onErrorMap {
-                logger.error("Exception retrieving OI id token for OIDC state: [$state]", it)
+                logger.error(
+                    "Exception retrieving OI id token for OIDC state: [${state.value}]",
+                    it,
+                )
                 when (it) {
                     is WebClientResponseException -> {
                         val errorMessage =

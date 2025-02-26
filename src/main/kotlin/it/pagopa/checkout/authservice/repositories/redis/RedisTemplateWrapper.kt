@@ -29,5 +29,7 @@ abstract class RedisTemplateWrapper<V>(
 
     fun delete(key: String) = redisTemplate.delete(key)
 
+    fun keysInKeyspace(): MutableSet<String> = redisTemplate.keys("$keyspace*")
+
     protected abstract fun getKeyFromEntity(value: V): String
 }
