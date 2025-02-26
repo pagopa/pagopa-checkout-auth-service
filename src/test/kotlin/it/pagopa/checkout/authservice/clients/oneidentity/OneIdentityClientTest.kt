@@ -1,6 +1,7 @@
 package it.pagopa.checkout.authservice.clients.oneidentity
 
 import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
+import it.pagopa.generated.checkout.oneidentity.api.TokenServerApisApi
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.*
@@ -9,21 +10,22 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.mockito.kotlin.mock
 import reactor.test.StepVerifier
 
-@WebFluxTest(OneIdentityClient::class)
 class OneIdentityClientTest {
 
     private val baseUrl = "https://mock.example.com"
     private val redirectUri = "https://mock.example.com/client/login"
     private val clientId = "oneidentity-client-id"
+    private val tokenServerApisApi: TokenServerApisApi = mock()
 
     private val oneIdentityClient =
         OneIdentityClient(
             oneIdentityBaseUrl = baseUrl,
             redirectUri = redirectUri,
             clientId = clientId,
+            oneIdentityWebClient = tokenServerApisApi,
         )
 
     @Test
@@ -109,6 +111,7 @@ class OneIdentityClientTest {
                 oneIdentityBaseUrl = "",
                 redirectUri = redirectUri,
                 clientId = clientId,
+                oneIdentityWebClient = tokenServerApisApi,
             )
 
         val exceptionBlankBaseUrl =
@@ -121,7 +124,12 @@ class OneIdentityClientTest {
         )
 
         val clientWithBlankRedirectUri =
-            OneIdentityClient(oneIdentityBaseUrl = baseUrl, redirectUri = "", clientId = clientId)
+            OneIdentityClient(
+                oneIdentityBaseUrl = baseUrl,
+                redirectUri = "",
+                clientId = clientId,
+                oneIdentityWebClient = tokenServerApisApi,
+            )
 
         val exceptionBlankRedirectUri =
             assertThrows<OneIdentityConfigurationException> {
@@ -137,6 +145,7 @@ class OneIdentityClientTest {
                 oneIdentityBaseUrl = baseUrl,
                 redirectUri = redirectUri,
                 clientId = "",
+                oneIdentityWebClient = tokenServerApisApi,
             )
 
         val exceptionBlankClientId =

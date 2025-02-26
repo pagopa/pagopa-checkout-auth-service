@@ -2,6 +2,7 @@ package it.pagopa.checkout.authservice.controllers
 
 import it.pagopa.checkout.authservice.services.AuthenticationService
 import it.pagopa.generated.checkout.authservice.v1.api.AuthApi
+import it.pagopa.generated.checkout.authservice.v1.model.AuthRequestDto
 import it.pagopa.generated.checkout.authservice.v1.model.AuthResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
@@ -13,7 +14,8 @@ import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 
 @RestController
-class AuthLoginController(@Autowired private val authenticationService: AuthenticationService) : AuthApi {
+class AuthLoginController(@Autowired private val authenticationService: AuthenticationService) :
+    AuthApi {
 
     /**
      * GET /auth/login : Login endpoint GET login endpoint
@@ -25,7 +27,9 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
         xRptId: String?,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<LoginResponseDto>> {
-        return authenticationService.login().map { loginResponse -> ResponseEntity.ok(loginResponse) }
+        return authenticationService.login().map { loginResponse ->
+            ResponseEntity.ok(loginResponse)
+        }
     }
 
     /**
@@ -53,9 +57,8 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
     }
 
     override fun authenticateWithAuthToken(
-        xAuthCode: String,
-        xState: String,
-        exchange: ServerWebExchange?,
+        authRequestDto: Mono<AuthRequestDto>,
+        exchange: ServerWebExchange,
     ): Mono<ResponseEntity<AuthResponseDto>> {
         return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
     }

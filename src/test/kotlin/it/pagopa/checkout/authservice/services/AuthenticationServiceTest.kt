@@ -2,20 +2,32 @@ package it.pagopa.checkout.authservice.services
 
 import it.pagopa.checkout.authservice.clients.oneidentity.LoginData
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
+import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
+import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
+import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
+import java.net.URI
+import java.util.*
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
-import java.net.URI
-import java.util.*
 
 class AuthenticationServiceTest {
     private val oneIdentityClient: OneIdentityClient = mock()
-    private val authenticationService = AuthenticationService(oneIdentityClient)
+    private val oidcAuthStateDataRepository: OIDCAuthStateDataRepository = mock()
+    private val authenticatedUserSessionRepository: AuthenticatedUserSessionRepository = mock()
+    private val authSessionTokenRepository: AuthSessionTokenRepository = mock()
+    private val authenticationService =
+        AuthenticationService(
+            oneIdentityClient = oneIdentityClient,
+            oidcAuthStateDataRepository = oidcAuthStateDataRepository,
+            authenticatedUserSessionRepository = authenticatedUserSessionRepository,
+            authSessionTokenRepository = authSessionTokenRepository,
+        )
 
     private val expectedUrl = "https://mock.example.com/client/login"
 
@@ -44,7 +56,7 @@ class AuthenticationServiceTest {
         StepVerifier.create(authenticationService.login())
             .expectNextMatches { response ->
                 response.javaClass == LoginResponseDto::class.java &&
-                        response.urlRedirect == expectedUrl
+                    response.urlRedirect == expectedUrl
             }
             .verifyComplete()
     }

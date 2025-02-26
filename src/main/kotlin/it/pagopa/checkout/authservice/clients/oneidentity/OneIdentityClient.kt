@@ -6,19 +6,20 @@ import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.generated.checkout.oneidentity.api.TokenServerApisApi
 import it.pagopa.generated.checkout.oneidentity.model.TokenDataDto
+import java.util.*
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
-import java.util.*
 
 @Component
 class OneIdentityClient(
     @Value("\${one-identity.base-url}") private val oneIdentityBaseUrl: String,
     @Value("\${one-identity.redirect-uri}") private val redirectUri: String,
     @Value("\${one-identity.client-id}") private val clientId: String,
-    private val oneIdentityServerApisApi: TokenServerApisApi
+    @Autowired private val oneIdentityWebClient: TokenServerApisApi,
 ) {
     fun buildLoginUrl(): Mono<LoginData> {
         if (oneIdentityBaseUrl.isBlank() || redirectUri.isBlank() || clientId.isBlank()) {
@@ -64,14 +65,15 @@ class OneIdentityClient(
         val code = authCode.value
         val grantType = "AUTHORIZATION_CODE"
         return try {
-            oneIdentityServerApisApi.createRequestToken(
-                authorization,//authorization (basic auth)
-                redirectUri,//redirect uri
-                code,//auth code
-                grantType//grant type
+            oneIdentityWebClient.createRequestToken(
+                authorization, // authorization (basic auth)
+                redirectUri, // redirect uri
+                code, // auth code
+                grantType, // grant type
             )
         } catch (exception: WebClientResponseException) {
-            //openapi generated webclient throws exception in case of input value validation failure
+            // openapi generated webclient throws exception in case of input value validation
+            // failure
             Mono.error(exception)
         }
     }

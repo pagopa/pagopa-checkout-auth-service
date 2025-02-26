@@ -15,11 +15,9 @@ import reactor.core.publisher.Mono
 @WebFluxTest(AuthLoginController::class)
 class AuthLoginControllerTest {
 
-    @Autowired
-    private lateinit var webClient: WebTestClient
+    @Autowired private lateinit var webClient: WebTestClient
 
-    @MockitoBean
-    private lateinit var authenticationService: AuthenticationService
+    @MockitoBean private lateinit var authenticationService: AuthenticationService
 
     @Test
     fun `authLogin should return successful response when service returns login URL`() {
