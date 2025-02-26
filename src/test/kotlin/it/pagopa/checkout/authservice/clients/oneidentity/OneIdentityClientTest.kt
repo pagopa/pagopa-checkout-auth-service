@@ -47,7 +47,7 @@ class OneIdentityClientTest {
                         .map { it.split("=") }
                         .associate { it[0] to it[1] }
 
-                assertEquals("code", params["response_type"])
+                assertEquals("CODE", params["response_type"])
                 assertEquals("openid", params["scope"])
                 assertEquals(clientId, params["client_id"])
 

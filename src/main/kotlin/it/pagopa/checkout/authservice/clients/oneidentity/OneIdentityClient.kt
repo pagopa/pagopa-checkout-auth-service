@@ -9,6 +9,7 @@ import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.generated.checkout.oneidentity.api.TokenServerApisApi
 import it.pagopa.generated.checkout.oneidentity.model.GetJwkSet200ResponseDto
 import it.pagopa.generated.checkout.oneidentity.model.TokenDataDto
+import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 import java.util.*
 import org.slf4j.LoggerFactory
@@ -48,18 +49,19 @@ class OneIdentityClient(
                 // Represents a cryptographically strong random string that is used to prevent
                 // intercepted responses from being reused.
                 val nonce = UUID.randomUUID()
+                val redirectUrlEncoded = URLEncoder.encode(redirectUri, StandardCharsets.UTF_8)
                 LoginData(
                     loginRedirectUri =
                         UriComponentsBuilder.fromUriString(it)
                             .path("/login")
-                            .queryParam("response_type", "code")
+                            .queryParam("response_type", "CODE")
                             .queryParam("scope", "openid")
                             .queryParam("client_id", clientId)
                             .queryParam("state", state)
                             .queryParam("nonce", nonce)
-                            .queryParam("redirect_uri", redirectUri)
+                            .queryParam("redirect_uri", redirectUrlEncoded)
                             .build()
-                            .toUri(),
+                            .toUriString(),
                     nonce = OidcNonce(nonce),
                     state = OidcState(state),
                 )

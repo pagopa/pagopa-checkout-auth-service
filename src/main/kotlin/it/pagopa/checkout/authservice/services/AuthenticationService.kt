@@ -49,7 +49,7 @@ class AuthenticationService(
                 oidcAuthStateDataRepository.save(OidcAuthStateData(state = state, nonce = nonce))
                 redirectionUrl
             }
-            .map { LoginResponseDto().urlRedirect(it.toString()) }
+            .map { LoginResponseDto().urlRedirect(it) }
 
     fun retrieveAuthToken(authCode: AuthCode, state: OidcState): Mono<AuthenticatedUserSession> {
         logger.info("Retrieving authorization data for auth with state: [{}]", state)

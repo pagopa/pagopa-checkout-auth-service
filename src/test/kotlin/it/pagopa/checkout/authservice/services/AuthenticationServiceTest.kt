@@ -10,7 +10,6 @@ import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.checkout.authservice.utils.JwtUtils
 import it.pagopa.checkout.authservice.utils.SessionTokenUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
-import java.net.URI
 import java.util.*
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
@@ -39,7 +38,7 @@ class AuthenticationServiceTest {
 
     private val loginData =
         LoginData(
-            loginRedirectUri = URI.create(expectedUrl),
+            loginRedirectUri = expectedUrl,
             state = OidcState(UUID.randomUUID()),
             nonce = OidcNonce(UUID.randomUUID()),
         )
