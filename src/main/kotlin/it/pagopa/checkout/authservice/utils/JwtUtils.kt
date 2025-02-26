@@ -7,12 +7,12 @@ import io.jsonwebtoken.Jwt
 import io.jsonwebtoken.Jwts
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.repositories.redis.OidcKeysRepository
-import java.nio.charset.StandardCharsets
-import java.security.PublicKey
-import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
+import java.nio.charset.StandardCharsets
+import java.security.PublicKey
+import java.util.*
 
 @Component
 class JwtUtils(
@@ -25,6 +25,7 @@ class JwtUtils(
     private val objectMapper = ObjectMapper()
 
     data class JwtKeyInfo(val kid: String, val alg: String)
+
 
     fun validateAndParse(jwtToken: String): Mono<Jwt<Header, Claims>> =
         Mono.just(
@@ -65,8 +66,16 @@ class JwtUtils(
                         "Cache miss for kid: [{}], retrieving keys from One Identity",
                         it.kid,
                     )
-                    Mono.empty<String>()
+                    oneIdentityClient
+                        .getKeys()
+                        .map { jwkResponse ->
+                            jwkResponse
+                                .keys
+                                .forEach()
+                        }
                 }
                 Mono.empty<String>()
             }
+
+
 }
