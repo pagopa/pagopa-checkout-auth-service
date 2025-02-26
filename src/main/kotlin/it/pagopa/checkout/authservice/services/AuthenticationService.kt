@@ -69,7 +69,9 @@ class AuthenticationService(
                         jwtUtils.validateAndParse(response.idToken)
                     }
                     .filter {
-                        it.payloadπ
+                        val nonce = it.payload.get(JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY, String::class.java)
+                        logger.debug("Cached nonce: π")
+                        nonce == oidcAuthState.nonce.value.toString()
                     }
                     .map {
                         UserInfo(
