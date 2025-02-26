@@ -5,14 +5,18 @@ import it.pagopa.checkout.authservice.exception.AuthFailedException
 import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
+import it.pagopa.checkout.authservice.repositories.redis.bean.auth.Name
+import it.pagopa.checkout.authservice.repositories.redis.bean.auth.UserFiscalCode
 import it.pagopa.checkout.authservice.repositories.redis.bean.auth.UserInfo
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
+import it.pagopa.checkout.authservice.utils.JwtUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import java.util.*
 
 @Service
 class AuthenticationService(
@@ -20,7 +24,9 @@ class AuthenticationService(
     private val oidcAuthStateDataRepository: OIDCAuthStateDataRepository,
     private val authenticatedUserSessionRepository: AuthenticatedUserSessionRepository,
     private val authSessionTokenRepository: AuthSessionTokenRepository,
+    private val jwtUtils: JwtUtils
 ) {
+
 
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -44,17 +50,43 @@ class AuthenticationService(
 
     fun retrieveAuthToken(authCode: AuthCode, state: OidcState): Mono<UserInfo> {
         logger.info("Retrieving authorization data for auth with state: [{}]", state)
-        val oidcAuthState = oidcAuthStateDataRepository.findById(state.value.toString())
-        if (oidcAuthState == null) {
-            return Mono.error(
-                AuthFailedException(
-                    state = state,
-                    message = "Cannot retrieve OIDC session for input auth state",
+        val oidcCachedAuthState =
+            Optional
+                .ofNullable(oidcAuthStateDataRepository.findById(state.value.toString()))
+                .map { Mono.just(it) }
+                .orElse(
+                    Mono.error(
+                        AuthFailedException(
+                            state = state,
+                            message = "Cannot retrieve OIDC session for input auth state",
+                        )
+                    )
                 )
-            )
-        }
-        return oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state).flatMap {
-            Mono.empty<UserInfo>()
-        } // TODO
+        return oidcCachedAuthState
+            .flatMap { oidcAuthState ->
+                oneIdentityClient.retrieveOidcToken(authCode = authCode, state = oidcAuthState.state)
+                    .flatMap { response ->
+                        jwtUtils.validateAndParse(response.idToken)
+                    }
+                    .filter {
+                        it.payloadπ
+                    }
+                    .map {
+                        UserInfo(
+                            name = Name(
+                                it.payload.get(JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY, String::class.java)
+                            ),
+                            surname = Name(
+                                it.payload.get(JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY, String::class.java)
+                            ),
+                            fiscalCode = UserFiscalCode(
+                                it.payload.get(
+                                    JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY,
+                                    String::class.java
+                                )
+                            )
+                        )
+                    }
+            }
     }
 }
