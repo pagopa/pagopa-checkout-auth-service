@@ -138,19 +138,8 @@ paths:
       operationId: authenticateWithAuthToken
       summary: Authentication endpoint
       description: 'POST authentication endpoint with auth code'
-      parameters:
-        - in: header
-          name: x-auth-code
-          required: true
-          description: OIDC authentication code, used to retrieve authentication result and data
-          schema:
-            type: string
-        - in: header
-          name: x-state
-          schema:
-            type: string
-          required: true
-          description: OIDC state, used to trace authentication state and link login request to callback call
+      requestBody:
+        $ref: '#/components/requestBodies/AuthRequest'
       responses:
         '200':
           description: Successful authentication
@@ -218,13 +207,17 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
+      description: "authentication opaque token"
+      bearerFormat: opaque token
   schemas:
     LoginResponse:
       type: object
       properties:
         urlRedirect:
           type: string
+          description: login redirect url
+      required:
+        - urlRedirect
     ProblemJson:
       type: object
       properties:
@@ -270,17 +263,19 @@ components:
     UserInfoResponse:
       type: object
       properties:
-        userInfo:
-          type: object
-          properties:
-            userId:
-              type: string
-            firstName:
-              type: string
-            lastName:
-              type: string
-            email:
-              type: string
+        userId:
+          type: string
+          description: user unique id
+        name:
+          type: string
+          description: user name
+        familyName:
+          type: string
+          description: user family name
+      required:
+        - userId
+        - name
+        - familyName
     AuthResponse:
       type: object
       properties:
@@ -289,3 +284,23 @@ components:
           description: authentication opaque token
       required:
         - authToken
+    AuthRequest:
+      type: object
+      properties:
+        authCode:
+          type: string
+          description: OIDC authorization code
+        state:
+          type: string
+          description: opaque token used to correlate authentication requests
+      required:
+        - authToken
+        - state
+  requestBodies:
+    AuthRequest:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/AuthRequest'
+
