@@ -16,10 +16,10 @@ import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.checkout.authservice.utils.JwtUtils
 import it.pagopa.checkout.authservice.utils.SessionTokenUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
-import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import java.util.*
 
 @Service
 class AuthenticationService(
@@ -52,9 +52,9 @@ class AuthenticationService(
             .map { LoginResponseDto().urlRedirect(it) }
 
     fun retrieveAuthToken(authCode: AuthCode, state: OidcState): Mono<AuthenticatedUserSession> {
-        logger.info("Retrieving authorization data for auth with state: [{}]", state)
+        logger.info("Retrieving authorization data for auth with state: [{}]", state.value)
         val oidcCachedAuthState =
-            Optional.ofNullable(oidcAuthStateDataRepository.findById(state.value.toString()))
+            Optional.ofNullable(oidcAuthStateDataRepository.findById(state.value))
                 .map { Mono.just(it) }
                 .orElse(
                     Mono.error(
@@ -66,16 +66,16 @@ class AuthenticationService(
                 )
         val cachedAuthUserInfo =
             Optional.ofNullable(
-                    // find in session auth-code to sessionToken mapped cached value
-                    authSessionTokenRepository.findById(authCode.value)
-                )
+                // find in session auth-code to sessionToken mapped cached value
+                authSessionTokenRepository.findById(authCode.value)
+            )
                 .map { authenticatedUserSessionRepository.findById(it.sessionToken.value) }
         return Mono.just(cachedAuthUserInfo)
             .filter { it.isPresent }
             .map {
                 logger.info(
                     "Auth login cache hit! Found session auth for authCode: [{}] with session token: [{}]",
-                    authCode,
+                    authCode.value,
                     it.get().sessionToken.value,
                 )
                 it.get()
@@ -89,7 +89,7 @@ class AuthenticationService(
                         .flatMap {
                             val nonce =
                                 it.payload.get(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, String::class.java)
-                            val cachedNonce = oidcAuthState.nonce.value.toString()
+                            val cachedNonce = oidcAuthState.nonce.value
                             logger.debug(
                                 "Cached nonce: [{}], jwt token nonce: [{}]",
                                 nonce,
@@ -145,9 +145,9 @@ class AuthenticationService(
                 }
             )
             .doOnNext {
-                logger.info("User logged successfully for state: [{}]", state)
+                logger.info("User logged successfully for state: [{}]", state.value)
                 // user logged in, delete authentication state-nonce from cache
-                oidcAuthStateDataRepository.delete(state.value.toString())
+                oidcAuthStateDataRepository.delete(state.value)
                 // auth-code session token link, used to allow multiple retry on POST auth/token
                 authSessionTokenRepository.save(
                     AuthSessionToken(authCode = authCode, sessionToken = it.sessionToken)
