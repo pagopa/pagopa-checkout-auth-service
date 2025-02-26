@@ -75,6 +75,9 @@ microservice-chart:
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
+    ONEIDENTITY_BASE_URL: "https://uat.oneid.pagopa.it/login"
+    ONEIDENTITY_REDIRECT_URI: "http://uat.checkout.pagopa.it/auth-callback"
+    ONEIDENTITY_CLIENT_ID: "DlBY1GBNsl-w33g8Cpi1MXaMFNCxxvgg0KQPhEvmZ4I"
   envSecret:
     OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
   keyvault:

@@ -24,10 +24,10 @@ paths:
       summary: Login endpoint
       description: 'GET login endpoint with reCAPTCHA code'
       parameters:
-        - in: query
-          name: recaptcha
-          required: true
-          description: reCAPTCHA code
+        - in: header
+          name: x-rptid
+          required: false
+          description: Optional RPTID for tracking login attempts
           schema:
             type: string
       responses:
