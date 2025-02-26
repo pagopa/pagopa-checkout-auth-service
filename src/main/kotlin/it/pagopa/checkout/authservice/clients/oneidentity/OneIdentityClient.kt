@@ -9,6 +9,8 @@ import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.generated.checkout.oneidentity.api.TokenServerApisApi
 import it.pagopa.generated.checkout.oneidentity.model.GetJwkSet200ResponseDto
 import it.pagopa.generated.checkout.oneidentity.model.TokenDataDto
+import java.nio.charset.StandardCharsets
+import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -17,8 +19,6 @@ import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.client.WebClientResponseException
 import org.springframework.web.util.UriComponentsBuilder
 import reactor.core.publisher.Mono
-import java.nio.charset.StandardCharsets
-import java.util.*
 
 @Component
 class OneIdentityClient(
@@ -77,18 +77,18 @@ class OneIdentityClient(
         val code = authCode.value
         val grantType = "AUTHORIZATION_CODE"
         return try {
-            oneIdentityWebClient.createRequestToken(
-                authorization, // authorization (basic auth)
-                redirectUri, // redirect uri
-                code, // auth code
-                grantType, // grant type
-            )
-        } catch (exception: Exception) {
-            // openapi generated webclient throws exception in case of input value validation
-            // failure instead of returning a Mono error, errors are catch here and mapped to
-            // mono error
-            Mono.error(exception)
-        }
+                oneIdentityWebClient.createRequestToken(
+                    authorization, // authorization (basic auth)
+                    redirectUri, // redirect uri
+                    code, // auth code
+                    grantType, // grant type
+                )
+            } catch (exception: Exception) {
+                // openapi generated webclient throws exception in case of input value validation
+                // failure instead of returning a Mono error, errors are catch here and mapped to
+                // mono error
+                Mono.error(exception)
+            }
             .onErrorMap {
                 logger.error("Exception retrieving OI id token for OIDC state: [$state]", it)
                 when (it) {
@@ -117,12 +117,13 @@ class OneIdentityClient(
 
     fun getKeys(): Mono<GetJwkSet200ResponseDto> {
         return try {
-            oneIdentityWebClient.jwkSet
-        } catch (e: Exception) {
-            Mono.error(e)
-        }.onErrorMap {
-            logger.error("Error retrieving jwk set", it)
-            OneIdentityConfigurationException("Error while retrieving jwt signing keys")
-        }
+                oneIdentityWebClient.jwkSet
+            } catch (e: Exception) {
+                Mono.error(e)
+            }
+            .onErrorMap {
+                logger.error("Error retrieving jwk set", it)
+                OneIdentityConfigurationException("Error while retrieving jwt signing keys")
+            }
     }
 }

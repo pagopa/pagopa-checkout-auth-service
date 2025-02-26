@@ -9,20 +9,20 @@ import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
 import it.pagopa.checkout.authservice.repositories.redis.OidcKeysRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcKey
-import org.slf4j.LoggerFactory
-import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 import java.math.BigInteger
 import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
 import java.security.PublicKey
 import java.security.spec.RSAPublicKeySpec
 import java.util.*
+import org.slf4j.LoggerFactory
+import org.springframework.stereotype.Component
+import reactor.core.publisher.Mono
 
 @Component
 class JwtUtils(
-    val oidcKeysRepository: OidcKeysRepository,
-    val oneIdentityClient: OneIdentityClient,
+    private val oidcKeysRepository: OidcKeysRepository,
+    private val oneIdentityClient: OneIdentityClient,
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
@@ -37,19 +37,13 @@ class JwtUtils(
         const val OI_JWT_USER_NAME_CLAIM_KEY = "name"
         const val OI_JWT_USER_FAMILY_NAME_CLAIM_KEY = "familyName"
         const val OI_JWT_USER_FISCAL_CODE_CLAIM_KEY = "fiscalNumber"
+        const val OI_JWT_NONCE_CLAIM_KEY = "nonce"
     }
 
-
     fun validateAndParse(jwtToken: String): Mono<Jwt<Header, Claims>> =
-        retrieveTokenKey(jwtToken)
-            .map {
-                Jwts.parser()
-                    .verifyWith(it)
-                    .build()
-                    .parse(jwtToken)
-                    .accept(Jwt.UNSECURED_CLAIMS)
-            }
-
+        retrieveTokenKey(jwtToken).map {
+            Jwts.parser().verifyWith(it).build().parse(jwtToken).accept(Jwt.UNSECURED_CLAIMS)
+        }
 
     private fun retrieveTokenKey(jwtToken: String): Mono<PublicKey> =
         Mono.just(jwtToken)
@@ -80,48 +74,41 @@ class JwtUtils(
                         "Cache miss for kid: [{}], retrieving keys from One Identity",
                         keyInfo.kid,
                     )
-                    oneIdentityClient
-                        .getKeys()
-                        .flatMap { jwkResponse ->
-                            val key = jwkResponse
-                                .keys
+                    oneIdentityClient.getKeys().flatMap { jwkResponse ->
+                        val key =
+                            jwkResponse.keys
                                 .map { objectMapper.readTree(it) }
                                 .firstOrNull { it["kid"].asText() == keyInfo.kid }
-                            if (key == null) {
-                                Mono.error(OneIdentityConfigurationException("Cannot find key with kid: [${keyInfo.kid}]"))
-                            } else {
-                                val modulus = BigInteger(
-                                    1,
-                                    Base64.getDecoder().decode(key["n"].asText())
+                        if (key == null) {
+                            Mono.error(
+                                OneIdentityConfigurationException(
+                                    "Cannot find key with kid: [${keyInfo.kid}]"
                                 )
-                                val exponent = BigInteger(
-                                    1,
-                                    Base64.getDecoder().decode(key["e"].asText())
+                            )
+                        } else {
+                            val modulus =
+                                BigInteger(1, Base64.getDecoder().decode(key["n"].asText()))
+                            val exponent =
+                                BigInteger(1, Base64.getDecoder().decode(key["e"].asText()))
+                            val decodedPublicKey =
+                                rsaKeyFactory.generatePublic(RSAPublicKeySpec(modulus, exponent))
+                            oidcKeysRepository.save(
+                                OidcKey(
+                                    kid = key["kid"].asText(),
+                                    n = key["n"].asText(),
+                                    e = key["e"].asText(),
                                 )
-                                val decodedPublicKey = rsaKeyFactory.generatePublic(RSAPublicKeySpec(modulus, exponent))
-                                oidcKeysRepository.save(
-                                    OidcKey(
-                                        kid = key["kid"].asText(),
-                                        n = key["n"].asText(),
-                                        e = key["e"].asText(),
-                                    )
-                                )
-                                Mono.just(decodedPublicKey)
-                            }
+                            )
+                            Mono.just(decodedPublicKey)
                         }
+                    }
                 } else {
                     logger.info("Cache hit for key with kid: [{}]", cachedKey.kid)
                     Mono.just(
                         rsaKeyFactory.generatePublic(
                             RSAPublicKeySpec(
-                                BigInteger(
-                                    1,
-                                    Base64.getDecoder().decode(cachedKey.n)
-                                ),
-                                BigInteger(
-                                    1,
-                                    Base64.getDecoder().decode(cachedKey.e)
-                                )
+                                BigInteger(1, Base64.getDecoder().decode(cachedKey.n)),
+                                BigInteger(1, Base64.getDecoder().decode(cachedKey.e)),
                             )
                         )
                     )

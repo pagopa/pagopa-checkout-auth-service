@@ -31,6 +31,7 @@ These are all environment variables needed by the application:
 | ONE_IDENTITY_SERVER_URI                       | OIDC authentication backend identity provider uri                                                        | string  |         |
 | ONE_IDENTITY_SERVER_READ_TIMEOUT_MILLIS       | OIDC authentication backend identity provider requests read timeout (in milliseconds)                    | number  |         |
 | ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS | OIDC authentication backend identity provider requests connection timeout (in milliseconds)              | number  |         |
+| SESSION_TOKEN_LENGTH_IN_BYTES                 | Randomly generated session token length in bytes                                                         | number  | 16      |
 
 An example configuration of these environment variables is in the `.env.example` file.
 

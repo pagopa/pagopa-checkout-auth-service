@@ -7,6 +7,8 @@ import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessio
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
+import it.pagopa.checkout.authservice.utils.JwtUtils
+import it.pagopa.checkout.authservice.utils.SessionTokenUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import java.net.URI
 import java.util.*
@@ -21,12 +23,16 @@ class AuthenticationServiceTest {
     private val oidcAuthStateDataRepository: OIDCAuthStateDataRepository = mock()
     private val authenticatedUserSessionRepository: AuthenticatedUserSessionRepository = mock()
     private val authSessionTokenRepository: AuthSessionTokenRepository = mock()
+    private val jwtUtils: JwtUtils = mock()
+    private val sessionTokenUtils: SessionTokenUtils = mock()
     private val authenticationService =
         AuthenticationService(
             oneIdentityClient = oneIdentityClient,
             oidcAuthStateDataRepository = oidcAuthStateDataRepository,
             authenticatedUserSessionRepository = authenticatedUserSessionRepository,
             authSessionTokenRepository = authSessionTokenRepository,
+            jwtUtils = jwtUtils,
+            sessionTokenUtils = sessionTokenUtils,
         )
 
     private val expectedUrl = "https://mock.example.com/client/login"

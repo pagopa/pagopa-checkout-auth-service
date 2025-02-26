@@ -27,5 +27,7 @@ abstract class RedisTemplateWrapper<V>(
 
     fun findById(key: String): V? = redisTemplate.opsForValue()["$keyspace:$key"]
 
+    fun delete(key: String) = redisTemplate.delete(key)
+
     protected abstract fun getKeyFromEntity(value: V): String
 }
