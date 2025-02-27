@@ -62,8 +62,8 @@ class OneIdentityClient(
                             .queryParam("redirect_uri", redirectUrlEncoded)
                             .build()
                             .toUriString(),
-                    nonce = OidcNonce(nonce),
-                    state = OidcState(state),
+                    nonce = OidcNonce(nonce.toString()),
+                    state = OidcState(state.toString()),
                 )
             }
             .onErrorMap {
@@ -92,19 +92,36 @@ class OneIdentityClient(
                 Mono.error(exception)
             }
             .onErrorMap {
-                logger.error("Exception retrieving OI id token for OIDC state: [$state]", it)
+                val (httpStatusCode, responseBody) =
+                    if (it is WebClientResponseException) {
+                        Pair(it.statusCode.toString(), it.responseBodyAsString)
+                    } else {
+                        Pair("N/A", "N/A")
+                    }
+                logger.error(
+                    "Exception retrieving OI id token for OIDC state: [${state.value}], response status code: [$httpStatusCode], response body: [$responseBody]",
+                    it,
+                )
                 when (it) {
                     is WebClientResponseException -> {
                         val errorMessage =
-                            "Error retrieving OI id token, http response code: [${it.statusCode}]"
+                            "Error retrieving OI id token, http response code: [${it.statusCode}], response message: [${it.responseBodyAsString}]"
                         when (it.statusCode) {
                             // 401-403
                             HttpStatus.UNAUTHORIZED,
                             HttpStatus.FORBIDDEN ->
-                                AuthFailedException(message = errorMessage, state = state)
+                                AuthFailedException(
+                                    message = errorMessage,
+                                    state = state,
+                                    cause = it,
+                                )
                             // all other http response statuses are mapped to 500
                             else ->
-                                OneIdentityServerException(message = errorMessage, state = state)
+                                OneIdentityServerException(
+                                    message = errorMessage,
+                                    state = state,
+                                    cause = it,
+                                )
                         }
                     }
 
@@ -112,6 +129,7 @@ class OneIdentityClient(
                         OneIdentityServerException(
                             state = state,
                             message = "Unhandled error retrieving OI id token: [${it.message}]",
+                            cause = it,
                         )
                 }
             }

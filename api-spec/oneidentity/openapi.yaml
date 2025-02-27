@@ -102,7 +102,9 @@ paths:
                   keys:
                     type: array
                     items:
-                      type: string
+                      type: object
+                      additionalProperties:
+                        type: string
                     example:
                       - kty: RSA
                         kid: default_ssl_key
