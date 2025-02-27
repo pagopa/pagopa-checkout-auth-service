@@ -1,7 +1,6 @@
 package it.pagopa.checkout.authservice.utils
 
 import io.jsonwebtoken.Claims
-import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
@@ -33,12 +32,13 @@ class JwtUtils(
         const val OI_JWT_NONCE_CLAIM_KEY = "nonce"
     }
 
-    fun validateAndParse(jwtToken: String): Mono<Jws<Claims>> {
+    fun validateAndParse(jwtToken: String): Mono<Claims> {
         return retrieveTokenKeys().flatMap { publicKeys ->
             val jwtParser =
                 publicKeys.map {
                     Mono.just(
-                        Jwts.parser().verifyWith(it).build().parse(jwtToken).accept(Jws.CLAIMS)
+                        Jwts.parserBuilder().setSigningKey(it).build().parse(jwtToken).body
+                            as Claims
                     )
                 }
             Mono.firstWithValue(jwtParser).onErrorResume {

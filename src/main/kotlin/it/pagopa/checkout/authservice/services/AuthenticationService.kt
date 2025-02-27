@@ -87,8 +87,7 @@ class AuthenticationService(
                         .retrieveOidcToken(authCode = authCode, state = oidcAuthState.state)
                         .flatMap { response -> jwtUtils.validateAndParse(response.idToken) }
                         .flatMap {
-                            val nonce =
-                                it.payload.get(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, String::class.java)
+                            val nonce = it.get(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, String::class.java)
                             val cachedNonce = oidcAuthState.nonce.value
                             logger.debug(
                                 "Cached nonce: [{}], jwt token nonce: [{}]",
@@ -112,21 +111,21 @@ class AuthenticationService(
                                 UserInfo(
                                     name =
                                         Name(
-                                            it.payload.get(
+                                            it.get(
                                                 JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY,
                                                 String::class.java,
                                             )
                                         ),
                                     surname =
                                         Name(
-                                            it.payload.get(
+                                            it.get(
                                                 JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY,
                                                 String::class.java,
                                             )
                                         ),
                                     fiscalCode =
                                         UserFiscalCode(
-                                            it.payload.get(
+                                            it.get(
                                                 JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY,
                                                 String::class.java,
                                             )
