@@ -1,6 +1,5 @@
 package it.pagopa.checkout.authservice.utils
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jws
 import io.jsonwebtoken.Jwts
@@ -24,8 +23,6 @@ class JwtUtils(
 ) {
 
     private val logger = LoggerFactory.getLogger(javaClass)
-
-    private val objectMapper = ObjectMapper()
 
     private val rsaKeyFactory = KeyFactory.getInstance("RSA")
 
