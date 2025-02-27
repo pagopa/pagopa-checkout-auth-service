@@ -17,17 +17,23 @@ class SessionTokenUtils(
 
     private val secureRandom = SecureRandom()
 
+    private val BEARER_PREFIX = "Bearer "
+
     fun generateSessionToken(): SessionToken {
         val sessionToken = ByteArray(sessionTokenLengthInBytes)
         secureRandom.nextBytes(sessionToken)
         return SessionToken(Base64.getEncoder().encodeToString(sessionToken))
     }
 
-    fun getBearerTokenFromRequestHeaders(request: ServerHttpRequest): Mono<String> {
-        return Mono.justOrEmpty(request.headers.getFirst(HttpHeaders.AUTHORIZATION))
-            .switchIfEmpty(
-                Mono.error(SessionValidationException(message = "Missing Session Token"))
+    fun getSessionTokenFromRequest(request: ServerHttpRequest): Mono<String> {
+        return Mono.justOrEmpty(
+                request.headers
+                    .getFirst(HttpHeaders.AUTHORIZATION)
+                    ?.takeIf { it.startsWith(BEARER_PREFIX, ignoreCase = true) }
+                    ?.substring(BEARER_PREFIX.length)
             )
-            .map { header -> header.substring(7) } // TODO: remove magic numbers
+            .switchIfEmpty(
+                Mono.error(SessionValidationException(message = "Missing or invalid token"))
+            )
     }
 }

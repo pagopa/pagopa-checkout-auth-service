@@ -1,6 +1,5 @@
 package it.pagopa.checkout.authservice.controllers
 
-import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.checkout.authservice.services.AuthenticationService
