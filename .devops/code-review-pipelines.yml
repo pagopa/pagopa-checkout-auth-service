@@ -72,6 +72,14 @@ stages:
             - script: |
                 timeout 180 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8080/actuator/health/liveness)" != "200" ]]; do sleep 5; done' || exit 1
               displayName: 'Health check'
+            - script: |
+                docker exec pagopa-checkout-redis redis-cli -h $REDIS_HOST -p $REDIS_PORT -a $REDIS_PASSWORD SET authenticated-user-session:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c '{"sessionToken":{"value":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"},"userInfo":{"name":{"value":"Test"},"surname":{"value":"User"},"fiscalCode":{"value":"TSTUSR01A01H501X"}}}'
+              displayName: 'Populate Redis with test data'
+            - script: yarn global add newman
+              displayName: 'newman installation'
+            - script: newman run api-tests/v1/checkoutauth.api.tests.local.json --environment=api-tests/env/checkoutauth_local.env.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-api-TEST.xml
+              displayName: 'Run checkout auth api test with mock'
+              continueOnError: false
             - task: PublishTestResults@2
               inputs:
                 testResultsFormat: 'JUnit'
