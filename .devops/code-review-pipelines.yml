@@ -79,7 +79,7 @@ stages:
           - task: NodeTool@0
             inputs:
               versionSource: 'spec'
-              versionSpec: '20.x'
+              versionSpec: '22.13.1'
 
           - script: yarn global add node-gyp && yarn install && yarn build
             workingDirectory: pagopa-checkout-identity-provider-mock
