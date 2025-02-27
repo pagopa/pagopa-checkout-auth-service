@@ -75,9 +75,11 @@ stages:
       - job: make_integration_test
         steps:
           - checkout: pagopa-checkout-identity-provider-mock
+          
           - task: UseNode@1
             inputs:
-              versionSpec: '22.x'
+              versionSpec: '20.x'
+
           - script: yarn global add node-gyp && yarn install && yarn build
             workingDirectory: pagopa-checkout-identity-provider-mock
             displayName: 'Setup deps for mock'
