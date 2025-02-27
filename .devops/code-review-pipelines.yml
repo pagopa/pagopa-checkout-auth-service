@@ -81,7 +81,7 @@ stages:
           - task: UseNode@1
             inputs:
               versionSpec: '$(NODE_VERSION)'
-            displayName: 'Set up Node.js'
+            displayName: 'Use Node.js $(NODE_VERSION)'
 
           - script: yarn global add node-gyp && yarn install && yarn build
             workingDirectory: pagopa-checkout-identity-provider-mock
