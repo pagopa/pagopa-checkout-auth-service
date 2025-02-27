@@ -27,14 +27,13 @@ class SessionTokenUtils(
 
     fun getBearerTokenFromRequestHeaders(request: ServerHttpRequest): Mono<String> {
         return Mono.justOrEmpty(
-            request.headers
-                .getFirst(HttpHeaders.AUTHORIZATION)
-                ?.takeIf { it.startsWith(BEARER_PREFIX, ignoreCase = true) }
-                ?.substring(BEARER_PREFIX.length)
-        ).switchIfEmpty(
-            Mono.error(
-                SessionValidationException(message = "Missing or invalid token")
+                request.headers
+                    .getFirst(HttpHeaders.AUTHORIZATION)
+                    ?.takeIf { it.startsWith(BEARER_PREFIX, ignoreCase = true) }
+                    ?.substring(BEARER_PREFIX.length)
             )
-        )
+            .switchIfEmpty(
+                Mono.error(SessionValidationException(message = "Missing or invalid token"))
+            )
     }
 }
