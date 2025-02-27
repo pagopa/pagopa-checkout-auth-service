@@ -1,4 +1,6 @@
 variables:
+  NODE_VERSION: '22.13.1'
+  YARN_CACHE_FOLDER: $(Pipeline.Workspace)/.yarn
   BRANCH_NAME: $[ replace(variables['System.PullRequest.SourceBranch'], 'refs/heads/', '') ]
   GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
 trigger: none
