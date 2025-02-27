@@ -79,6 +79,7 @@ stages:
             - script: yarn install && yarn build
               workingDirectory: pagopa-checkout-identity-provider-mock
               displayName: 'Setup deps for mock'
+              workingDirectory: pagopa-checkout-identity-provider-mock
 
             - script: |
                 nohup yarn start &
