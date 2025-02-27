@@ -65,7 +65,7 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
      *   server error (status code 500)
      */
     override fun authenticateWithAuthToken(
-        authenticateWithAuthTokenRequestDto: Mono<AuthenticateWithAuthTokenRequestDto>?,
+        authenticateWithAuthTokenRequestDto: Mono<AuthenticateWithAuthTokenRequestDto>,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<AuthResponseDto>> {
         return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())

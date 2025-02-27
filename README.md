@@ -1,7 +1,9 @@
 # PagoPA Checkout Auth Service
 
 ## Overview
-`pagopa-checkout-auth-service` is a Kotlin-based microservice designed to support authentication for the checkout process.
+
+`pagopa-checkout-auth-service` is a Kotlin-based microservice designed to support authentication for the checkout
+process.
 This service leverages Kotlin's native compilation to achieve optimal performance and efficiency.
 
 ## Technology Stack
@@ -13,15 +15,23 @@ This service leverages Kotlin's native compilation to achieve optimal performanc
 
 These are all environment variables needed by the application:
 
-| Variable name            | Description                                                                                              | type   | default |
-|--------------------------|----------------------------------------------------------------------------------------------------------|--------|---------|
-| ONEIDENTITY_BASE_URL     | One Identity base URL                                                                                    | string |         |
-| ONEIDENTITY_REDIRECT_URI | The 'redirect_uri' that was registered for this client by One Identity                                   | string |         |
-| OPENID_CLIENT_ID         | This is the 'client_id' of the requesting client, provided by One Identity after registering the service | string |         |
+| Variable name                                | Description                                                                                              | type    | default |
+|----------------------------------------------|----------------------------------------------------------------------------------------------------------|---------|---------|
+| ONEIDENTITY_BASE_URL                         | One Identity base URL                                                                                    | string  |         |
+| ONEIDENTITY_REDIRECT_URI                     | The 'redirect_uri' that was registered for this client by One Identity                                   | string  |         |
+| OPENID_CLIENT_ID                             | This is the 'client_id' of the requesting client, provided by One Identity after registering the service | string  |         |
+| REDIS_HOST                                   | Redis server hostname                                                                                    | string  |         |
+| REDIS_PASSWORD                               | Redis server password                                                                                    | string  |         |
+| REDIS_PORT                                   | Redis server listening port                                                                              | number  |         |
+| REDIS_SSL_ENABLED                            | Redis server boolean value indicating if ssl connection is enabled                                       | boolean |         |
+| AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS | Authenticated user session cache duration in seconds                                                     | number  |         |
+| AUTH_SESSION_TOKEN_CACHE_TTL_SECONDS         | Authentication session token cache duration in seconds                                                   | number  |         |
+| OIDC_AUTH_STATE_CACHE_TTL_SECONDS            | OIDC authentication state cache duration in seconds                                                      | number  |         |
 
 An example configuration of these environment variables is in the `.env.example` file.
 
-It is recommended to create a new .env file by copying the example one, using the following command (make sure you are in the .env.example folder):
+It is recommended to create a new .env file by copying the example one, using the following command (make sure you are
+in the .env.example folder):
 
 ```shell
 cp .env.example .env
@@ -31,7 +41,8 @@ cp .env.example .env
 
 If you are developing on Windows, it is recommended the use of WSL2 combined with IntelliJ IDEA.
 
-The IDE should be installed on Windows, with the repository cloned into a folder in WSL2. All the necessary tools will be installed in the Linux distro of your choice.
+The IDE should be installed on Windows, with the repository cloned into a folder in WSL2. All the necessary tools will
+be installed in the Linux distro of your choice.
 
 You can find more info on how to set up the environment following the link below.
 
@@ -40,32 +51,41 @@ https://www.jetbrains.com/help/idea/how-to-use-wsl-development-environment-in-pr
 After setting up the WSL environment, you can test the application by building it through either Spring Boot or Docker.
 
 ## Spring Boot Native
+
 ### Requirements
+
 1. You must use GraalVM Java SDK to build native executable locally.
    https://www.graalvm.org/downloads/. It is recommended to use SDKMAN
-2. You must use GraalVM gradle plugin which allows to configure a lot of setting for native compilation, like automatic toolchain detection https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html
+2. You must use GraalVM gradle plugin which allows to configure a lot of setting for native compilation, like automatic
+   toolchain detection https://graalvm.github.io/native-build-tools/latest/gradle-plugin.html
 
-If you're experiencing issue with GraalVM not found like errors, be sure to use GraalVM for the project and try to enable automatic toolchain detection.
+If you're experiencing issue with GraalVM not found like errors, be sure to use GraalVM for the project and try to
+enable automatic toolchain detection.
 Also, you can use [SDKMAN](https://sdkman.io/install) to provide a better JVM env "switching".
 
-
 #### Compile & Run
+
 To compile microservice to native executable you can use the following gradle task:
+
 ```shell
 gradle :nativeCompile
 ```
+
 This will produce an executable inside `build/native/nativeCompile/`
 
-N.B. Compiling into a native executable takes a long time. Locally, it is recommended to launch it normally (in java) in order to test the service.
+N.B. Compiling into a native executable takes a long time. Locally, it is recommended to launch it normally (in java) in
+order to test the service.
 
 Also exist a gradle command to compile and run it directly:
+
 ```shell
 gradle :nativeRun
 ```
 
 ## Docker
 
-The project can be built and run using Docker and docker-compose. You should install Docker Desktop on Windows and go through its settings to set up the WSL integration.
+The project can be built and run using Docker and docker-compose. You should install Docker Desktop on Windows and go
+through its settings to set up the WSL integration.
 
 You can find more info at the following link: https://docs.docker.com/desktop/wsl/
 
@@ -77,10 +97,12 @@ docker-compose up
 
 The docker-compose up command will build the image and start the containers.
 
-
 #### Tips
+
 The main issue with native image is related to Java Reflection.
-GraalVM produces a metadata files containing reflection data.  There is also a repository containing the metadata of some of the most widely used external libraries. You can include this metadata via the gradle plugin
+GraalVM produces a metadata files containing reflection data. There is also a repository containing the metadata of some
+of the most widely used external libraries. You can include this metadata via the gradle plugin
+
 ```gradle
 graalvmNative {
     metadataRepository {
@@ -91,7 +113,8 @@ graalvmNative {
 ```
 
 Spring using AOT try automatically to do the best, but you can also find issues.
-Here https://docs.spring.io/spring-framework/reference/core/aot.html#aot.hints you can find a lot of tips, like `@RegisterReflectionForBinding`
+Here https://docs.spring.io/spring-framework/reference/core/aot.html#aot.hints you can find a lot of tips, like
+`@RegisterReflectionForBinding`
 
 #### Dependency lock
 
