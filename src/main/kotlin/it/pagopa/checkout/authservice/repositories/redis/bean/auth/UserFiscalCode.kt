@@ -4,6 +4,8 @@ package it.pagopa.checkout.authservice.repositories.redis.bean.auth
 data class UserFiscalCode(val value: String) {
 
     init {
-        require(value.length == 16) { "Invalid value for fiscal code, must be 16 chars length" }
+        require(value.isNotEmpty() && value.isNotBlank()) {
+            "Invalid blank or empty value for user fiscal code"
+        }
     }
 }

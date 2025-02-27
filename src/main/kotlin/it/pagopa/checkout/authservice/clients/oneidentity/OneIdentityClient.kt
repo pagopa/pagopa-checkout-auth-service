@@ -75,7 +75,7 @@ class OneIdentityClient(
         // basic auth credentials formatting as clientId:clientSecret
         val authorization =
             Base64.getEncoder()
-                .encodeToString("$clientId:$clientSecret".toByteArray(StandardCharsets.UTF_8))
+                .encodeToString("$clientId:$clientSecret".toByteArray(StandardCharsets.US_ASCII))
         val code = authCode.value
         val grantType = "AUTHORIZATION_CODE"
         return try {

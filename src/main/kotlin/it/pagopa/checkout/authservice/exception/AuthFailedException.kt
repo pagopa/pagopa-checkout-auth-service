@@ -12,7 +12,7 @@ class AuthFailedException(
         RestApiException(
             httpStatus = HttpStatus.UNAUTHORIZED,
             title = "Unauthorized",
-            description = "Cannot perform authentication process for state: [$state]",
+            description = "Cannot perform authentication process for state: [${state.value}]",
             cause = cause,
         )
 }
