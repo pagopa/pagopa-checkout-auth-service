@@ -76,7 +76,7 @@ stages:
 
             - checkout: pagopa-checkout-identity-provider-mock
 
-            - script: yarn global add node-gyp && yarn install && yarn build
+            - script: yarn install && yarn build
               workingDirectory: pagopa-checkout-identity-provider-mock
               displayName: 'Setup deps for mock'
 
