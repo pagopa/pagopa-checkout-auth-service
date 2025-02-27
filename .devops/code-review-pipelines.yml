@@ -1,5 +1,4 @@
 variables:
-  NODE_VERSION: '22.13.1'
   BRANCH_NAME: $[ replace(variables['System.PullRequest.SourceBranch'], 'refs/heads/', '') ]
   GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
 
@@ -76,12 +75,9 @@ stages:
       - job: make_integration_test
         steps:
           - checkout: pagopa-checkout-identity-provider-mock
-
           - task: UseNode@1
             inputs:
-              versionSpec: '$(NODE_VERSION)'
-            displayName: 'Use Node.js $(NODE_VERSION)'
-
+              versionSpec: '22.x'
           - script: yarn global add node-gyp && yarn install && yarn build
             workingDirectory: pagopa-checkout-identity-provider-mock
             displayName: 'Setup deps for mock'
