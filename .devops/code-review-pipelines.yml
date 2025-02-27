@@ -73,17 +73,38 @@ stages:
             - script: |
                 timeout 180 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8080/actuator/health/liveness)" != "200" ]]; do sleep 5; done' || exit 1
               displayName: 'Health check'
+            # ping redis
             - script: |
-                docker exec pagopa-checkout-redis redis-cli SET "authenticated-user-session:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" '{"sessionToken":{"value":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"},"userInfo":{"name":{"value":"Test"},"surname":{"value":"User"},"fiscalCode":{"value":"TSTUSR01A01H501X"}}}'
+                docker exec pagopa-checkout-redis redis-cli -a "redis-password" PING
+              displayName: 'Test Redis connectivity'
+            # populate redis data (SET)
+            - script: |
+                docker exec pagopa-checkout-redis redis-cli -a "redis-password" SET "authenticated-user-session:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" "{\"sessionToken\":{\"value\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\"},\"userInfo\":{\"fiscalCode\":{\"value\":\"TSTUSR01A01H501X\"},\"name\":{\"value\":\"Test\"},\"surname\":{\"value\":\"User\"}}}"
               displayName: 'Populate Redis with test data'
+            # verify redis data (GET)
+            - script: |
+                docker exec pagopa-checkout-redis redis-cli -a "redis-password" GET "authenticated-user-session:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+              displayName: 'Verify Redis data'
+            # check env vars in the container
+            - script: |
+                docker exec pagopa-checkout-auth-service env | grep -E 'REDIS'
+              displayName: 'Check app environment variables'
             - script: yarn global add newman
               displayName: 'newman installation'
             - script: newman run api-tests/v1/checkout-auth.api.tests.local.json --environment=api-tests/env/checkout-auth_local.env.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-api-TEST.xml
               displayName: 'Run checkout auth api test with mock'
               continueOnError: true
-            - script: |
-                docker logs pagopa-checkout-auth-service
+            # detailed application logs
+            - script: |  
+                echo "=== APPLICATION LOGS ==="
+                docker logs --tail 500 pagopa-checkout-auth-service
               displayName: 'Check application logs'
+            # extract specific error
+            - script: |
+                echo "=== SPECIFIC ERROR DETAILS ==="
+                docker logs pagopa-checkout-auth-service | grep -A 10 "Exception" | head -20
+              displayName: 'Extract error details'
+              continueOnError: true
             - task: PublishTestResults@2
               inputs:
                 testResultsFormat: 'JUnit'
