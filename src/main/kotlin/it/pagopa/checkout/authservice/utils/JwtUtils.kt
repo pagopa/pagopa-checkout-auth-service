@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
+import it.pagopa.checkout.authservice.exception.OneIdentityServerException
 import it.pagopa.checkout.authservice.repositories.redis.OidcKeysRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcKey
 import java.math.BigInteger
@@ -69,8 +70,26 @@ class JwtUtils(
                             jwkResponse.keys
                                 .filter { it["kty"] == "RSA" } // filter for RSA keys only
                                 .map {
+                                    val kid = it["kid"]
+                                    val n = it["n"]
+                                    val e = it["e"]
+                                    if (
+                                        kid.isNullOrBlank() ||
+                                            n.isNullOrBlank() ||
+                                            e.isNullOrBlank()
+                                    ) {
+                                        throw OneIdentityServerException(
+                                            message =
+                                                "Invalid public key detected, null kid, n or e fields. Decoded key: $it",
+                                            state = null,
+                                        )
+                                    }
                                     val oidcKey =
-                                        OidcKey(kid = it["kid"]!!, n = it["n"]!!, e = it["e"]!!)
+                                        OidcKey(
+                                            kid = it["kid"].toString(),
+                                            n = it["n"].toString(),
+                                            e = it["e"].toString(),
+                                        )
                                     // and save each key into cache with its kid as id
                                     oidcKeysRepository.save(oidcKey)
                                     oidcKey
