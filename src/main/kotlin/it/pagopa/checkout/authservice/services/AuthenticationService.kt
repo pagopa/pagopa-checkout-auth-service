@@ -42,8 +42,8 @@ class AuthenticationService(
                 val redirectionUrl = it.loginRedirectUri
                 logger.info(
                     "Processing login request for state: [{}] and nonce: [{}] ",
-                    state,
-                    nonce,
+                    state.value,
+                    nonce.value,
                 )
                 // save state and nonce association for later validation
                 oidcAuthStateDataRepository.save(OidcAuthStateData(state = state, nonce = nonce))
