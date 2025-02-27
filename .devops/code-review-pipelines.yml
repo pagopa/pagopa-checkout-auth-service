@@ -77,7 +77,7 @@ stages:
               displayName: 'Populate Redis with test data'
             - script: yarn global add newman
               displayName: 'newman installation'
-            - script: newman run api-tests/v1/checkoutauth.api.tests.local.json --environment=api-tests/env/checkoutauth_local.env.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-api-TEST.xml
+            - script: newman run api-tests/v1/checkout-auth.api.tests.local.json --environment=api-tests/env/checkout-auth_local.env.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-api-TEST.xml
               displayName: 'Run checkout auth api test with mock'
               continueOnError: false
             - task: PublishTestResults@2
