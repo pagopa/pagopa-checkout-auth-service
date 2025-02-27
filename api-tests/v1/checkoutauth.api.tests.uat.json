@@ -1,7 +1,7 @@
 {
   "info": {
-    "_postman_id": "ec56de24-78d0-439c-a52b-849b086b4a4f",
-    "name": "Checkout Auth Service LOCAL",
+    "_postman_id": "c67df9a4-8e21-4b5f-93c8-f42e81b6d7a9",
+    "name": "Checkout Auth Service UAT",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "22960470"
   },
@@ -31,16 +31,19 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer {{VALID_TEST_BEARER_TOKEN}}",
+            "value": "Bearer {{VALID_BEARER_TOKEN}}",
             "type": "text"
           }
         ],
         "url": {
-          "raw": "{{HOSTNAME}}/auth/users",
+          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/users",
           "host": [
             "{{HOSTNAME}}"
           ],
           "path": [
+            "checkout",
+            "auth-service",
+            "v1",
             "auth",
             "users"
           ]
@@ -78,11 +81,14 @@
           }
         ],
         "url": {
-          "raw": "{{HOSTNAME}}/auth/users",
+          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/users",
           "host": [
             "{{HOSTNAME}}"
           ],
           "path": [
+            "checkout",
+            "auth-service",
+            "v1",
             "auth",
             "users"
           ]
@@ -114,11 +120,14 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{HOSTNAME}}/auth/users",
+          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/users",
           "host": [
             "{{HOSTNAME}}"
           ],
           "path": [
+            "checkout",
+            "auth-service",
+            "v1",
             "auth",
             "users"
           ]
