@@ -25,7 +25,7 @@ class SessionTokenUtils(
         return SessionToken(Base64.getEncoder().encodeToString(sessionToken))
     }
 
-    fun getBearerTokenFromRequestHeaders(request: ServerHttpRequest): Mono<String> {
+    fun getSessionTokenFromRequest(request: ServerHttpRequest): Mono<String> {
         return Mono.justOrEmpty(
                 request.headers
                     .getFirst(HttpHeaders.AUTHORIZATION)
