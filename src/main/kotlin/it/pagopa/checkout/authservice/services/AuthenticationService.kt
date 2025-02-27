@@ -158,7 +158,7 @@ class AuthenticationService(
     }
 
     fun getUserInfo(request: ServerHttpRequest): Mono<UserInfoResponseDto> {
-        return sessionTokenUtils.getBearerTokenFromRequestHeaders(request).flatMap { bearerToken ->
+        return sessionTokenUtils.getSessionTokenFromRequest(request).flatMap { bearerToken ->
             Optional.ofNullable(authenticatedUserSessionRepository.findById(bearerToken))
                 .map { authenticatedUserSession ->
                     Mono.just(
