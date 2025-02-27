@@ -13,26 +13,14 @@ abstract class RedisTemplateWrapper<V>(
         redisTemplate.opsForValue()["$keyspace:${getKeyFromEntity(value)}", value!!] = ttl
     }
 
-    fun saveIfAbsent(value: V): Boolean? {
-        return redisTemplate
-            .opsForValue()
-            .setIfAbsent("$keyspace:${getKeyFromEntity(value)}", value!!, ttl)
-    }
-
-    fun saveIfAbsent(value: V, customTtl: Duration): Boolean? {
-        return redisTemplate
-            .opsForValue()
-            .setIfAbsent("$keyspace:${getKeyFromEntity(value)}", value!!, customTtl)
-    }
-
     fun findById(key: String): V? = redisTemplate.opsForValue()["$keyspace:$key"]
 
-    fun delete(key: String) = redisTemplate.delete(key)
+    fun delete(key: String): Boolean = redisTemplate.delete("$keyspace:$key")
 
-    fun keysInKeyspace(): Set<String> = redisTemplate.keys("$keyspace*").toSet()
+    fun keysInKeyspace(): Set<String> = redisTemplate.keys("$keyspace:*").toSet()
 
     fun getAllValues(): List<V> =
         redisTemplate.opsForValue().multiGet(keysInKeyspace())?.toList() ?: emptyList()
 
-    protected abstract fun getKeyFromEntity(value: V): String
+    abstract fun getKeyFromEntity(value: V): String
 }

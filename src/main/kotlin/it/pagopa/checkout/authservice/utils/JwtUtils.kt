@@ -29,8 +29,6 @@ class JwtUtils(
 
     private val rsaKeyFactory = KeyFactory.getInstance("RSA")
 
-    data class JwtKeyInfo(val kid: String?, val alg: String?)
-
     companion object {
         const val OI_JWT_USER_NAME_CLAIM_KEY = "name"
         const val OI_JWT_USER_FAMILY_NAME_CLAIM_KEY = "familyName"

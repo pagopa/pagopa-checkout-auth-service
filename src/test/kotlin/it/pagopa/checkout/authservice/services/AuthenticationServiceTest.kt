@@ -5,13 +5,17 @@ import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.checkout.authservice.utils.JwtUtils
 import it.pagopa.checkout.authservice.utils.SessionTokenUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
+import it.pagopa.generated.checkout.oneidentity.model.TokenDataDto
 import java.util.*
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
+import org.mockito.kotlin.given
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import reactor.core.publisher.Mono
@@ -75,5 +79,21 @@ class AuthenticationServiceTest {
         StepVerifier.create(authenticationService.login())
             .expectError(RuntimeException::class.java)
             .verify()
+    }
+
+    @Test
+    fun `should retrieve auth token successfully retrieving info from OneIdentity (cache miss)`() {
+        // pre-requisites
+        val oidcState = OidcState("state")
+        val oidcNonce = OidcNonce("nonce")
+        val oidcCacheAuthState = OidcAuthStateData(state = oidcState, nonce = oidcNonce)
+
+        val idToken = "idToken"
+        val tokenDataDtoResponse = TokenDataDto().idToken(idToken)
+        given(oidcAuthStateDataRepository.findById(any())).willReturn(oidcCacheAuthState)
+        given(authSessionTokenRepository.findById(any())).willReturn(null)
+        given(oneIdentityClient.retrieveOidcToken(any(), any()))
+            .willReturn(Mono.just(tokenDataDtoResponse))
+        // given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(Jwts.claims().build()))
     }
 }
