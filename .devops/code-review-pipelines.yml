@@ -89,7 +89,12 @@ stages:
               nohup yarn start &
             displayName: 'Start OI mock'
             workingDirectory: pagopa-checkout-identity-provider-mock
-
+              
+          - script: |
+                curl --location 'http://localhost:8090/initMock' --header 'Content-Type: application/json' --data '{"use_nonce": "rCnohvJSfTUlVDAV","forceFailure": false}'
+            displayName: 'OI mock precondition setup'
+            workingDirectory: pagopa-checkout-identity-provider-mock 
+          
           - checkout: self
 
           - script: cp .env.example .env
