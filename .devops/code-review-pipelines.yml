@@ -73,6 +73,8 @@ stages:
     jobs:
       - job: make_integration_test
         steps:
+            - checkout: self
+
             - script: cp .env.example .env
               displayName: 'Setup env'
 
@@ -94,7 +96,6 @@ stages:
               displayName: 'Start OI mock'
               workingDirectory: pagopa-checkout-identity-provider-mock
 
-            - checkout: self
 
             - task: PublishTestResults@2
               inputs:
