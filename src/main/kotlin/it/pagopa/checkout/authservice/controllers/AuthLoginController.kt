@@ -8,7 +8,6 @@ import it.pagopa.generated.checkout.authservice.v1.model.AuthRequestDto
 import it.pagopa.generated.checkout.authservice.v1.model.AuthResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
-import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -78,7 +77,7 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
             .flatMap {
                 authenticationService.retrieveAuthToken(
                     authCode = AuthCode(it.authCode),
-                    state = OidcState(UUID.fromString(it.state)),
+                    state = OidcState(it.state),
                 )
             }
             .map { ResponseEntity.ok().body(AuthResponseDto().authToken(it.sessionToken.value)) }

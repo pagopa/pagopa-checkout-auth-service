@@ -43,8 +43,8 @@ class AuthenticationServiceTest {
     private val loginData =
         LoginData(
             loginRedirectUri = expectedUrl,
-            state = OidcState(UUID.randomUUID()),
-            nonce = OidcNonce(UUID.randomUUID()),
+            state = OidcState(UUID.randomUUID().toString()),
+            nonce = OidcNonce(UUID.randomUUID().toString()),
         )
 
     @Test
