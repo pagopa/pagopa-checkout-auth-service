@@ -211,14 +211,100 @@ class AuthLoginControllerTest {
             .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
             .expectBody()
             .isEmpty()
+    }
 
+    @Test
+    fun `should handle authentication with auth token successfully`() {
+        // pre-conditions
+        val authCode = "authCode"
+        val state = "state"
+        val sessionToken = "sessionToken"
+        val authRequest = AuthRequestDto().authCode(authCode).state(state)
+        val authenticatedUserSessionData =
+            AuthenticatedUserSession(
+                sessionToken = SessionToken(sessionToken),
+                userInfo =
+                    UserInfo(
+                        name = Name("name"),
+                        surname = Name("surname"),
+                        fiscalCode = UserFiscalCode("userFiscalCode11"),
+                    ),
+            )
+        given(authenticationService.retrieveAuthToken(any(), any()))
+            .willReturn(Mono.just(authenticatedUserSessionData))
+        // test
         webClient
-            .get()
-            .uri("/auth/validate")
+            .post()
+            .uri("/auth/token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(authRequest)
             .exchange()
             .expectStatus()
-            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
+            .isOk
             .expectBody()
-            .isEmpty()
+            .jsonPath("$.authToken")
+            .isEqualTo(sessionToken)
+        verify(authenticationService, times(1))
+            .retrieveAuthToken(authCode = AuthCode(authCode), state = OidcState(state))
+    }
+
+    @Test
+    fun `should return 401 error for AuthFailedException raised while performing authentication with auth token`() {
+        // pre-conditions
+        val authCode = "authCode"
+        val state = "oidcState"
+        val authRequest = AuthRequestDto().authCode(authCode).state(state)
+        given(authenticationService.retrieveAuthToken(any(), any()))
+            .willReturn(
+                Mono.error(AuthFailedException(message = "error", state = OidcState(state)))
+            )
+        val expectedProblemJson =
+            ProblemJsonDto()
+                .status(401)
+                .title("Unauthorized")
+                .detail("Cannot perform authentication process for state: [oidcState]")
+        // test
+        webClient
+            .post()
+            .uri("/auth/token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(authRequest)
+            .exchange()
+            .expectStatus()
+            .isUnauthorized
+            .expectBody(ProblemJsonDto::class.java)
+            .isEqualTo(expectedProblemJson)
+        verify(authenticationService, times(1))
+            .retrieveAuthToken(authCode = AuthCode(authCode), state = OidcState(state))
+    }
+
+    @Test
+    fun `should return 500 error for OneIdentityServerException raised while performing authentication with auth token`() {
+        // pre-conditions
+        val authCode = "authCode"
+        val state = "oidcState"
+        val authRequest = AuthRequestDto().authCode(authCode).state(state)
+        given(authenticationService.retrieveAuthToken(any(), any()))
+            .willReturn(
+                Mono.error(OneIdentityServerException(message = "error", state = OidcState(state)))
+            )
+        val expectedProblemJson =
+            ProblemJsonDto()
+                .status(500)
+                .title("Error communicating with One identity")
+                .detail("Cannot perform authentication process for state: [oidcState]")
+        // test
+        webClient
+            .post()
+            .uri("/auth/token")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue(authRequest)
+            .exchange()
+            .expectStatus()
+            .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+            .expectBody(ProblemJsonDto::class.java)
+            .isEqualTo(expectedProblemJson)
+        verify(authenticationService, times(1))
+            .retrieveAuthToken(authCode = AuthCode(authCode), state = OidcState(state))
     }
 }
