@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "pagopa-checkout-auth-service"
   image:
     repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
-    tag: "0.5.0"
+    tag: "0.6.0"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
@@ -88,7 +88,6 @@ microservice-chart:
     ONE_IDENTITY_SERVER_READ_TIMEOUT_MILLIS: "10000"
     ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS: "10000"
     SESSION_TOKEN_LENGTH_IN_BYTES: "16"
-
   envSecret:
     OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
     REDIS_HOST: redis-checkout-hostname
