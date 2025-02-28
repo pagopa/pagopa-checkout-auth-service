@@ -14,5 +14,5 @@ class OIDCAuthStateDataRepository(
         ttl = defaultTTL,
         keyspace = "oidc-auth-session-data",
     ) {
-    override fun getKeyFromEntity(value: OidcAuthStateData) = value.state.value.toString()
+    override fun getKeyFromEntity(value: OidcAuthStateData) = value.state.value
 }

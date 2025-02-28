@@ -4,7 +4,10 @@ import io.netty.channel.ChannelOption
 import io.netty.handler.timeout.ReadTimeoutHandler
 import it.pagopa.generated.checkout.oneidentity.ApiClient as OneIdentityApiClient
 import it.pagopa.generated.checkout.oneidentity.api.TokenServerApisApi
+import it.pagopa.generated.checkout.oneidentity.model.GetJwkSet200ResponseDto
+import it.pagopa.generated.checkout.oneidentity.model.TokenDataDto
 import java.util.concurrent.TimeUnit
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -17,6 +20,7 @@ import reactor.netty.transport.NameResolverProvider.NameResolverSpec
 class WebClientsConfig {
 
     @Bean
+    @RegisterReflectionForBinding(TokenDataDto::class, GetJwkSet200ResponseDto::class)
     fun oneIdentityWebClient(
         @Value("\${one-identity.server.uri}") serverUri: String,
         @Value("\${one-identity.server.readTimeoutMillis}") readTimeoutMillis: Int,
