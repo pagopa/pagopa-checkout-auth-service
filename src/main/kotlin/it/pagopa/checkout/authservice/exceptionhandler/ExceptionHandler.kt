@@ -3,11 +3,17 @@ package it.pagopa.checkout.authservice.exceptionhandler
 import it.pagopa.checkout.authservice.exception.ApiError
 import it.pagopa.checkout.authservice.exception.RestApiException
 import it.pagopa.generated.checkout.authservice.v1.model.ProblemJsonDto
+import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.converter.HttpMessageNotReadableException
+import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.bind.support.WebExchangeBindException
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
+import org.springframework.web.server.ServerWebInputException
 
 @RestControllerAdvice
 class ExceptionHandler {
@@ -36,6 +42,26 @@ class ExceptionHandler {
                     .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
                     .title("Internal Server Error")
                     .detail("An unexpected error occurred processing the request")
+            )
+    }
+
+    /** Validation request exception handler */
+    @ExceptionHandler(
+        MethodArgumentNotValidException::class,
+        MethodArgumentTypeMismatchException::class,
+        ServerWebInputException::class,
+        ValidationException::class,
+        HttpMessageNotReadableException::class,
+        WebExchangeBindException::class,
+    )
+    fun handleRequestValidationException(e: Exception): ResponseEntity<ProblemJsonDto> {
+        logger.error("Input request is not valid", e)
+        return ResponseEntity.badRequest()
+            .body(
+                ProblemJsonDto()
+                    .status(HttpStatus.BAD_REQUEST.value())
+                    .title("Bad request")
+                    .detail("Input request is not valid")
             )
     }
 }

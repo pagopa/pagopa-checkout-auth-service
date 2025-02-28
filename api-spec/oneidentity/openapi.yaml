@@ -65,6 +65,62 @@ paths:
           $ref: '#/components/responses/forbidden'
         "500":
           $ref: '#/components/responses/serverError'
+  /oidc/keys:
+    get:
+      tags:
+        - Token Server APIs
+      operationId: Get_jwk_set_
+      description: This endpoint implements the JWKS_URI as specified at http://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
+      x-amazon-apigateway-integration:
+        type: HTTP_PROXY
+        httpMethod: GET
+        uri: ${uri}/oidc/keys
+        connectionType: VPC_LINK
+        connectionId: ${connection_id}
+        requestParameters: {}
+        responses:
+          '200':
+            statusCode: '200'
+            requestParameters: {}
+          '403':
+            statusCode: '403'
+            requestParameters: {}
+          '405':
+            statusCode: '405'
+            requestParameters: {}
+          '500':
+            statusCode: '500'
+            requestParameters: {}
+      responses:
+        '200':
+          description: JWK set containing public keys that enable clients to validate a JSON Web Token (JWT) issued by this OpenID Connect Provider
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  keys:
+                    type: array
+                    items:
+                      type: object
+                      additionalProperties:
+                        type: string
+                    example:
+                      - kty: RSA
+                        kid: default_ssl_key
+                        use: sig
+                        'n': 58BezRBeYOM3rOo1vcllcLc8QAwz6AmQj4EvGUqATMUz4bfYJ9Lf2wb9xCQhSLSkndfFAF5V754G0mRelBGK7yIja-M-EBXoJeT3nvwA46g7MkZGf11uP2dz2k4CkLdFHnlGzvuLQVBQpqbz-O_hFfEDxBk9zV4shR8O_iGv4fDi0dNHZfXzxkr_iH8Oj2qQeZFvv61I4RffeNmx04lYea2KFsF_8rWDlENWAr8RbqpY_y5lbxgC_xyBunTkoIEommqz55ZFIcklYerJUVSeIA90KMyM60wZh0JF_T5kuXEs-3AWh8Bkx-sVE2hu5S5x4_lADsPojLwWTT7or_sw9Q
+                        e: AQAB
+                    description: JWK set in JSON array format
+        '403':
+          $ref: '#/components/responses/forbidden'
+        '405':
+          $ref: '#/components/responses/methodNotAllowed'
+        '429':
+          $ref: '#/components/responses/rateLimit'
+        '500':
+          $ref: '#/components/responses/serverError'
+      summary: OpenID Connect jwks endpoint
 components:
   responses:
     authToken200:
@@ -152,6 +208,37 @@ components:
           description: Content type response.
           schema:
             type: string
+    methodNotAllowed:
+      description: The HTTP method is not valid
+      headers:
+        Allow:
+          description: This header is required by RFC 2616 and contains a comma separated list of valid HTTP methods.
+          schema:
+            type: string
+            default: GET
+        Pragma:
+          description: Pragma browser directive
+          schema:
+            type: string
+            default: no-cache
+        Cache-Control:
+          description: Cache-Control browser directive
+          schema:
+            type: string
+            default: no-store
+    rateLimit:
+      description: Too many requests
+      headers:
+        Pragma:
+          description: Pragma browser directive
+          schema:
+            type: string
+            default: no-cache
+        Cache-Control:
+          description: Cache-Control browser directive
+          schema:
+            type: string
+            default: no-store
   schemas:
     TokenData:
       type: object

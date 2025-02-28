@@ -3,6 +3,7 @@ package it.pagopa.checkout.authservice.exceptionhandler
 import it.pagopa.checkout.authservice.AuthTestUtils
 import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
 import it.pagopa.checkout.authservice.exception.RestApiException
+import it.pagopa.generated.checkout.authservice.v1.model.ProblemJsonDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
@@ -60,5 +61,21 @@ class ExceptionHandlerTest {
             response.body,
         )
         assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.statusCode)
+    }
+
+    @Test
+    fun `should handle request validation exceptions`() {
+        // pre-requisites
+        val expectedHttpResponseCode = HttpStatus.BAD_REQUEST
+        val expectedResponse =
+            ProblemJsonDto()
+                .status(expectedHttpResponseCode.value())
+                .title("Bad request")
+                .detail("Input request is not valid")
+        // test
+        val mappedResponseError =
+            exceptionHandler.handleRequestValidationException(RuntimeException("some error"))
+        assertEquals(expectedResponse, mappedResponseError.body)
+        assertEquals(expectedHttpResponseCode, mappedResponseError.statusCode)
     }
 }

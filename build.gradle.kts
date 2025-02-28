@@ -37,6 +37,7 @@ object Deps {
   const val openTelemetryVersion = "1.46.0"
   const val openTelemetryInstrumentationVersion = "2.12.0"
   const val springBootVersion = "3.4.2"
+  const val jsonWebTokenVersion = "0.11.5"
 }
 
 repositories { mavenCentral() }
@@ -72,6 +73,11 @@ dependencies {
 
   // ECS logback encoder
   implementation("co.elastic.logging:logback-ecs-encoder:${Deps.ecsLoggingVersion}")
+
+  // io json web token (JWT) library
+  implementation("io.jsonwebtoken:jjwt-api:${Deps.jsonWebTokenVersion}")
+  implementation("io.jsonwebtoken:jjwt-impl:${Deps.jsonWebTokenVersion}")
+  implementation("io.jsonwebtoken:jjwt-jackson:${Deps.jsonWebTokenVersion}")
 
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("io.projectreactor:reactor-test")

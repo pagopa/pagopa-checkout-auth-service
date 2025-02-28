@@ -207,13 +207,17 @@ components:
     bearerAuth:
       type: http
       scheme: bearer
-      bearerFormat: JWT
+      description: "authentication opaque token"
+      bearerFormat: opaque token
   schemas:
     LoginResponse:
       type: object
       properties:
         urlRedirect:
           type: string
+          description: login redirect url
+      required:
+        - urlRedirect
     ProblemJson:
       type: object
       properties:
@@ -259,29 +263,44 @@ components:
     UserInfoResponse:
       type: object
       properties:
-        userInfo:
-          type: object
-          properties:
-            userId:
-              type: string
-            firstName:
-              type: string
-            lastName:
-              type: string
-            email:
-              type: string
+        userId:
+          type: string
+          description: user unique id
+        name:
+          type: string
+          description: user name
+        familyName:
+          type: string
+          description: user family name
+      required:
+        - userId
+        - name
+        - familyName
     AuthResponse:
       type: object
       properties:
         authToken:
           type: string
+          description: authentication opaque token
+      required:
+        - authToken
+    AuthRequest:
+      type: object
+      properties:
+        authCode:
+          type: string
+          description: OIDC authorization code
+        state:
+          type: string
+          description: opaque token used to correlate authentication requests
+      required:
+        - authToken
+        - state
   requestBodies:
     AuthRequest:
       required: true
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              authCode:
-                type: string
+            $ref: '#/components/schemas/AuthRequest'
+

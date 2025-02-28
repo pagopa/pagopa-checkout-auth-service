@@ -14,6 +14,5 @@ class AuthenticatedUserSessionRepository(
         keyspace = "authenticated-user-session",
         redisTemplate = redisTemplate,
     ) {
-    override fun getKeyFromEntity(value: AuthenticatedUserSession) =
-        value.sessionToken.sessionToken.toString()
+    override fun getKeyFromEntity(value: AuthenticatedUserSession) = value.sessionToken.value
 }

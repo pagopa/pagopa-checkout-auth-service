@@ -1,9 +1,11 @@
 package it.pagopa.checkout.authservice.controllers
 
-import it.pagopa.checkout.authservice.services.AuthLoginService
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
+import it.pagopa.checkout.authservice.services.AuthenticationService
 import it.pagopa.generated.checkout.authservice.v1.api.AuthApi
+import it.pagopa.generated.checkout.authservice.v1.model.AuthRequestDto
 import it.pagopa.generated.checkout.authservice.v1.model.AuthResponseDto
-import it.pagopa.generated.checkout.authservice.v1.model.AuthenticateWithAuthTokenRequestDto
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
 import org.slf4j.LoggerFactory
@@ -15,7 +17,8 @@ import org.springframework.web.server.ServerWebExchange
 import reactor.core.publisher.Mono
 
 @RestController
-class AuthLoginController(@Autowired private val authLoginService: AuthLoginService) : AuthApi {
+class AuthLoginController(@Autowired private val authenticationService: AuthenticationService) :
+    AuthApi {
     private val logger = LoggerFactory.getLogger(this.javaClass)
 
     /**
@@ -29,7 +32,9 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<LoginResponseDto>> {
         logger.info("Received login request for rptId [{}]", xRptId)
-        return authLoginService.login().map { loginResponse -> ResponseEntity.ok(loginResponse) }
+        return authenticationService.login().map { loginResponse ->
+            ResponseEntity.ok(loginResponse)
+        }
     }
 
     /**
@@ -59,17 +64,23 @@ class AuthLoginController(@Autowired private val authLoginService: AuthLoginServ
     /**
      * POST /auth/token : Authentication endpoint POST authentication endpoint with auth code
      *
-     * @param authenticateWithAuthTokenRequestDto (required)
+     * @param authRequestDto (required)
      * @return Successful authentication (status code 200) or Formally invalid input (status
      *   code 400) or Unauthorized (status code 401) or User not found (status code 404) or Internal
      *   server error (status code 500)
      */
     override fun authenticateWithAuthToken(
-        authenticateWithAuthTokenRequestDto: Mono<AuthenticateWithAuthTokenRequestDto>,
-        exchange: ServerWebExchange?,
-    ): Mono<ResponseEntity<AuthResponseDto>> {
-        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
-    }
+        authRequestDto: Mono<AuthRequestDto>,
+        exchange: ServerWebExchange,
+    ): Mono<ResponseEntity<AuthResponseDto>> =
+        authRequestDto
+            .flatMap {
+                authenticationService.retrieveAuthToken(
+                    authCode = AuthCode(it.authCode),
+                    state = OidcState(it.state),
+                )
+            }
+            .map { ResponseEntity.ok().body(AuthResponseDto().authToken(it.sessionToken.value)) }
 
     /**
      * GET /auth/validate : Validate a token GET endpoint to validate a token

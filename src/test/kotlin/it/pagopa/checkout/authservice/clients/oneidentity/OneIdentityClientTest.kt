@@ -1,45 +1,65 @@
 package it.pagopa.checkout.authservice.clients.oneidentity
 
+import it.pagopa.checkout.authservice.exception.AuthFailedException
 import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
+import it.pagopa.checkout.authservice.exception.OneIdentityServerException
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
+import it.pagopa.generated.checkout.oneidentity.api.TokenServerApisApi
+import it.pagopa.generated.checkout.oneidentity.model.GetJwkSet200ResponseDto
+import it.pagopa.generated.checkout.oneidentity.model.TokenDataDto
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 import java.util.*
+import java.util.stream.Stream
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.MethodSource
+import org.mockito.kotlin.*
+import org.springframework.web.reactive.function.client.WebClientResponseException
+import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 
-@WebFluxTest(OneIdentityClient::class)
 class OneIdentityClientTest {
 
     private val baseUrl = "https://mock.example.com"
     private val redirectUri = "https://mock.example.com/client/login"
-    private val clientId = "oneidentity-client-id"
+    private val clientId = "one-identity-client-id"
+    private val clientSecret = "one-identity-client-secret"
+    private val tokenServerApisApi: TokenServerApisApi = mock()
 
     private val oneIdentityClient =
         OneIdentityClient(
             oneIdentityBaseUrl = baseUrl,
             redirectUri = redirectUri,
             clientId = clientId,
+            clientSecret = clientSecret,
+            oneIdentityWebClient = tokenServerApisApi,
         )
 
     @Test
     fun `buildLoginUrl should return URL with all required parameters`() {
         StepVerifier.create(oneIdentityClient.buildLoginUrl())
             .consumeNextWith { result ->
-                assertTrue(result.startsWith("$baseUrl/login"))
+                val loginUrl = result.loginRedirectUri.toString()
+                assertTrue(loginUrl.startsWith("$baseUrl/login"))
+                assertNotNull(result.nonce)
+                assertNotNull(result.state)
 
                 // convert parameters to key-value map by splitting them
                 val params =
-                    result
+                    loginUrl
                         .substringAfter("?")
                         .split("&")
                         .map { it.split("=") }
                         .associate { it[0] to it[1] }
 
-                assertEquals("code", params["response_type"])
+                assertEquals("CODE", params["response_type"])
                 assertEquals("openid", params["scope"])
                 assertEquals(clientId, params["client_id"])
 
@@ -62,7 +82,8 @@ class OneIdentityClientTest {
             .consumeNextWith { firstResult ->
                 // convert parameters to key-value map by splitting them
                 val firstParams =
-                    firstResult
+                    firstResult.loginRedirectUri
+                        .toString()
                         .substringAfter("?")
                         .split("&")
                         .map { it.split("=") }
@@ -72,7 +93,8 @@ class OneIdentityClientTest {
                     .consumeNextWith { secondResult ->
                         // convert parameters to key-value map by splitting them
                         val secondParams =
-                            secondResult
+                            secondResult.loginRedirectUri
+                                .toString()
                                 .substringAfter("?")
                                 .split("&")
                                 .map { it.split("=") }
@@ -103,6 +125,8 @@ class OneIdentityClientTest {
                 oneIdentityBaseUrl = "",
                 redirectUri = redirectUri,
                 clientId = clientId,
+                oneIdentityWebClient = tokenServerApisApi,
+                clientSecret = clientSecret,
             )
 
         val exceptionBlankBaseUrl =
@@ -115,7 +139,13 @@ class OneIdentityClientTest {
         )
 
         val clientWithBlankRedirectUri =
-            OneIdentityClient(oneIdentityBaseUrl = baseUrl, redirectUri = "", clientId = clientId)
+            OneIdentityClient(
+                oneIdentityBaseUrl = baseUrl,
+                redirectUri = "",
+                clientId = clientId,
+                oneIdentityWebClient = tokenServerApisApi,
+                clientSecret = clientSecret,
+            )
 
         val exceptionBlankRedirectUri =
             assertThrows<OneIdentityConfigurationException> {
@@ -131,6 +161,8 @@ class OneIdentityClientTest {
                 oneIdentityBaseUrl = baseUrl,
                 redirectUri = redirectUri,
                 clientId = "",
+                oneIdentityWebClient = tokenServerApisApi,
+                clientSecret = clientSecret,
             )
 
         val exceptionBlankClientId =
@@ -141,5 +173,141 @@ class OneIdentityClientTest {
             "Required OneIdentity configuration parameters are missing",
             exceptionBlankClientId.message,
         )
+    }
+
+    @Test
+    fun `should retrieve OIDC token successfully performing POST auth-token`() {
+        // pre-conditions
+        val authCode = AuthCode("authCode")
+        val state = OidcState("state")
+        val tokenServerResponse = TokenDataDto()
+        val expectedAuthorizationField =
+            Base64.getEncoder()
+                .encodeToString("$clientId:$clientSecret".toByteArray(StandardCharsets.UTF_8))
+        given(tokenServerApisApi.createRequestToken(any(), any(), any(), any()))
+            .willReturn(Mono.just(tokenServerResponse))
+        // test
+        StepVerifier.create(oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state))
+            .expectNext(tokenServerResponse)
+            .verifyComplete()
+        // assertions
+        verify(tokenServerApisApi, times(1))
+            .createRequestToken(
+                expectedAuthorizationField,
+                redirectUri,
+                authCode.value,
+                "AUTHORIZATION_CODE",
+            )
+    }
+
+    @Test
+    fun `should handle exception thrown by client while performing POST auth-token`() {
+        // pre-conditions
+        val authCode = AuthCode("authCode")
+        val state = OidcState("state")
+        val expectedAuthorizationField =
+            Base64.getEncoder()
+                .encodeToString("$clientId:$clientSecret".toByteArray(StandardCharsets.UTF_8))
+        given(tokenServerApisApi.createRequestToken(any(), any(), any(), any()))
+            .willThrow(RuntimeException("Some error"))
+        // test
+        StepVerifier.create(oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state))
+            .expectError(OneIdentityServerException::class.java)
+            .verify()
+        // assertions
+        verify(tokenServerApisApi, times(1))
+            .createRequestToken(
+                expectedAuthorizationField,
+                redirectUri,
+                authCode.value,
+                "AUTHORIZATION_CODE",
+            )
+    }
+
+    @ParameterizedTest
+    @MethodSource("post auth token error response mapping method source")
+    fun `should map error responses to proper exception performing POST auth-token`(
+        runtimeException: Exception,
+        expectedRemappedException: Class<Exception>,
+    ) {
+        // pre-conditions
+        val authCode = AuthCode("authCode")
+        val state = OidcState("state")
+        val expectedAuthorizationField =
+            Base64.getEncoder()
+                .encodeToString("$clientId:$clientSecret".toByteArray(StandardCharsets.UTF_8))
+        given(tokenServerApisApi.createRequestToken(any(), any(), any(), any()))
+            .willReturn(Mono.error(runtimeException))
+        // test
+        StepVerifier.create(oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state))
+            .expectError(expectedRemappedException)
+            .verify()
+        // assertions
+        verify(tokenServerApisApi, times(1))
+            .createRequestToken(
+                expectedAuthorizationField,
+                redirectUri,
+                authCode.value,
+                "AUTHORIZATION_CODE",
+            )
+    }
+
+    @Test
+    fun `should retrieve JWT keys successfully`() {
+        // pre-condition
+        val response = GetJwkSet200ResponseDto()
+        given(tokenServerApisApi.jwkSet).willReturn(Mono.just(response))
+        // test
+        StepVerifier.create(oneIdentityClient.getKeys()).expectNext(response).verifyComplete()
+        // assertions
+        verify(tokenServerApisApi, times(1)).jwkSet
+    }
+
+    @Test
+    fun `should handle exception thrown by webclient`() {
+        // pre-condition
+        given(tokenServerApisApi.jwkSet).willThrow(RuntimeException("some error"))
+        // test
+        StepVerifier.create(oneIdentityClient.getKeys())
+            .expectError(OneIdentityConfigurationException::class.java)
+            .verify()
+        // assertions
+        verify(tokenServerApisApi, times(1)).jwkSet
+    }
+
+    @Test
+    fun `should handle error communicating with OI for retrieve keys`() {
+        // pre-condition
+        given(tokenServerApisApi.jwkSet).willReturn(Mono.error(RuntimeException("some error")))
+        // test
+        StepVerifier.create(oneIdentityClient.getKeys())
+            .expectError(OneIdentityConfigurationException::class.java)
+            .verify()
+        // assertions
+        verify(tokenServerApisApi, times(1)).jwkSet
+    }
+
+    companion object {
+        @JvmStatic
+        fun `post auth token error response mapping method source`(): Stream<Arguments> =
+            Stream.of(
+                Arguments.of(
+                    WebClientResponseException("", 400, "", null, null, null),
+                    OneIdentityServerException::class.java,
+                ),
+                Arguments.of(
+                    WebClientResponseException("", 401, "", null, null, null),
+                    AuthFailedException::class.java,
+                ),
+                Arguments.of(
+                    WebClientResponseException("", 403, "", null, null, null),
+                    AuthFailedException::class.java,
+                ),
+                Arguments.of(
+                    WebClientResponseException("", 500, "", null, null, null),
+                    OneIdentityServerException::class.java,
+                ),
+                Arguments.of(RuntimeException("test"), OneIdentityServerException::class.java),
+            )
     }
 }
