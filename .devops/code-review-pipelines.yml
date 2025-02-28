@@ -126,7 +126,6 @@ stages:
               workingDirectory: pagopa-checkout-auth-service
 
             - task: PublishTestResults@2
-              workingDirectory: pagopa-checkout-auth-service
               inputs:
                 testResultsFormat: 'JUnit'
                 testResultsFiles: '**/*-TEST.xml'
