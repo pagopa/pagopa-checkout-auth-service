@@ -18,9 +18,9 @@ import it.pagopa.checkout.authservice.utils.JwtUtils
 import it.pagopa.checkout.authservice.utils.SessionTokenUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
-import org.springframework.http.server.reactive.ServerHttpRequest
 import java.util.*
 import org.slf4j.LoggerFactory
+import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
