@@ -1,7 +1,7 @@
 {
   "info": {
-    "_postman_id": "ba34c8e5-6f12-48a9-bd2f-e37a109d8a23",
-    "name": "Checkout Auth Service DEV",
+    "_postman_id": "ec56de24-78d0-439c-a52b-849b086b4a4f",
+    "name": "Checkout Auth Service LOCAL",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
     "_exporter_id": "22960470"
   },
@@ -31,19 +31,16 @@
         "header": [
           {
             "key": "Authorization",
-            "value": "Bearer {{VALID_BEARER_TOKEN}}",
+            "value": "Bearer {{VALID_TEST_BEARER_TOKEN}}",
             "type": "text"
           }
         ],
         "url": {
-          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/users",
+          "raw": "{{HOSTNAME}}/auth/users",
           "host": [
             "{{HOSTNAME}}"
           ],
           "path": [
-            "checkout",
-            "auth-service",
-            "v1",
             "auth",
             "users"
           ]
@@ -81,14 +78,11 @@
           }
         ],
         "url": {
-          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/users",
+          "raw": "{{HOSTNAME}}/auth/users",
           "host": [
             "{{HOSTNAME}}"
           ],
           "path": [
-            "checkout",
-            "auth-service",
-            "v1",
             "auth",
             "users"
           ]
@@ -108,7 +102,7 @@
               "    const response = pm.response.json();",
               "    pm.expect(response).to.have.property('title').to.be.a('string');",
               "    pm.expect(response).to.have.property('status').to.equal(401);",
-              "    pm.expect(response).to.have.property('detail').to.include('missing');",
+              "    pm.expect(response).to.have.property('detail').to.include('Missing');",
               "});"
             ],
             "type": "text/javascript",
@@ -120,14 +114,11 @@
         "method": "GET",
         "header": [],
         "url": {
-          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/users",
+          "raw": "{{HOSTNAME}}/auth/users",
           "host": [
             "{{HOSTNAME}}"
           ],
           "path": [
-            "checkout",
-            "auth-service",
-            "v1",
             "auth",
             "users"
           ]

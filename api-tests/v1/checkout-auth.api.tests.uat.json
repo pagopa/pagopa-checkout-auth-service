@@ -108,7 +108,7 @@
               "    const response = pm.response.json();",
               "    pm.expect(response).to.have.property('title').to.be.a('string');",
               "    pm.expect(response).to.have.property('status').to.equal(401);",
-              "    pm.expect(response).to.have.property('detail').to.include('missing');",
+              "    pm.expect(response).to.have.property('detail').to.include('Missing');",
               "});"
             ],
             "type": "text/javascript",
