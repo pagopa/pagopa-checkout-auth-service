@@ -2,6 +2,7 @@ package it.pagopa.checkout.authservice.services
 
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.exception.AuthFailedException
+import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
@@ -16,8 +17,10 @@ import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.checkout.authservice.utils.JwtUtils
 import it.pagopa.checkout.authservice.utils.SessionTokenUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
+import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
 import java.util.*
 import org.slf4j.LoggerFactory
+import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
 
@@ -155,5 +158,25 @@ class AuthenticationService(
                         )
                     }
             )
+    }
+
+    fun getUserInfo(request: ServerHttpRequest): Mono<UserInfoResponseDto> {
+        return sessionTokenUtils.getSessionTokenFromRequest(request).flatMap { bearerToken ->
+            Optional.ofNullable(authenticatedUserSessionRepository.findById(bearerToken))
+                .map { authenticatedUserSession ->
+                    Mono.just(
+                        UserInfoResponseDto(
+                            authenticatedUserSession.userInfo.fiscalCode.value,
+                            authenticatedUserSession.userInfo.name.value,
+                            authenticatedUserSession.userInfo.surname.value,
+                        )
+                    )
+                }
+                .orElse(
+                    Mono.error(
+                        SessionValidationException(message = "Invalid or missing session token")
+                    )
+                )
+        }
     }
 }
