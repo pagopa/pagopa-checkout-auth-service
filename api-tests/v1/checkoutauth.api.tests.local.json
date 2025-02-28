@@ -1,0 +1,130 @@
+{
+  "info": {
+    "_postman_id": "ec56de24-78d0-439c-a52b-849b086b4a4f",
+    "name": "Checkout Auth Service LOCAL",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "22960470"
+  },
+  "item": [
+    {
+      "name": "Get User Information - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Get User Information - Status code is 200 with valid json response\", function () {",
+              "    pm.response.to.have.status(200);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('userId').to.equal(pm.environment.get('EXPECTED_USER_ID'));",
+              "    pm.expect(response).to.have.property('name').to.equal(pm.environment.get('EXPECTED_NAME'));",
+              "    pm.expect(response).to.have.property('familyName').to.equal(pm.environment.get('EXPECTED_FAMILY_NAME'));",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{VALID_TEST_BEARER_TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{HOSTNAME}}/auth/users",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "path": [
+            "auth",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get User Information - Invalid Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Get User Information with invalid token - Status code is 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('title').to.be.a('string');",
+              "    pm.expect(response).to.have.property('status').to.equal(401);",
+              "    pm.expect(response).to.have.property('detail').to.include('Invalid or missing session token');",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{INVALID_BEARER_TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{HOSTNAME}}/auth/users",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "path": [
+            "auth",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Get User Information - Missing Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Get User Information with missing token - Status code is 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('title').to.be.a('string');",
+              "    pm.expect(response).to.have.property('status').to.equal(401);",
+              "    pm.expect(response).to.have.property('detail').to.include('missing');",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{HOSTNAME}}/auth/users",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "path": [
+            "auth",
+            "users"
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
+}
