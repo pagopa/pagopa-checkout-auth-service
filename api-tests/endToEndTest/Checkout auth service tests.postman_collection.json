@@ -1,0 +1,100 @@
+{
+	"info": {
+		"_postman_id": "1efa0b68-26c0-4edc-b93f-1e01008fcbb3",
+		"name": "Checkout auth service tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23963988"
+	},
+	"item": [
+		{
+			"name": "Get login url",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							" pm.test(\"Get login URL should return 200 with valid url redirect\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    const urlRedirect = responseJson.urlRedirect;",
+							"    const queryParams = urlRedirect.split(\"?\")[1].split(\"&\");",
+							"    console.log(queryParams);",
+							"    const responseType = queryParams.find(q => q.includes(\"response_type\")).split(\"=\")[1];",
+							"    const scope = queryParams.find(q => q.includes(\"scope\")).split(\"=\")[1];",
+							"    const clientId = queryParams.find(q => q.includes(\"client_id\")).split(\"=\")[1];    ",
+							"    const state = queryParams.find(q => q.includes(\"state\")).split(\"=\")[1];",
+							"    const nonce = queryParams.find(q => q.includes(\"nonce\")).split(\"=\")[1];",
+							"    const redirectUrl = queryParams.find(q => q.includes(\"redirect_uri\")).split(\"=\")[1];",
+							"    pm.expect(responseType).to.be.eq(\"CODE\");",
+							"    pm.expect(scope).to.be.eq(\"openid\");",
+							"    pm.expect(clientId).to.be.a(\"string\");",
+							"    pm.expect(state).to.be.a(\"string\");",
+							"    pm.expect(nonce).to.be.a(\"string\");",
+							"    pm.expect(redirectUrl).to.be.a(\"string\");",
+							"    pm.environment.set(\"STATE\", state);",
+							"    pm.environment.set(\"NONCE\", nonce);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST auth token",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"state\": \"{{STATE}}\",\n    \"authCode\": \"{{AUTH_CODE}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user info",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/auth/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"users"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
