@@ -74,22 +74,6 @@ stages:
     jobs:
       - job: make_integration_test
         steps:
-            - checkout: pagopa-checkout-identity-provider-mock
-
-            - task: NodeTool@0
-              inputs:
-                versionSource: 'spec'
-                versionSpec: '22.13.1'
-
-            - script: yarn global add node-gyp && yarn install && yarn build
-              workingDirectory: pagopa-checkout-identity-provider-mock
-              displayName: 'Setup for pagopa-checkout-identity-provider-mock'
-
-            - script: |
-                nohup yarn start &
-              displayName: 'Start pagopa-checkout-identity-provider-mock'
-              workingDirectory: pagopa-checkout-identity-provider-mock
-                
             - checkout: self
 
             - script: cp .env.example .env

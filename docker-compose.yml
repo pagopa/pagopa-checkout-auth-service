@@ -20,7 +20,6 @@ services:
       - "6379:6379"
     networks:
       - pagopa-checkout-auth-net
-
   pagopa-checkout-redis-insight:
     container_name: pagopa-checkout-redis-insight
     image: redislabs/redisinsight@sha256:e3af8fca1272243632adba175af4db0c439618f83649d8a12bbf617d3c9ff284
@@ -28,6 +27,16 @@ services:
       - "5540:5540"
     networks:
       - pagopa-checkout-auth-net
+  pagopa-checkout-identity-provider-mock:
+    container_name: pagopa-checkout-identity-provider-mock
+    build:
+      context: .
+      dockerfile: docker/checkout-identity-provider-mock/Dockerfile
+    ports:
+      - "8090:8090"
+    networks:
+      - pagopa-checkout-auth-net
+
 
 networks:
   pagopa-checkout-auth-net:
