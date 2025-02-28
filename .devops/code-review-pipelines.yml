@@ -83,18 +83,13 @@ stages:
 
             - script: yarn global add node-gyp && yarn install && yarn build
               workingDirectory: pagopa-checkout-identity-provider-mock
-              displayName: 'Setup deps for mock'
+              displayName: 'Setup for pagopa-checkout-identity-provider-mock'
 
             - script: |
                 nohup yarn start &
-              displayName: 'Start OI mock'
+              displayName: 'Start pagopa-checkout-identity-provider-mock'
               workingDirectory: pagopa-checkout-identity-provider-mock
                 
-            - script: |
-                  curl --location 'http://localhost:8090/initMock' --header 'Content-Type: application/json' --data '{"use_nonce": "rCnohvJSfTUlVDAV","forceFailure": false}'
-              displayName: 'OI mock precondition setup'
-              workingDirectory: pagopa-checkout-identity-provider-mock 
-            
             - checkout: self
 
             - script: cp .env.example .env
@@ -120,8 +115,13 @@ stages:
               displayName: 'newman installation'
               workingDirectory: pagopa-checkout-auth-service
 
-            - script: newman run api-tests/v1/checkout-auth.api.tests.local.json --environment=api-tests/env/checkout-auth_local.env.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-api-TEST.xml
+            - script: newman run api-tests/endToEndTest/Checkout_auth_service_tests.postman_collection.json --environment=api-tests/env/checkout-auth_local.env.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-api-2-TEST.xml
               displayName: 'Run checkout auth api test with mock'
+              continueOnError: false
+              workingDirectory: pagopa-checkout-auth-service
+
+            - script: newman run api-tests/v1/checkout-auth.api.tests.local.json --environment=api-tests/env/checkout-auth_local.env.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-api-TEST.xml
+              displayName: 'Run checkout auth api test with pagopa-checkout-identity-provider-mock'
               continueOnError: false
               workingDirectory: pagopa-checkout-auth-service
 
