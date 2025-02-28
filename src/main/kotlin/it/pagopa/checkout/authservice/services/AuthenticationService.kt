@@ -176,24 +176,4 @@ class AuthenticationService(
                 )
         }
     }
-
-    fun getUserInfo(request: ServerHttpRequest): Mono<UserInfoResponseDto> {
-        return sessionTokenUtils.getSessionTokenFromRequest(request).flatMap { bearerToken ->
-            Optional.ofNullable(authenticatedUserSessionRepository.findById(bearerToken))
-                .map { authenticatedUserSession ->
-                    Mono.just(
-                        UserInfoResponseDto(
-                            authenticatedUserSession.userInfo.fiscalCode.value,
-                            authenticatedUserSession.userInfo.name.value,
-                            authenticatedUserSession.userInfo.surname.value,
-                        )
-                    )
-                }
-                .orElse(
-                    Mono.error(
-                        SessionValidationException(message = "Invalid or missing session token")
-                    )
-                )
-        }
-    }
 }
