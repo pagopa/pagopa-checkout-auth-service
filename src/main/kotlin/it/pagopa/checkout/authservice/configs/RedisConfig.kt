@@ -10,6 +10,7 @@ import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthSessionTo
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcKey
 import java.time.Duration
+import org.springframework.aot.hint.annotation.RegisterReflectionForBinding
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -22,6 +23,7 @@ import org.springframework.data.redis.serializer.StringRedisSerializer
 class RedisConfig {
 
     @Bean
+    @RegisterReflectionForBinding(AuthenticatedUserSession::class)
     fun authenticatedUserSessionRepository(
         redisConnectionFactory: RedisConnectionFactory,
         @Value("\${authenticated-user-session.cache.ttlSeconds}") ttlSeconds: Long,
@@ -37,6 +39,7 @@ class RedisConfig {
     }
 
     @Bean
+    @RegisterReflectionForBinding(AuthSessionToken::class)
     fun authSessionTokenRepository(
         redisConnectionFactory: RedisConnectionFactory,
         @Value("\${auth-session-token.cache.ttlSeconds}") ttlSeconds: Long,
@@ -51,6 +54,7 @@ class RedisConfig {
     }
 
     @Bean
+    @RegisterReflectionForBinding(OidcAuthStateData::class)
     fun oidcAuthStateRepository(
         redisConnectionFactory: RedisConnectionFactory,
         @Value("\${oidc.auth-state.cache.ttlSeconds}") ttlSeconds: Long,
@@ -66,6 +70,7 @@ class RedisConfig {
     }
 
     @Bean
+    @RegisterReflectionForBinding(OidcKey::class)
     fun oidcKeyRepository(
         redisConnectionFactory: RedisConnectionFactory,
         @Value("\${oidc.keys.cache.ttlSeconds}") ttlSeconds: Long,

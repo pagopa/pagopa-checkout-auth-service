@@ -17,7 +17,7 @@ plugins {
 
 group = "it.pagopa.checkout.authservice"
 
-version = "0.4.0"
+version = "0.5.0"
 
 description = "pagopa-checkout-auth-service"
 
@@ -37,7 +37,7 @@ object Deps {
   const val openTelemetryVersion = "1.46.0"
   const val openTelemetryInstrumentationVersion = "2.12.0"
   const val springBootVersion = "3.4.2"
-  const val jsonWebTokenVersion = "0.12.6"
+  const val jsonWebTokenVersion = "0.11.5"
 }
 
 repositories { mavenCentral() }

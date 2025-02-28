@@ -1,20 +1,27 @@
 package it.pagopa.checkout.authservice.services
 
+import io.jsonwebtoken.Jwts
 import it.pagopa.checkout.authservice.clients.oneidentity.LoginData
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
+import it.pagopa.checkout.authservice.exception.AuthFailedException
 import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.*
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.checkout.authservice.utils.JwtUtils
 import it.pagopa.checkout.authservice.utils.SessionTokenUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
+import it.pagopa.generated.checkout.oneidentity.model.TokenDataDto
 import java.util.*
+import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.*
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest
@@ -178,5 +185,169 @@ class AuthenticationServiceTest {
                     response.familyName == "Rossi"
             }
             .verifyComplete()
+    }
+
+    @Test
+    fun `should retrieve auth token successfully retrieving info from OneIdentity (cache miss)`() {
+        // pre-requisites
+        val oidcState = OidcState("state")
+        val oidcNonce = OidcNonce("nonce")
+        val authCode = AuthCode("authCode")
+        val oidcCacheAuthState = OidcAuthStateData(state = oidcState, nonce = oidcNonce)
+        val userName = "name"
+        val userFamilyName = "familyName"
+        val userFiscalCode = "userFiscalCode"
+        val idToken = "idToken"
+        val sessionToken = SessionToken("sessionToken")
+        val tokenDataDtoResponse = TokenDataDto().idToken(idToken)
+        val jwtResponseClaims = Jwts.claims()
+        jwtResponseClaims[JwtUtils.OI_JWT_NONCE_CLAIM_KEY] = oidcNonce.value
+        jwtResponseClaims[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY] = userName
+        jwtResponseClaims[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
+        jwtResponseClaims[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
+        given(oidcAuthStateDataRepository.findById(any())).willReturn(oidcCacheAuthState)
+        given(authSessionTokenRepository.findById(any())).willReturn(null)
+        given(oneIdentityClient.retrieveOidcToken(any(), any()))
+            .willReturn(Mono.just(tokenDataDtoResponse))
+        given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
+        given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
+        doNothing().`when`(authenticatedUserSessionRepository).save(any())
+        given(oidcAuthStateDataRepository.delete(any())).willReturn(true)
+        doNothing().`when`(authSessionTokenRepository).save(any())
+        // test
+        val expectedAuthenticatedUserSession =
+            AuthenticatedUserSession(
+                sessionToken = sessionToken,
+                userInfo =
+                    UserInfo(
+                        name = Name(userName),
+                        surname = Name(userFamilyName),
+                        fiscalCode = UserFiscalCode(userFiscalCode),
+                    ),
+            )
+        StepVerifier.create(
+                authenticationService.retrieveAuthToken(authCode = authCode, state = oidcState)
+            )
+            .expectNext(expectedAuthenticatedUserSession)
+            .verifyComplete()
+        verify(oidcAuthStateDataRepository, times(1)).findById(oidcState.value)
+        verify(authSessionTokenRepository, times(1)).findById(authCode.value)
+        verify(authenticatedUserSessionRepository, times(0)).findById(any())
+        verify(oneIdentityClient, times(1))
+            .retrieveOidcToken(authCode = authCode, state = oidcState)
+        verify(sessionTokenUtils, times(1)).generateSessionToken()
+        verify(authenticatedUserSessionRepository, times(1)).save(expectedAuthenticatedUserSession)
+        verify(oidcAuthStateDataRepository, times(1)).delete(oidcState.value)
+        verify(authSessionTokenRepository, times(1))
+            .save(AuthSessionToken(authCode = authCode, sessionToken = sessionToken))
+    }
+
+    @Test
+    fun `should retrieve auth token from cache without calling OneIdentity (cache hit)`() {
+        // pre-requisites
+        val oidcState = OidcState("state")
+        val oidcNonce = OidcNonce("nonce")
+        val authCode = AuthCode("authCode")
+        val oidcCacheAuthState = OidcAuthStateData(state = oidcState, nonce = oidcNonce)
+        val userName = "name"
+        val userFamilyName = "familyName"
+        val userFiscalCode = "userFiscalCode"
+        val sessionToken = SessionToken("sessionToken")
+        val jwtResponseClaims = Jwts.claims()
+        val expectedAuthenticatedUserSession =
+            AuthenticatedUserSession(
+                sessionToken = sessionToken,
+                userInfo =
+                    UserInfo(
+                        name = Name(userName),
+                        surname = Name(userFamilyName),
+                        fiscalCode = UserFiscalCode(userFiscalCode),
+                    ),
+            )
+        jwtResponseClaims[JwtUtils.OI_JWT_NONCE_CLAIM_KEY] = oidcNonce.value
+        jwtResponseClaims[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY] = userName
+        jwtResponseClaims[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
+        jwtResponseClaims[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
+        given(oidcAuthStateDataRepository.findById(any())).willReturn(oidcCacheAuthState)
+        given(authSessionTokenRepository.findById(any()))
+            .willReturn(AuthSessionToken(authCode = authCode, sessionToken = sessionToken))
+        given(authenticatedUserSessionRepository.findById(sessionToken.value))
+            .willReturn(expectedAuthenticatedUserSession)
+        // test
+
+        StepVerifier.create(
+                authenticationService.retrieveAuthToken(authCode = authCode, state = oidcState)
+            )
+            .expectNext(expectedAuthenticatedUserSession)
+            .verifyComplete()
+        verify(oidcAuthStateDataRepository, times(1)).findById(oidcState.value)
+        verify(authSessionTokenRepository, times(1)).findById(authCode.value)
+        verify(authenticatedUserSessionRepository, times(1)).findById(sessionToken.value)
+        verify(oneIdentityClient, times(0)).retrieveOidcToken(authCode = any(), state = any())
+        verify(sessionTokenUtils, times(0)).generateSessionToken()
+        verify(authenticatedUserSessionRepository, times(0)).save(any())
+        verify(oidcAuthStateDataRepository, times(0)).delete(any())
+        verify(authSessionTokenRepository, times(0)).save(any())
+    }
+
+    @Test
+    fun `should throw error for cached nonce and jwt token mismatch`() {
+        // pre-requisites
+        val oidcState = OidcState("state")
+        val cacheNonce = OidcNonce("cacheNonce")
+        val jwtNonce = cacheNonce.value + "_jwtNonce"
+        val authCode = AuthCode("authCode")
+        val oidcCacheAuthState = OidcAuthStateData(state = oidcState, nonce = cacheNonce)
+        val userName = "name"
+        val userFamilyName = "familyName"
+        val userFiscalCode = "userFiscalCode"
+        val idToken = "idToken"
+        val sessionToken = SessionToken("sessionToken")
+        val tokenDataDtoResponse = TokenDataDto().idToken(idToken)
+        val jwtResponseClaims = Jwts.claims()
+        jwtResponseClaims[JwtUtils.OI_JWT_NONCE_CLAIM_KEY] = jwtNonce
+        jwtResponseClaims[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY] = userName
+        jwtResponseClaims[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
+        jwtResponseClaims[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
+        given(oidcAuthStateDataRepository.findById(any())).willReturn(oidcCacheAuthState)
+        given(authSessionTokenRepository.findById(any())).willReturn(null)
+        given(oneIdentityClient.retrieveOidcToken(any(), any()))
+            .willReturn(Mono.just(tokenDataDtoResponse))
+        given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
+        given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
+        doNothing().`when`(authenticatedUserSessionRepository).save(any())
+        given(oidcAuthStateDataRepository.delete(any())).willReturn(true)
+        doNothing().`when`(authSessionTokenRepository).save(any())
+        // test
+        val expectedAuthenticatedUserSession =
+            AuthenticatedUserSession(
+                sessionToken = sessionToken,
+                userInfo =
+                    UserInfo(
+                        name = Name(userName),
+                        surname = Name(userFamilyName),
+                        fiscalCode = UserFiscalCode(userFiscalCode),
+                    ),
+            )
+        StepVerifier.create(
+                authenticationService.retrieveAuthToken(authCode = authCode, state = oidcState)
+            )
+            .consumeErrorWith {
+                assertTrue(it is AuthFailedException)
+                assertEquals(
+                    "Authentication process error for state: [state] -> Nonce mismatch! id token value: [cacheNonce_jwtNonce], cached value: [cacheNonce]",
+                    it.message,
+                )
+            }
+            .verify()
+        verify(oidcAuthStateDataRepository, times(1)).findById(oidcState.value)
+        verify(authSessionTokenRepository, times(1)).findById(authCode.value)
+        verify(authenticatedUserSessionRepository, times(0)).findById(any())
+        verify(oneIdentityClient, times(1))
+            .retrieveOidcToken(authCode = authCode, state = oidcState)
+        verify(sessionTokenUtils, times(0)).generateSessionToken()
+        verify(authenticatedUserSessionRepository, times(0)).save(any())
+        verify(oidcAuthStateDataRepository, times(0)).delete(any())
+        verify(authSessionTokenRepository, times(0)).save(any())
     }
 }

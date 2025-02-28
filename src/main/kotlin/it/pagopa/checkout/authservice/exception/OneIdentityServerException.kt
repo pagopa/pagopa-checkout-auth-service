@@ -5,14 +5,15 @@ import org.springframework.http.HttpStatus
 
 class OneIdentityServerException(
     message: String,
-    private val state: OidcState,
+    private val state: OidcState? = null,
     override val cause: Throwable? = null,
-) : ApiError("Authentication process error for state: [$state] -> $message") {
+) : ApiError("Authentication process error for state: [${state?.value ?: "N/A"}] -> $message") {
     override fun toRestException(): RestApiException =
         RestApiException(
             httpStatus = HttpStatus.INTERNAL_SERVER_ERROR,
             title = "Error communicating with One identity",
-            description = "Cannot perform authentication process for state: [${state.value}]",
+            description =
+                "Cannot perform authentication process for state: [${state?.value ?: "N/A"}]",
             cause = cause,
         )
 }

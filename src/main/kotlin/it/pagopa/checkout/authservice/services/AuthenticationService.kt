@@ -42,8 +42,8 @@ class AuthenticationService(
                 val redirectionUrl = it.loginRedirectUri
                 logger.info(
                     "Processing login request for state: [{}] and nonce: [{}] ",
-                    state,
-                    nonce,
+                    state.value,
+                    nonce.value,
                 )
                 // save state and nonce association for later validation
                 oidcAuthStateDataRepository.save(OidcAuthStateData(state = state, nonce = nonce))
@@ -81,78 +81,100 @@ class AuthenticationService(
                 it.get()
             }
             .switchIfEmpty(
-                oidcCachedAuthState.flatMap { oidcAuthState ->
-                    logger.info("Retrieve id token from OI")
-                    oneIdentityClient
-                        .retrieveOidcToken(authCode = authCode, state = oidcAuthState.state)
-                        .flatMap { response -> jwtUtils.validateAndParse(response.idToken) }
-                        .flatMap {
-                            val nonce =
-                                it.payload.get(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, String::class.java)
-                            val cachedNonce = oidcAuthState.nonce.value
-                            logger.debug(
-                                "Cached nonce: [{}], jwt token nonce: [{}]",
-                                nonce,
-                                cachedNonce,
-                            )
-                            if (nonce != cachedNonce) {
-                                Mono.error(
-                                    AuthFailedException(
-                                        message =
-                                            "Nonce mismatch! id token value: [$nonce], cached value: [$cachedNonce]",
-                                        state = oidcAuthState.state,
+                oidcCachedAuthState
+                    .flatMap { oidcAuthState ->
+                        logger.info("Retrieve id token from OI")
+                        oneIdentityClient
+                            .retrieveOidcToken(authCode = authCode, state = oidcAuthState.state)
+                            .flatMap { response -> jwtUtils.validateAndParse(response.idToken) }
+                            .flatMap {
+                                val nonce =
+                                    it.get(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, String::class.java)
+                                val cachedNonce = oidcAuthState.nonce.value
+                                logger.debug(
+                                    "Cached nonce: [{}], jwt token nonce: [{}]",
+                                    nonce,
+                                    cachedNonce,
+                                )
+                                if (nonce != cachedNonce) {
+                                    Mono.error(
+                                        AuthFailedException(
+                                            message =
+                                                "Nonce mismatch! id token value: [$nonce], cached value: [$cachedNonce]",
+                                            state = oidcAuthState.state,
+                                        )
                                     )
-                                )
-                            } else {
-                                Mono.just(it)
+                                } else {
+                                    Mono.just(it)
+                                }
                             }
-                        }
-                        .map {
-                            val userInfo =
-                                UserInfo(
-                                    name =
-                                        Name(
-                                            it.payload.get(
-                                                JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY,
-                                                String::class.java,
-                                            )
-                                        ),
-                                    surname =
-                                        Name(
-                                            it.payload.get(
-                                                JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY,
-                                                String::class.java,
-                                            )
-                                        ),
-                                    fiscalCode =
-                                        UserFiscalCode(
-                                            it.payload.get(
-                                                JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY,
-                                                String::class.java,
-                                            )
-                                        ),
-                                )
-                            val sessionToken = sessionTokenUtils.generateSessionToken()
-                            val authenticatedUserSession =
-                                AuthenticatedUserSession(
-                                    sessionToken = sessionToken,
-                                    userInfo = userInfo,
-                                )
-                            // save user logged in information
-                            authenticatedUserSessionRepository.save(authenticatedUserSession)
-                            authenticatedUserSession
-                        }
-                }
+                            .map {
+                                val userInfo =
+                                    UserInfo(
+                                        name =
+                                            Name(
+                                                it.get(
+                                                    JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY,
+                                                    String::class.java,
+                                                )
+                                            ),
+                                        surname =
+                                            Name(
+                                                it.get(
+                                                    JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY,
+                                                    String::class.java,
+                                                )
+                                            ),
+                                        fiscalCode =
+                                            UserFiscalCode(
+                                                it.get(
+                                                    JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY,
+                                                    String::class.java,
+                                                )
+                                            ),
+                                    )
+                                val sessionToken = sessionTokenUtils.generateSessionToken()
+                                val authenticatedUserSession =
+                                    AuthenticatedUserSession(
+                                        sessionToken = sessionToken,
+                                        userInfo = userInfo,
+                                    )
+                                // save user logged in information
+                                authenticatedUserSessionRepository.save(authenticatedUserSession)
+                                authenticatedUserSession
+                            }
+                    }
+                    .doOnNext {
+                        logger.info("User logged successfully for state: [{}]", state.value)
+                        // user logged in, delete authentication state-nonce from cache
+                        oidcAuthStateDataRepository.delete(state.value)
+                        // auth-code session token link, used to allow multiple retry on POST
+                        // auth/token
+                        authSessionTokenRepository.save(
+                            AuthSessionToken(authCode = authCode, sessionToken = it.sessionToken)
+                        )
+                    }
             )
-            .doOnNext {
-                logger.info("User logged successfully for state: [{}]", state.value)
-                // user logged in, delete authentication state-nonce from cache
-                oidcAuthStateDataRepository.delete(state.value)
-                // auth-code session token link, used to allow multiple retry on POST auth/token
-                authSessionTokenRepository.save(
-                    AuthSessionToken(authCode = authCode, sessionToken = it.sessionToken)
+    }
+
+    fun getUserInfo(request: ServerHttpRequest): Mono<UserInfoResponseDto> {
+        return sessionTokenUtils.getSessionTokenFromRequest(request).flatMap { bearerToken ->
+            Optional.ofNullable(authenticatedUserSessionRepository.findById(bearerToken))
+                .map { authenticatedUserSession ->
+                    Mono.just(
+                        UserInfoResponseDto(
+                            authenticatedUserSession.userInfo.fiscalCode.value,
+                            authenticatedUserSession.userInfo.name.value,
+                            authenticatedUserSession.userInfo.surname.value,
+                        )
+                    )
+                }
+                .orElse(
+                    Mono.error(
+                        SessionValidationException(message = "Invalid or missing session token")
+                    )
                 )
-            }
+        }
     }
 
     fun getUserInfo(request: ServerHttpRequest): Mono<UserInfoResponseDto> {
