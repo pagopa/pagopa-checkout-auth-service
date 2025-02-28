@@ -6,14 +6,6 @@ trigger: none
 pool:
   vmImage: ubuntu-latest
 
-resources:
-  repositories:
-  - repository: pagopa-checkout-identity-provider-mock
-    type: github
-    name: pagopa/pagopa-checkout-identity-provider-mock
-    ref: main
-    endpoint: 'io-azure-devops-github-ro'
-
 stages:
   - stage: BuildEndUnitTest
     jobs:
