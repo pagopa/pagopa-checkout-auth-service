@@ -6,7 +6,10 @@ import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
-import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
+import it.pagopa.checkout.authservice.repositories.redis.bean.auth.AuthenticatedUserSession
+import it.pagopa.checkout.authservice.repositories.redis.bean.auth.Name
+import it.pagopa.checkout.authservice.repositories.redis.bean.auth.UserFiscalCode
+import it.pagopa.checkout.authservice.repositories.redis.bean.auth.UserInfo
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthSessionToken
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData

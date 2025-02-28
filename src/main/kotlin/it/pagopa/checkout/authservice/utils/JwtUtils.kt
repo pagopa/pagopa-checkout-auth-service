@@ -37,10 +37,11 @@ class JwtUtils(
         return retrieveTokenKeys().flatMap { publicKeys ->
             val jwtParser =
                 publicKeys.map {
-                    Mono.just(
-                        Jwts.parserBuilder().setSigningKey(it).build().parse(jwtToken).body
+                    Mono.just(it).map { publicKey ->
+                        logger.debug("Validating jwt with publicKey: {}", publicKey)
+                        Jwts.parserBuilder().setSigningKey(publicKey).build().parse(jwtToken).body
                             as Claims
-                    )
+                    }
                 }
             Mono.firstWithValue(jwtParser).onErrorResume {
                 logger.error(

@@ -55,28 +55,6 @@ class AuthLoginControllerTest {
     }
 
     @Test
-    fun `authUsers should return user information when service returns valid user data`() {
-        val userInfo =
-            UserInfoResponseDto().apply {
-                userId = "MRSI12L230DF476M"
-                name = "Mario"
-                familyName = "Rossi"
-            }
-
-        given { authenticationService.getUserInfo(any()) }.willReturn(userInfo.toMono())
-
-        webClient
-            .get()
-            .uri("/auth/users")
-            .accept(MediaType.APPLICATION_JSON)
-            .exchange()
-            .expectStatus()
-            .isOk
-            .expectBody<UserInfoResponseDto>()
-            .consumeWith { assertEquals(userInfo, it.responseBody) }
-    }
-
-    @Test
     fun `authUsers should return Unauthorized when session token is invalid`() {
         given { authenticationService.getUserInfo(any()) }
             .willReturn(
@@ -104,26 +82,25 @@ class AuthLoginControllerTest {
     }
 
     @Test
-    fun `unimplemented endpoints should return 501 NOT_IMPLEMENTED`() {
-        webClient
-            .post()
-            .uri("/auth/logout")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue("{}")
-            .exchange()
-            .expectStatus()
-            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
-            .expectBody()
-            .isEmpty()
+    fun `authUsers should return user information when service returns valid user data`() {
+        val userInfo =
+            UserInfoResponseDto().apply {
+                userId = "MRSI12L230DF476M"
+                name = "Mario"
+                familyName = "Rossi"
+            }
+
+        given { authenticationService.getUserInfo(any()) }.willReturn(userInfo.toMono())
 
         webClient
             .get()
-            .uri("/auth/validate")
+            .uri("/auth/users")
+            .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus()
-            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
-            .expectBody()
-            .isEmpty()
+            .isOk
+            .expectBody<UserInfoResponseDto>()
+            .consumeWith { assertEquals(userInfo, it.responseBody) }
     }
 
     @Test
@@ -219,5 +196,29 @@ class AuthLoginControllerTest {
             .isEqualTo(expectedProblemJson)
         verify(authenticationService, times(1))
             .retrieveAuthToken(authCode = AuthCode(authCode), state = OidcState(state))
+    }
+
+    @Test
+    fun `unimplemented endpoints should return 501 NOT_IMPLEMENTED`() {
+
+        webClient
+            .post()
+            .uri("/auth/logout")
+            .contentType(MediaType.APPLICATION_JSON)
+            .bodyValue("{}")
+            .exchange()
+            .expectStatus()
+            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
+            .expectBody()
+            .isEmpty()
+
+        webClient
+            .get()
+            .uri("/auth/validate")
+            .exchange()
+            .expectStatus()
+            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
+            .expectBody()
+            .isEmpty()
     }
 }
