@@ -1,0 +1,200 @@
+{
+	"info": {
+		"_postman_id": "1efa0b68-26c0-4edc-b93f-1e01008fcbb3",
+		"name": "Checkout auth service tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23963988"
+	},
+	"item": [
+		{
+			"name": "Get login url",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							" pm.test(\"Get login URL should return 200 with valid url redirect\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    const urlRedirect = responseJson.urlRedirect;",
+							"    const queryParams = urlRedirect.split(\"?\")[1].split(\"&\");",
+							"    console.log(queryParams);",
+							"    const responseType = queryParams.find(q => q.includes(\"response_type\")).split(\"=\")[1];",
+							"    const scope = queryParams.find(q => q.includes(\"scope\")).split(\"=\")[1];",
+							"    const clientId = queryParams.find(q => q.includes(\"client_id\")).split(\"=\")[1];    ",
+							"    const state = queryParams.find(q => q.includes(\"state\")).split(\"=\")[1];",
+							"    const nonce = queryParams.find(q => q.includes(\"nonce\")).split(\"=\")[1];",
+							"    const redirectUrl = queryParams.find(q => q.includes(\"redirect_uri\")).split(\"=\")[1];",
+							"    pm.expect(responseType).to.be.eq(\"CODE\");",
+							"    pm.expect(scope).to.be.eq(\"openid\");",
+							"    pm.expect(clientId).to.be.a(\"string\");",
+							"    pm.expect(state).to.be.a(\"string\");",
+							"    pm.expect(nonce).to.be.a(\"string\");",
+							"    pm.expect(redirectUrl).to.be.a(\"string\");",
+							"    pm.environment.set(\"STATE\", state);",
+							"    pm.environment.set(\"NONCE\", nonce);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/auth/login",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"login"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "POST auth token",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const initMockRequestBody = {",
+							"  \"use_nonce\": `${pm.environment.get(\"NONCE\")}`,",
+							"  \"forceFailure\": false",
+							"};",
+							"",
+							"console.log(`Init mock request: ${JSON.stringify(initMockRequestBody)}`);",
+							"",
+							"const initMockRequest = {",
+							"    url: `http://localhost:8090/initMock`,",
+							"    method: 'POST',",
+							"    header: {",
+							"        'Content-Type': 'application/json'",
+							"    },",
+							"    body: {",
+							"            mode: 'raw',",
+							"            raw: JSON.stringify(initMockRequestBody)",
+							"        }",
+							"};",
+							"",
+							"pm.sendRequest(initMockRequest, (error, response) => {",
+							"    if (error) {",
+							"        console.log(`Error initializing mock: ${error.code}`);",
+							"    } else {",
+							"        const responseBody = response.json();",
+							"        const authCode = responseBody.authCode;",
+							"        pm.environment.set(\"AUTH_CODE\", authCode);",
+							"    }",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							" pm.test(\"POST auth token 200 with auth code\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    const authToken = responseJson.authToken;",
+							"    pm.expect(authToken).to.be.a(\"string\");",
+							"    pm.environment.set(\"SESSION_TOKEN\", authToken);",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"state\": \"{{STATE}}\",\n    \"authCode\": \"{{AUTH_CODE}}\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8080/auth/token",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get user info",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							" pm.test(\"GET users return 200 with correct user information\", function () {",
+							"    pm.response.to.have.status(200);",
+							"    const responseJson = pm.response.json();",
+							"    const userId = responseJson.userId;",
+							"    const name = responseJson.name;",
+							"    const familyName = responseJson.familyName;",
+							"    pm.expect(userId).to.be.eq(\"fiscalNumber\");",
+							"    pm.expect(name).to.be.eq(\"name\");",
+							"    pm.expect(familyName).to.be.eq(\"familyName\");",
+							"});",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SESSION_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "http://localhost:8080/auth/users",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"auth",
+						"users"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
