@@ -1,8 +1,8 @@
 package it.pagopa.checkout.authservice.controllers
 
-import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.exception.AuthFailedException
 import it.pagopa.checkout.authservice.exception.OneIdentityServerException
+import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
@@ -125,7 +125,6 @@ class AuthLoginControllerTest {
             .expectBody()
             .isEmpty()
     }
-
 
     @Test
     fun `should handle authentication with auth token successfully`() {

@@ -3,16 +3,15 @@ package it.pagopa.checkout.authservice.services
 import io.jsonwebtoken.Jwts
 import it.pagopa.checkout.authservice.clients.oneidentity.LoginData
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
-import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.exception.AuthFailedException
+import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.*
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
-import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.*
 import it.pagopa.checkout.authservice.utils.JwtUtils
 import it.pagopa.checkout.authservice.utils.SessionTokenUtils
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
@@ -22,10 +21,10 @@ import java.util.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.*
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest
-import org.mockito.kotlin.*
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
 
