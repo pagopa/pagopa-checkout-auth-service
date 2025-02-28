@@ -68,20 +68,30 @@ stages:
         steps:
             - script: cp .env.example .env
               displayName: 'Setup env'
+
             - script: docker compose up -d
               displayName: 'Run app with docker-compose'
+
             - script: |
                 timeout 180 bash -c 'while [[ "$(curl -s -o /dev/null -w ''%{http_code}'' localhost:8080/actuator/health/liveness)" != "200" ]]; do sleep 5; done' || exit 1
               displayName: 'Health check'
+
             # populate redis data (SET)
             - script: |
                 docker exec pagopa-checkout-redis redis-cli SET "authenticated-user-session:eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c" "{\"sessionToken\":{\"value\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c\"},\"userInfo\":{\"fiscalCode\":{\"value\":\"TSTUSR01A01H501X\"},\"name\":{\"value\":\"Test\"},\"surname\":{\"value\":\"User\"}}}"
-              displayName: 'Populate Redis with test data'
+              displayName: 'API tests: Populate Redis with test data'
+
             - script: yarn global add newman
               displayName: 'newman installation'
+
+            - script: newman run api-tests/v1/checkout-auth.e2e.tests.local.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-e2e-TEST.xml
+              displayName: 'Run checkout auth E2E tests with pagopa-checkout-identity-provider-mock'
+              continueOnError: true
+
             - script: newman run api-tests/v1/checkout-auth.api.tests.local.json --environment=api-tests/env/checkout-auth_local.env.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-api-TEST.xml
-              displayName: 'Run checkout auth api test with mock'
-              continueOnError: false
+              displayName: 'Run checkout auth api tests with mocked data'
+              continueOnError: true
+
             - task: PublishTestResults@2
               inputs:
                 testResultsFormat: 'JUnit'
