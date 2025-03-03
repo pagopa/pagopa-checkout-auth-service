@@ -88,7 +88,9 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
      * @return Token is valid (status code 200) or Invalid token (status code 400) or Unauthorized
      *   (status code 401) or Internal server error (status code 500)
      */
-    override fun validateToken(exchange: ServerWebExchange?): Mono<ResponseEntity<Void>> {
-        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
+    override fun validateToken(exchange: ServerWebExchange): Mono<ResponseEntity<Void>> {
+        return authenticationService.validateAuthToken(exchange.request).map {
+            ResponseEntity.ok().build()
+        }
     }
 }

@@ -212,4 +212,59 @@ class AuthLoginControllerTest {
         verify(authenticationService, times(1))
             .retrieveAuthToken(authCode = AuthCode(authCode), state = OidcState(state))
     }
+
+    @Test
+    fun `should return 200 in case of successful validation with auth token`() {
+        // pre-conditions
+        given(authenticationService.validateAuthToken(any())).willReturn(Mono.just(Unit))
+        // test
+        webClient.get().uri("/auth/validate").exchange().expectStatus().isOk
+
+        verify(authenticationService, times(1)).validateAuthToken(any())
+    }
+
+    @Test
+    fun `should return 401 error for SessionValidationException raised while performing validation with auth token`() {
+        // pre-conditions
+        given(authenticationService.validateAuthToken(any()))
+            .willReturn(Mono.error(SessionValidationException(message = "Invalid session token")))
+        val expectedProblemJson =
+            ProblemJsonDto()
+                .status(401)
+                .title("Unauthorized")
+                .detail("Session validation failed: [Invalid session token]")
+        // test
+        webClient
+            .get()
+            .uri("/auth/validate")
+            .exchange()
+            .expectStatus()
+            .isUnauthorized
+            .expectBody(ProblemJsonDto::class.java)
+            .isEqualTo(expectedProblemJson)
+
+        verify(authenticationService, times(1)).validateAuthToken(any())
+    }
+
+    @Test
+    fun `should return 500 error for Exception raised while performing validation with auth token`() {
+        // pre-conditions
+        given(authenticationService.validateAuthToken(any())).willReturn(Mono.error(Exception()))
+        val expectedProblemJson =
+            ProblemJsonDto()
+                .status(500)
+                .title("Internal Server Error")
+                .detail("An unexpected error occurred processing the request")
+        // test
+        webClient
+            .get()
+            .uri("/auth/validate")
+            .exchange()
+            .expectStatus()
+            .is5xxServerError
+            .expectBody(ProblemJsonDto::class.java)
+            .isEqualTo(expectedProblemJson)
+
+        verify(authenticationService, times(1)).validateAuthToken(any())
+    }
 }
