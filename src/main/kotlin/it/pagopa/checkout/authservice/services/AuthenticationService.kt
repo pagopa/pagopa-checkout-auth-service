@@ -66,7 +66,7 @@ class AuthenticationService(
                 )
         return oidcCachedAuthState
             .flatMap { oidcAuthState ->
-                logger.info("Retrieve id token from OI")
+                logger.info("Retrieve Oidc token from OI with state: [{}]", oidcAuthState)
                 oneIdentityClient
                     .retrieveOidcToken(authCode = authCode, state = oidcAuthState.state)
                     .flatMap { response -> jwtUtils.validateAndParse(response.idToken) }
