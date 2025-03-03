@@ -5,7 +5,6 @@ import it.pagopa.checkout.authservice.clients.oneidentity.LoginData
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.exception.AuthFailedException
 import it.pagopa.checkout.authservice.exception.SessionValidationException
-import it.pagopa.checkout.authservice.repositories.redis.AuthSessionTokenRepository
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
@@ -32,7 +31,6 @@ class AuthenticationServiceTest {
     private val oneIdentityClient: OneIdentityClient = mock()
     private val oidcAuthStateDataRepository: OIDCAuthStateDataRepository = mock()
     private val authenticatedUserSessionRepository: AuthenticatedUserSessionRepository = mock()
-    private val authSessionTokenRepository: AuthSessionTokenRepository = mock()
     private val jwtUtils: JwtUtils = mock()
     private val sessionTokenUtils: SessionTokenUtils = mock()
     private val authenticationService =
@@ -40,7 +38,6 @@ class AuthenticationServiceTest {
             oneIdentityClient = oneIdentityClient,
             oidcAuthStateDataRepository = oidcAuthStateDataRepository,
             authenticatedUserSessionRepository = authenticatedUserSessionRepository,
-            authSessionTokenRepository = authSessionTokenRepository,
             jwtUtils = jwtUtils,
             sessionTokenUtils = sessionTokenUtils,
         )
@@ -188,7 +185,7 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    fun `should retrieve auth token successfully retrieving info from OneIdentity (cache miss)`() {
+    fun `should retrieve auth token successfully retrieving info from OneIdentity`() {
         // pre-requisites
         val oidcState = OidcState("state")
         val oidcNonce = OidcNonce("nonce")
@@ -206,14 +203,12 @@ class AuthenticationServiceTest {
         jwtResponseClaims[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
         jwtResponseClaims[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
         given(oidcAuthStateDataRepository.findById(any())).willReturn(oidcCacheAuthState)
-        given(authSessionTokenRepository.findById(any())).willReturn(null)
         given(oneIdentityClient.retrieveOidcToken(any(), any()))
             .willReturn(Mono.just(tokenDataDtoResponse))
         given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
         doNothing().`when`(authenticatedUserSessionRepository).save(any())
         given(oidcAuthStateDataRepository.delete(any())).willReturn(true)
-        doNothing().`when`(authSessionTokenRepository).save(any())
         // test
         val expectedAuthenticatedUserSession =
             AuthenticatedUserSession(
@@ -231,63 +226,12 @@ class AuthenticationServiceTest {
             .expectNext(expectedAuthenticatedUserSession)
             .verifyComplete()
         verify(oidcAuthStateDataRepository, times(1)).findById(oidcState.value)
-        verify(authSessionTokenRepository, times(1)).findById(authCode.value)
         verify(authenticatedUserSessionRepository, times(0)).findById(any())
         verify(oneIdentityClient, times(1))
             .retrieveOidcToken(authCode = authCode, state = oidcState)
         verify(sessionTokenUtils, times(1)).generateSessionToken()
         verify(authenticatedUserSessionRepository, times(1)).save(expectedAuthenticatedUserSession)
         verify(oidcAuthStateDataRepository, times(1)).delete(oidcState.value)
-        verify(authSessionTokenRepository, times(1))
-            .save(AuthSessionToken(authCode = authCode, sessionToken = sessionToken))
-    }
-
-    @Test
-    fun `should retrieve auth token from cache without calling OneIdentity (cache hit)`() {
-        // pre-requisites
-        val oidcState = OidcState("state")
-        val oidcNonce = OidcNonce("nonce")
-        val authCode = AuthCode("authCode")
-        val oidcCacheAuthState = OidcAuthStateData(state = oidcState, nonce = oidcNonce)
-        val userName = "name"
-        val userFamilyName = "familyName"
-        val userFiscalCode = "userFiscalCode"
-        val sessionToken = SessionToken("sessionToken")
-        val jwtResponseClaims = Jwts.claims()
-        val expectedAuthenticatedUserSession =
-            AuthenticatedUserSession(
-                sessionToken = sessionToken,
-                userInfo =
-                    UserInfo(
-                        name = Name(userName),
-                        surname = Name(userFamilyName),
-                        fiscalCode = UserFiscalCode(userFiscalCode),
-                    ),
-            )
-        jwtResponseClaims[JwtUtils.OI_JWT_NONCE_CLAIM_KEY] = oidcNonce.value
-        jwtResponseClaims[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY] = userName
-        jwtResponseClaims[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
-        jwtResponseClaims[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
-        given(oidcAuthStateDataRepository.findById(any())).willReturn(oidcCacheAuthState)
-        given(authSessionTokenRepository.findById(any()))
-            .willReturn(AuthSessionToken(authCode = authCode, sessionToken = sessionToken))
-        given(authenticatedUserSessionRepository.findById(sessionToken.value))
-            .willReturn(expectedAuthenticatedUserSession)
-        // test
-
-        StepVerifier.create(
-                authenticationService.retrieveAuthToken(authCode = authCode, state = oidcState)
-            )
-            .expectNext(expectedAuthenticatedUserSession)
-            .verifyComplete()
-        verify(oidcAuthStateDataRepository, times(1)).findById(oidcState.value)
-        verify(authSessionTokenRepository, times(1)).findById(authCode.value)
-        verify(authenticatedUserSessionRepository, times(1)).findById(sessionToken.value)
-        verify(oneIdentityClient, times(0)).retrieveOidcToken(authCode = any(), state = any())
-        verify(sessionTokenUtils, times(0)).generateSessionToken()
-        verify(authenticatedUserSessionRepository, times(0)).save(any())
-        verify(oidcAuthStateDataRepository, times(0)).delete(any())
-        verify(authSessionTokenRepository, times(0)).save(any())
     }
 
     @Test
@@ -310,14 +254,12 @@ class AuthenticationServiceTest {
         jwtResponseClaims[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
         jwtResponseClaims[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
         given(oidcAuthStateDataRepository.findById(any())).willReturn(oidcCacheAuthState)
-        given(authSessionTokenRepository.findById(any())).willReturn(null)
         given(oneIdentityClient.retrieveOidcToken(any(), any()))
             .willReturn(Mono.just(tokenDataDtoResponse))
         given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
         doNothing().`when`(authenticatedUserSessionRepository).save(any())
         given(oidcAuthStateDataRepository.delete(any())).willReturn(true)
-        doNothing().`when`(authSessionTokenRepository).save(any())
         // test
         val expectedAuthenticatedUserSession =
             AuthenticatedUserSession(
@@ -341,13 +283,11 @@ class AuthenticationServiceTest {
             }
             .verify()
         verify(oidcAuthStateDataRepository, times(1)).findById(oidcState.value)
-        verify(authSessionTokenRepository, times(1)).findById(authCode.value)
         verify(authenticatedUserSessionRepository, times(0)).findById(any())
         verify(oneIdentityClient, times(1))
             .retrieveOidcToken(authCode = authCode, state = oidcState)
         verify(sessionTokenUtils, times(0)).generateSessionToken()
         verify(authenticatedUserSessionRepository, times(0)).save(any())
         verify(oidcAuthStateDataRepository, times(0)).delete(any())
-        verify(authSessionTokenRepository, times(0)).save(any())
     }
 }
