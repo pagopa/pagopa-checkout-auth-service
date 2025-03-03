@@ -71,7 +71,7 @@ class AuthenticationService(
                     .retrieveOidcToken(authCode = authCode, state = oidcAuthState.state)
                     .flatMap { response -> jwtUtils.validateAndParse(response.idToken) }
                     .flatMap {
-                        val nonce = it.get(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, String::class.java)
+                        val nonce = it[JwtUtils.OI_JWT_NONCE_CLAIM_KEY, String::class.java]
                         val cachedNonce = oidcAuthState.nonce.value
                         logger.debug(
                             "Cached nonce: [{}], jwt token nonce: [{}]",
@@ -95,24 +95,19 @@ class AuthenticationService(
                             UserInfo(
                                 name =
                                     Name(
-                                        it.get(
-                                            JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY,
-                                            String::class.java,
-                                        )
+                                        it[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY, String::class.java]
                                     ),
                                 surname =
                                     Name(
-                                        it.get(
+                                        it[
                                             JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY,
-                                            String::class.java,
-                                        )
+                                            String::class.java]
                                     ),
                                 fiscalCode =
                                     UserFiscalCode(
-                                        it.get(
+                                        it[
                                             JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY,
-                                            String::class.java,
-                                        )
+                                            String::class.java]
                                     ),
                             )
                         val sessionToken = sessionTokenUtils.generateSessionToken()
