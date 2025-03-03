@@ -44,6 +44,17 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
      *   Unauthorized (status code 401) or User not found (status code 404) or Internal server error
      *   (status code 500)
      */
+    /*
+     * @formatter:off
+     *
+     * Warning kotlin:S6508 - "Unit" should be used instead of "Void"
+     * Suppressed because controller interface is generated from openapi descriptor as java code which use Void as return type.
+     * Wallet interface is generated using java generator of the following issue with
+     * kotlin generator https://github.com/OpenAPITools/openapi-generator/issues/14949
+     *
+     * @formatter:on
+     */
+    @SuppressWarnings("kotlin:S6508")
     override fun authLogout(exchange: ServerWebExchange?): Mono<ResponseEntity<Void>> {
         return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
     }
@@ -88,6 +99,17 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
      * @return Token is valid (status code 200) or Invalid token (status code 400) or Unauthorized
      *   (status code 401) or Internal server error (status code 500)
      */
+    /*
+     * @formatter:off
+     *
+     * Warning kotlin:S6508 - "Unit" should be used instead of "Void"
+     * Suppressed because controller interface is generated from openapi descriptor as java code which use Void as return type.
+     * Wallet interface is generated using java generator of the following issue with
+     * kotlin generator https://github.com/OpenAPITools/openapi-generator/issues/14949
+     *
+     * @formatter:on
+     */
+    @SuppressWarnings("kotlin:S6508")
     override fun validateToken(exchange: ServerWebExchange): Mono<ResponseEntity<Void>> {
         return authenticationService.validateAuthToken(exchange.request).map {
             ResponseEntity.ok().build()
