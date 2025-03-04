@@ -96,8 +96,8 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
     /**
      * GET /auth/validate : Validate a token GET endpoint to validate a token
      *
-     * @return Token is valid (status code 200) or Unauthorized
-     *   (status code 401) or Internal server error (status code 500)
+     * @return Token is valid (status code 200) or Unauthorized (status code 401) or Internal server
+     *   error (status code 500)
      */
     /*
      * @formatter:off
