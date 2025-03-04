@@ -81,7 +81,6 @@ microservice-chart:
     REDIS_PORT: "6380"
     REDIS_SSL_ENABLED: "true"
     AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS: "1800" #30 minutes
-    AUTH_SESSION_TOKEN_CACHE_TTL_SECONDS: "300" #5 minutes
     OIDC_AUTH_STATE_CACHE_TTL_SECONDS: "300" #5 minutes
     OIDC_KEYS_CACHE_TTL_SECONDS: "3600" # 1 hour
     ONE_IDENTITY_SERVER_URI: "http://localhost" #TODO to be changed with OI backend uri

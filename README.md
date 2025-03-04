@@ -25,7 +25,6 @@ These are all environment variables needed by the application:
 | REDIS_PORT                                    | Redis server listening port                                                                              | number  |         |
 | REDIS_SSL_ENABLED                             | Redis server boolean value indicating if ssl connection is enabled                                       | boolean |         |
 | AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS  | Authenticated user session cache duration in seconds                                                     | number  |         |
-| AUTH_SESSION_TOKEN_CACHE_TTL_SECONDS          | Authentication session token cache duration in seconds                                                   | number  |         |
 | OIDC_AUTH_STATE_CACHE_TTL_SECONDS             | OIDC authentication state cache duration in seconds                                                      | number  |         |
 | OIDC_KEYS_CACHE_TTL_SECONDS                   | OIDC JWT verification keys cache duration (in seconds)                                                   | number  |         |
 | ONE_IDENTITY_SERVER_URI                       | OIDC authentication backend identity provider uri                                                        | string  |         |

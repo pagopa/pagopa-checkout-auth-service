@@ -29,17 +29,6 @@ class WrappedRedisTemplateRepositoriesTests {
     }
 
     @Test
-    fun `should extract key correctly from domain object for AuthSessionTokenRepository`() {
-        val key = "key"
-        val domainObject =
-            AuthSessionToken(authCode = AuthCode(key), sessionToken = SessionToken("sessionToken"))
-        val extractedKey =
-            AuthSessionTokenRepository(redisTemplate = mock(), Duration.ofSeconds(1))
-                .getKeyFromEntity(domainObject)
-        assertEquals(key, extractedKey)
-    }
-
-    @Test
     fun `should extract key correctly from domain object for OIDCAuthStateDataRepository`() {
         val key = "key"
         val domainObject = OidcAuthStateData(state = OidcState(key), nonce = OidcNonce("nonce"))
