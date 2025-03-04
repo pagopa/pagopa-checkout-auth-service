@@ -1,6 +1,7 @@
 package it.pagopa.checkout.authservice.clients.oneidentity
 
 import it.pagopa.checkout.authservice.exception.AuthFailedException
+import it.pagopa.checkout.authservice.exception.OneIdentityBadGatewayException
 import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
 import it.pagopa.checkout.authservice.exception.OneIdentityServerException
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
@@ -201,6 +202,38 @@ class OneIdentityClientTest {
     }
 
     @Test
+    fun `should fail to retrieve OIDC token when POST auth-token with duplicated code`() {
+        // pre-conditions
+        val authCode = AuthCode("authCode")
+        val state = OidcState("state")
+        val tokenServerResponse = TokenDataDto()
+        val expectedAuthorizationField =
+            Base64.getEncoder()
+                .encodeToString("$clientId:$clientSecret".toByteArray(StandardCharsets.UTF_8))
+        given(tokenServerApisApi.createRequestToken(any(), any(), any(), any()))
+            .willReturn(Mono.just(tokenServerResponse))
+            .willThrow(RuntimeException("Some error"))
+
+        // test
+        StepVerifier.create(oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state))
+            .expectNext(tokenServerResponse)
+            .verifyComplete()
+
+        StepVerifier.create(oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state))
+            .expectError(OneIdentityServerException::class.java)
+            .verify()
+
+        // assertions
+        verify(tokenServerApisApi, times(2))
+            .createRequestToken(
+                expectedAuthorizationField,
+                redirectUri,
+                authCode.value,
+                "AUTHORIZATION_CODE",
+            )
+    }
+
+    @Test
     fun `should handle exception thrown by client while performing POST auth-token`() {
         // pre-conditions
         val authCode = AuthCode("authCode")
@@ -293,7 +326,7 @@ class OneIdentityClientTest {
             Stream.of(
                 Arguments.of(
                     WebClientResponseException("", 400, "", null, null, null),
-                    OneIdentityServerException::class.java,
+                    OneIdentityBadGatewayException::class.java,
                 ),
                 Arguments.of(
                     WebClientResponseException("", 401, "", null, null, null),
@@ -305,7 +338,7 @@ class OneIdentityClientTest {
                 ),
                 Arguments.of(
                     WebClientResponseException("", 500, "", null, null, null),
-                    OneIdentityServerException::class.java,
+                    OneIdentityBadGatewayException::class.java,
                 ),
                 Arguments.of(RuntimeException("test"), OneIdentityServerException::class.java),
             )

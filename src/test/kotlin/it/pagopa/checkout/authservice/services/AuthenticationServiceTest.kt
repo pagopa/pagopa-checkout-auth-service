@@ -4,7 +4,6 @@ import io.jsonwebtoken.Jwts
 import it.pagopa.checkout.authservice.clients.oneidentity.LoginData
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.exception.AuthFailedException
-import it.pagopa.checkout.authservice.exception.OneIdentityBadGatewayException
 import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
@@ -236,42 +235,42 @@ class AuthenticationServiceTest {
     }
 
     @Test
-    fun `should retrieve auth token successfully for the first call and throw error on second call`() {
-        // pre-requisites
+    fun `should retrieve auth token successfully for first call and throw error on second call`() {
+
         val oidcState = OidcState("state")
         val oidcNonce = OidcNonce("nonce")
         val authCode = AuthCode("authCode")
-        val oidcCacheAuthState = OidcAuthStateData(state = oidcState, nonce = oidcNonce)
+        val oidcCachedAuthState = OidcAuthStateData(state = oidcState, nonce = oidcNonce)
+
         val userName = "name"
         val userFamilyName = "familyName"
         val userFiscalCode = "userFiscalCode"
         val idToken = "idToken"
         val sessionToken = SessionToken("sessionToken")
+
         val tokenDataDtoResponse = TokenDataDto().idToken(idToken)
-        val jwtResponseClaims = Jwts.claims()
 
-        val expectedAuthDuplicatedError =
-            OneIdentityBadGatewayException("cannot use duplicated code")
+        val jwtResponseClaims =
+            Jwts.claims().apply {
+                this[JwtUtils.OI_JWT_NONCE_CLAIM_KEY] = oidcNonce.value
+                this[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY] = userName
+                this[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
+                this[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
+            }
 
-        jwtResponseClaims[JwtUtils.OI_JWT_NONCE_CLAIM_KEY] = oidcNonce.value
-        jwtResponseClaims[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY] = userName
-        jwtResponseClaims[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
-        jwtResponseClaims[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
+        given(oidcAuthStateDataRepository.findById(oidcState.value))
+            .willReturn(oidcCachedAuthState)
+            .willReturn(null)
 
-        given(oidcAuthStateDataRepository.findById(any())).willReturn(oidcCacheAuthState)
-
-        // First call returns token
-        given(oneIdentityClient.retrieveOidcToken(any(), any()))
+        given(oneIdentityClient.retrieveOidcToken(authCode, oidcState))
             .willReturn(Mono.just(tokenDataDtoResponse))
-            // Second call throws an error
-            .willThrow(expectedAuthDuplicatedError)
 
-        given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
+        given(jwtUtils.validateAndParse(tokenDataDtoResponse.idToken))
+            .willReturn(Mono.just(jwtResponseClaims))
+
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
-        doNothing().`when`(authenticatedUserSessionRepository).save(any())
-        given(oidcAuthStateDataRepository.delete(any())).willReturn(true)
+        given(oidcAuthStateDataRepository.delete(oidcState.value)).willReturn(true)
 
-        // test
         val expectedAuthenticatedUserSession =
             AuthenticatedUserSession(
                 sessionToken = sessionToken,
@@ -283,25 +282,20 @@ class AuthenticationServiceTest {
                     ),
             )
 
-        StepVerifier.create(
-                authenticationService.retrieveAuthToken(authCode = authCode, state = oidcState)
-            )
+        StepVerifier.create(authenticationService.retrieveAuthToken(authCode, oidcState))
             .expectNext(expectedAuthenticatedUserSession)
             .verifyComplete()
 
-        StepVerifier.create(
-                authenticationService.retrieveAuthToken(authCode = authCode, state = oidcState)
-            )
-            .expectError(expectedAuthDuplicatedError::class.java)
+        StepVerifier.create(authenticationService.retrieveAuthToken(authCode, oidcState))
+            .expectErrorMatches { ex ->
+                ex is AuthFailedException &&
+                    ex.message?.contains("Cannot retrieve OIDC session") == true
+            }
             .verify()
 
-        verify(oidcAuthStateDataRepository, times(1)).findById(oidcState.value)
-        verify(authenticatedUserSessionRepository, times(0)).findById(any())
-        verify(oneIdentityClient, times(2)) // It should be called twice
-            .retrieveOidcToken(authCode = authCode, state = oidcState)
-        verify(sessionTokenUtils, times(1)).generateSessionToken()
-        verify(authenticatedUserSessionRepository, times(1)).save(expectedAuthenticatedUserSession)
+        verify(oidcAuthStateDataRepository, times(2)).findById(oidcState.value)
         verify(oidcAuthStateDataRepository, times(1)).delete(oidcState.value)
+        verify(oneIdentityClient, times(1)).retrieveOidcToken(authCode, oidcState)
     }
 
     @Test
