@@ -116,7 +116,7 @@ class OneIdentityClient(
                                     cause = it,
                                 )
                             // all other http response statuses from identity provider are mapped to
-                            // 502
+                            // 500
                             else ->
                                 OneIdentityServerException(
                                     message = errorMessage,
