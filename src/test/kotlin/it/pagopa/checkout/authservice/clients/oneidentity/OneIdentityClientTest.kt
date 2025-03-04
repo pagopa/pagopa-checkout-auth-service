@@ -202,7 +202,7 @@ class OneIdentityClientTest {
     }
 
     @Test
-    fun `should fail to retrieve OIDC token when POST auth-token with duplicated code`() {
+    fun `should fail to retrieve OIDC token when POST auth-token with duplicated code and return 502`() {
         // pre-conditions
         val authCode = AuthCode("authCode")
         val state = OidcState("state")
@@ -212,7 +212,15 @@ class OneIdentityClientTest {
                 .encodeToString("$clientId:$clientSecret".toByteArray(StandardCharsets.UTF_8))
         given(tokenServerApisApi.createRequestToken(any(), any(), any(), any()))
             .willReturn(Mono.just(tokenServerResponse))
-            .willThrow(RuntimeException("Some error"))
+            .willThrow(
+                WebClientResponseException(
+                    500,
+                    "Internal Server Error",
+                    org.springframework.http.HttpHeaders(),
+                    ByteArray(0),
+                    null,
+                )
+            )
 
         // test
         StepVerifier.create(oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state))
@@ -220,7 +228,7 @@ class OneIdentityClientTest {
             .verifyComplete()
 
         StepVerifier.create(oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state))
-            .expectError(OneIdentityServerException::class.java)
+            .expectError(OneIdentityBadGatewayException::class.java)
             .verify()
 
         // assertions
