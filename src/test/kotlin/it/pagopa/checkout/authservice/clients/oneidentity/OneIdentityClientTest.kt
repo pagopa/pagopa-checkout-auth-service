@@ -1,7 +1,6 @@
 package it.pagopa.checkout.authservice.clients.oneidentity
 
 import it.pagopa.checkout.authservice.exception.AuthFailedException
-import it.pagopa.checkout.authservice.exception.OneIdentityBadGatewayException
 import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
 import it.pagopa.checkout.authservice.exception.OneIdentityServerException
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
@@ -228,7 +227,7 @@ class OneIdentityClientTest {
             .verifyComplete()
 
         StepVerifier.create(oneIdentityClient.retrieveOidcToken(authCode = authCode, state = state))
-            .expectError(OneIdentityBadGatewayException::class.java)
+            .expectError(OneIdentityServerException::class.java)
             .verify()
 
         // assertions
@@ -334,7 +333,7 @@ class OneIdentityClientTest {
             Stream.of(
                 Arguments.of(
                     WebClientResponseException("", 400, "", null, null, null),
-                    OneIdentityBadGatewayException::class.java,
+                    OneIdentityServerException::class.java,
                 ),
                 Arguments.of(
                     WebClientResponseException("", 401, "", null, null, null),
@@ -346,7 +345,7 @@ class OneIdentityClientTest {
                 ),
                 Arguments.of(
                     WebClientResponseException("", 500, "", null, null, null),
-                    OneIdentityBadGatewayException::class.java,
+                    OneIdentityServerException::class.java,
                 ),
                 Arguments.of(RuntimeException("test"), OneIdentityServerException::class.java),
             )

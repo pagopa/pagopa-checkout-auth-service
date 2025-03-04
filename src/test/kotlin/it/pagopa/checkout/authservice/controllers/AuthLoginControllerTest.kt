@@ -139,18 +139,24 @@ class AuthLoginControllerTest {
     }
 
     @Test
-    fun `should return 500 error for OneIdentityServerException raised while performing authentication with auth token`() {
+    fun `should return 502 error for OneIdentityServerException raised while performing authentication with auth token`() {
         // pre-conditions
         val authCode = "authCode"
         val state = "oidcState"
         val authRequest = AuthRequestDto().authCode(authCode).state(state)
         given(authenticationService.retrieveAuthToken(any(), any()))
             .willReturn(
-                Mono.error(OneIdentityServerException(message = "error", state = OidcState(state)))
+                Mono.error(
+                    OneIdentityServerException(
+                        message = "error",
+                        state = OidcState(state),
+                        status = HttpStatus.BAD_GATEWAY,
+                    )
+                )
             )
         val expectedProblemJson =
             ProblemJsonDto()
-                .status(500)
+                .status(502)
                 .title("Error communicating with One identity")
                 .detail("Cannot perform authentication process for state: [oidcState]")
         // test
@@ -161,7 +167,7 @@ class AuthLoginControllerTest {
             .bodyValue(authRequest)
             .exchange()
             .expectStatus()
-            .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+            .isEqualTo(HttpStatus.BAD_GATEWAY)
             .expectBody(ProblemJsonDto::class.java)
             .isEqualTo(expectedProblemJson)
         verify(authenticationService, times(1))
