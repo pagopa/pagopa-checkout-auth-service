@@ -116,7 +116,8 @@ class OneIdentityClient(
                                     state = state,
                                     cause = it,
                                 )
-                            // all other http response statuses from the identity provider are mapped to
+                            // all other http response statuses from the identity provider are
+                            // mapped to
                             // 502
                             else ->
                                 OneIdentityBadGatewayException(

@@ -13,7 +13,7 @@ class OneIdentityBadGatewayException(
             httpStatus = HttpStatus.BAD_GATEWAY,
             title = "Error communicating with One identity",
             description =
-            "Cannot perform authentication process for state: [${state?.value ?: "N/A"}]",
+                "Cannot perform authentication process for state: [${state?.value ?: "N/A"}]",
             cause = cause,
         )
 }
