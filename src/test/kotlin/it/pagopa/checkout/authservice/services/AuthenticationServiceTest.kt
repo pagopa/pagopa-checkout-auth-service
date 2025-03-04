@@ -354,4 +354,49 @@ class AuthenticationServiceTest {
         verify(authenticatedUserSessionRepository, times(0)).save(any())
         verify(oidcAuthStateDataRepository, times(0)).delete(any())
     }
+
+    @Test
+    fun `should not throw validation exception on cache hit`() {
+        // pre-requisites
+        val request = MockServerHttpRequest.get("/").build()
+        val bearerToken = "bearerToken"
+        val authenticatedUserSession =
+            AuthenticatedUserSession(
+                userInfo =
+                    UserInfo(
+                        fiscalCode = UserFiscalCode("RSSMRA80A01H501U"),
+                        name = Name("Mario"),
+                        surname = Name("Rossi"),
+                    ),
+                sessionToken = SessionToken(bearerToken),
+            )
+        // test mock
+        given { sessionTokenUtils.getSessionTokenFromRequest(request) }
+            .willReturn(Mono.just(bearerToken))
+        given { authenticatedUserSessionRepository.findById(bearerToken) }
+            .willReturn(authenticatedUserSession)
+        // test
+        StepVerifier.create(authenticationService.validateAuthToken(request))
+            .expectNext(Unit)
+            .verifyComplete()
+        verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
+        verify(authenticatedUserSessionRepository, times(1)).findById(bearerToken)
+    }
+
+    @Test
+    fun `should throw validation exception on cache miss`() {
+        // pre-requisites
+        val request = MockServerHttpRequest.get("/").build()
+        val bearerToken = "bearerToken"
+        // test mock
+        given { sessionTokenUtils.getSessionTokenFromRequest(request) }
+            .willReturn(Mono.just(bearerToken))
+        given { authenticatedUserSessionRepository.findById(bearerToken) }.willReturn(null)
+        // test
+        StepVerifier.create(authenticationService.validateAuthToken(request))
+            .expectError(SessionValidationException::class.java)
+            .verify()
+        verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
+        verify(authenticatedUserSessionRepository, times(1)).findById(bearerToken)
+    }
 }
