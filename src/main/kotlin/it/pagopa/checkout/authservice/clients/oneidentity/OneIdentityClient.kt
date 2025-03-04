@@ -1,7 +1,6 @@
 package it.pagopa.checkout.authservice.clients.oneidentity
 
 import it.pagopa.checkout.authservice.exception.AuthFailedException
-import it.pagopa.checkout.authservice.exception.OneIdentityBadGatewayException
 import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
 import it.pagopa.checkout.authservice.exception.OneIdentityServerException
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
@@ -116,9 +115,10 @@ class OneIdentityClient(
                                     state = state,
                                     cause = it,
                                 )
-                            // all other http response statuses from identity provider are mapped to 502
+                            // all other http response statuses from identity provider are mapped to
+                            // 502
                             else ->
-                                OneIdentityBadGatewayException(
+                                OneIdentityServerException(
                                     message = errorMessage,
                                     state = state,
                                     cause = it,
