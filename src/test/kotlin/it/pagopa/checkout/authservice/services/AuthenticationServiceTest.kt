@@ -4,6 +4,7 @@ import io.jsonwebtoken.Jwts
 import it.pagopa.checkout.authservice.clients.oneidentity.LoginData
 import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
 import it.pagopa.checkout.authservice.exception.AuthFailedException
+import it.pagopa.checkout.authservice.exception.OneIdentityBadGatewayException
 import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
@@ -234,7 +235,6 @@ class AuthenticationServiceTest {
         verify(oidcAuthStateDataRepository, times(1)).delete(oidcState.value)
     }
 
-    /*
     @Test
     fun `should retrieve auth token successfully for the first call and throw error on second call`() {
         // pre-requisites
@@ -249,6 +249,10 @@ class AuthenticationServiceTest {
         val sessionToken = SessionToken("sessionToken")
         val tokenDataDtoResponse = TokenDataDto().idToken(idToken)
         val jwtResponseClaims = Jwts.claims()
+
+        val expectedAuthDuplicatedError =
+            OneIdentityBadGatewayException("cannot use duplicated code")
+
         jwtResponseClaims[JwtUtils.OI_JWT_NONCE_CLAIM_KEY] = oidcNonce.value
         jwtResponseClaims[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY] = userName
         jwtResponseClaims[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
@@ -260,7 +264,7 @@ class AuthenticationServiceTest {
         given(oneIdentityClient.retrieveOidcToken(any(), any()))
             .willReturn(Mono.just(tokenDataDtoResponse))
             // Second call throws an error
-            .willReturn(Mono.error(OneIdentityBadGatewayException("duplicate code error")))
+            .willThrow(expectedAuthDuplicatedError)
 
         given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
@@ -285,6 +289,12 @@ class AuthenticationServiceTest {
             .expectNext(expectedAuthenticatedUserSession)
             .verifyComplete()
 
+        StepVerifier.create(
+                authenticationService.retrieveAuthToken(authCode = authCode, state = oidcState)
+            )
+            .expectError(expectedAuthDuplicatedError::class.java)
+            .verify()
+
         verify(oidcAuthStateDataRepository, times(1)).findById(oidcState.value)
         verify(authenticatedUserSessionRepository, times(0)).findById(any())
         verify(oneIdentityClient, times(2)) // It should be called twice
@@ -293,7 +303,6 @@ class AuthenticationServiceTest {
         verify(authenticatedUserSessionRepository, times(1)).save(expectedAuthenticatedUserSession)
         verify(oidcAuthStateDataRepository, times(1)).delete(oidcState.value)
     }
-    */
 
     @Test
     fun `should throw error for cached nonce and jwt token mismatch`() {
