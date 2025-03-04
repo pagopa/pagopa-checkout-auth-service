@@ -115,12 +115,15 @@ class OneIdentityClient(
                                     state = state,
                                     cause = it,
                                 )
-                            // all other http response statuses are mapped to 500
+                            // all other http response statuses from the identity provider are
+                            // mapped to
+                            // 502
                             else ->
                                 OneIdentityServerException(
                                     message = errorMessage,
                                     state = state,
                                     cause = it,
+                                    status = HttpStatus.BAD_GATEWAY,
                                 )
                         }
                     }

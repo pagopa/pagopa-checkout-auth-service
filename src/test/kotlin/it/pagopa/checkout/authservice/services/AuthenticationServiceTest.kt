@@ -235,6 +235,70 @@ class AuthenticationServiceTest {
     }
 
     @Test
+    fun `should retrieve auth token successfully for first call and throw error on second call`() {
+
+        val oidcState = OidcState("state")
+        val oidcNonce = OidcNonce("nonce")
+        val authCode = AuthCode("authCode")
+        val oidcCachedAuthState = OidcAuthStateData(state = oidcState, nonce = oidcNonce)
+
+        val userName = "name"
+        val userFamilyName = "familyName"
+        val userFiscalCode = "userFiscalCode"
+        val idToken = "idToken"
+        val sessionToken = SessionToken("sessionToken")
+
+        val tokenDataDtoResponse = TokenDataDto().idToken(idToken)
+
+        val jwtResponseClaims =
+            Jwts.claims().apply {
+                this[JwtUtils.OI_JWT_NONCE_CLAIM_KEY] = oidcNonce.value
+                this[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY] = userName
+                this[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
+                this[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
+            }
+
+        given(oidcAuthStateDataRepository.findById(oidcState.value))
+            .willReturn(oidcCachedAuthState)
+            .willReturn(null)
+
+        given(oneIdentityClient.retrieveOidcToken(authCode, oidcState))
+            .willReturn(Mono.just(tokenDataDtoResponse))
+
+        given(jwtUtils.validateAndParse(tokenDataDtoResponse.idToken))
+            .willReturn(Mono.just(jwtResponseClaims))
+
+        given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
+        given(oidcAuthStateDataRepository.delete(oidcState.value)).willReturn(true)
+
+        val expectedAuthenticatedUserSession =
+            AuthenticatedUserSession(
+                sessionToken = sessionToken,
+                userInfo =
+                    UserInfo(
+                        name = Name(userName),
+                        surname = Name(userFamilyName),
+                        fiscalCode = UserFiscalCode(userFiscalCode),
+                    ),
+            )
+
+        StepVerifier.create(authenticationService.retrieveAuthToken(authCode, oidcState))
+            .expectNext(expectedAuthenticatedUserSession)
+            .verifyComplete()
+
+        StepVerifier.create(authenticationService.retrieveAuthToken(authCode, oidcState))
+            .expectErrorMatches { ex ->
+                ex is AuthFailedException &&
+                    ex.message?.contains("Cannot retrieve OIDC session") == true
+            }
+            .verify()
+
+        verify(oidcAuthStateDataRepository, times(2)).findById(oidcState.value)
+        verify(oidcAuthStateDataRepository, times(1)).delete(oidcState.value)
+        verify(oneIdentityClient, times(1)).retrieveOidcToken(authCode, oidcState)
+    }
+
+    @Test
     fun `should throw error for cached nonce and jwt token mismatch`() {
         // pre-requisites
         val oidcState = OidcState("state")
