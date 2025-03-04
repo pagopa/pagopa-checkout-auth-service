@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "pagopa-checkout-auth-service"
   image:
     repository: pagopapcommonacr.azurecr.io/pagopacheckoutauthservice
-    tag: "0.7.0"
+    tag: "0.7.1"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet

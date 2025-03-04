@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.stereotype.Service
 import reactor.core.publisher.Mono
+import reactor.kotlin.core.publisher.switchIfEmpty
 
 @Service
 class AuthenticationService(
@@ -146,5 +147,17 @@ class AuthenticationService(
                     )
                 )
         }
+    }
+
+    fun validateAuthToken(request: ServerHttpRequest): Mono<Unit> {
+        return sessionTokenUtils
+            .getSessionTokenFromRequest(request)
+            .flatMap { bearerToken ->
+                Mono.fromCallable { authenticatedUserSessionRepository.findById(bearerToken) }
+            }
+            .switchIfEmpty {
+                Mono.error(SessionValidationException(message = "Invalid session token"))
+            }
+            .then(Mono.just(Unit))
     }
 }
