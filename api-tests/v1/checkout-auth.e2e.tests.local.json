@@ -203,8 +203,8 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							" pm.test(\"POST auth token error 500\", function () {",
-							"    pm.response.to.have.status(500);",
+							" pm.test(\"POST auth token error 502\", function () {",
+							"    pm.response.to.have.status(502);",
 							"});",
 							""
 						],
