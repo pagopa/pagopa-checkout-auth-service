@@ -1,9 +1,9 @@
 {
 	"info": {
-		"_postman_id": "1efa0b68-26c0-4edc-b93f-1e01008fcbb3",
+		"_postman_id": "6e594f85-dda9-4aa6-9321-8e64c0b69cd5",
 		"name": "Checkout auth service tests",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-		"_exporter_id": "23963988"
+		"_exporter_id": "36392360"
 	},
 	"item": [
 		{
@@ -235,6 +235,47 @@
 					"path": [
 						"auth",
 						"token"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Logout - Success",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Validate Token - Status code is 200\", function () {",
+							"    pm.response.to.have.status(204);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {{VALID_BEARER_TOKEN}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/logout",
+					"host": [
+						"{{HOSTNAME}}"
+					],
+					"path": [
+						"checkout",
+						"auth-service",
+						"v1",
+						"auth",
+						"logout"
 					]
 				}
 			},
