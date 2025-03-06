@@ -257,19 +257,25 @@
 				}
 			],
 			"request": {
+				"auth": {
+					"type": "bearer",
+					"bearer": [
+						{
+							"key": "token",
+							"value": "{{SESSION_TOKEN}}",
+							"type": "string"
+						}
+					]
+				},
 				"method": "POST",
-				"header": [
-					{
-						"key": "Authorization",
-						"value": "Bearer {{VALID_BEARER_TOKEN}}",
-						"type": "text"
-					}
-				],
+				"header": [],
 				"url": {
-					"raw": "{{HOSTNAME}}/auth/logout",
+					"raw": "http://localhost:8080/auth/logout",
+					"protocol": "http",
 					"host": [
-						"{{HOSTNAME}}"
+						"localhost"
 					],
+					"port": "8080",
 					"path": [
 						"auth",
 						"logout"
