@@ -40,8 +40,7 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
      * POST /auth/logout : Logout endpoint POST logout endpoint
      *
      * @return Successful logout (status code 204) or Formally invalid input (status code 400) or
-     *   Unauthorized (status code 401) or User not found (status code 404) or Internal server error
-     *   (status code 500)
+     *   Unauthorized (status code 401) or Internal server error (status code 500)
      */
     /*
      * @formatter:off
