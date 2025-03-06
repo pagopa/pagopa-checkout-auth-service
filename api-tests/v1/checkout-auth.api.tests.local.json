@@ -1,9 +1,9 @@
 {
   "info": {
-    "_postman_id": "ec56de24-78d0-439c-a52b-849b086b4a4f",
+    "_postman_id": "5f5ada08-579b-4246-9a0d-955d9d31233f",
     "name": "Checkout Auth Service LOCAL",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
-    "_exporter_id": "22960470"
+    "_exporter_id": "36392360"
   },
   "item": [
     {
@@ -121,6 +121,133 @@
           "path": [
             "auth",
             "users"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout - Success",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validate Token - Status code is 200\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer {{VALID_BEARER_TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/logout",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "path": [
+            "checkout",
+            "auth-service",
+            "v1",
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout - Invalid Token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validate Token with invalid token - Status code is 401\", function () {",
+              "    pm.response.to.have.status(401);",
+              "    const response = pm.response.json();",
+              "    pm.expect(response).to.have.property('title').to.be.a('string');",
+              "    pm.expect(response).to.have.property('status').to.equal(401);",
+              "    pm.expect(response).to.have.property('detail').to.include('Missing or invalid token');",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Birra {{INVALID_BEARER_TOKEN}}",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/logout",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "path": [
+            "checkout",
+            "auth-service",
+            "v1",
+            "auth",
+            "logout"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Logout - Success not existing token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test(\"Validate Token with invalid token - Status code is 401\", function () {",
+              "    pm.response.to.have.status(204);",
+              "});"
+            ],
+            "type": "text/javascript",
+            "packages": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "Bearer \"Io non esisto\"",
+            "type": "text"
+          }
+        ],
+        "url": {
+          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/logout",
+          "host": [
+            "{{HOSTNAME}}"
+          ],
+          "path": [
+            "checkout",
+            "auth-service",
+            "v1",
+            "auth",
+            "logout"
           ]
         }
       },
