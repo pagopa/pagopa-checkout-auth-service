@@ -133,7 +133,7 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Validate Token - Status code is 200\", function () {",
+              "pm.test(\"Logout - Success - Status code is 204\", function () {",
               "    pm.response.to.have.status(204);",
               "});"
             ],
@@ -152,14 +152,11 @@
           }
         ],
         "url": {
-          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/logout",
+          "raw": "{{HOSTNAME}}/auth/logout",
           "host": [
             "{{HOSTNAME}}"
           ],
           "path": [
-            "checkout",
-            "auth-service",
-            "v1",
             "auth",
             "logout"
           ]
@@ -174,7 +171,7 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Validate Token with invalid token - Status code is 401\", function () {",
+              "pm.test(\"Logout - Invalid Token - Status code is 401\", function () {",
               "    pm.response.to.have.status(401);",
               "    const response = pm.response.json();",
               "    pm.expect(response).to.have.property('title').to.be.a('string');",
@@ -197,14 +194,11 @@
           }
         ],
         "url": {
-          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/logout",
+          "raw": "{{HOSTNAME}}/auth/logout",
           "host": [
             "{{HOSTNAME}}"
           ],
           "path": [
-            "checkout",
-            "auth-service",
-            "v1",
             "auth",
             "logout"
           ]
@@ -219,7 +213,7 @@
           "listen": "test",
           "script": {
             "exec": [
-              "pm.test(\"Validate Token with invalid token - Status code is 401\", function () {",
+              "pm.test(\"Logout - Success not existing token - Status code is 204\", function () {",
               "    pm.response.to.have.status(204);",
               "});"
             ],
@@ -238,14 +232,11 @@
           }
         ],
         "url": {
-          "raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/logout",
+          "raw": "{{HOSTNAME}}/auth/logout",
           "host": [
             "{{HOSTNAME}}"
           ],
           "path": [
-            "checkout",
-            "auth-service",
-            "v1",
             "auth",
             "logout"
           ]

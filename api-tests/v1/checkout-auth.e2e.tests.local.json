@@ -247,7 +247,7 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"pm.test(\"Validate Token - Status code is 200\", function () {",
+							"pm.test(\"Logout - Success - Status code is 204\", function () {",
 							"    pm.response.to.have.status(204);",
 							"});"
 						],
@@ -266,14 +266,11 @@
 					}
 				],
 				"url": {
-					"raw": "{{HOSTNAME}}/checkout/auth-service/v1/auth/logout",
+					"raw": "{{HOSTNAME}}/auth/logout",
 					"host": [
 						"{{HOSTNAME}}"
 					],
 					"path": [
-						"checkout",
-						"auth-service",
-						"v1",
 						"auth",
 						"logout"
 					]
