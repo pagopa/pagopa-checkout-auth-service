@@ -24,6 +24,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.web.server.ServerWebInputException
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.toMono
 
@@ -175,18 +176,51 @@ class AuthLoginControllerTest {
     }
 
     @Test
-    fun `unimplemented endpoints should return 501 NOT_IMPLEMENTED`() {
+    fun `should return 204 in case of successful logout`() {
+        // pre-conditions
+        given(authenticationService.logout(any())).willReturn(Mono.just(Unit))
+        // test
+        webClient.post().uri("/auth/logout").exchange().expectStatus().isNoContent
 
+        verify(authenticationService, times(1)).logout(any())
+    }
+
+    @Test
+    fun `should return 400 on bad request`() {
+        // pre-conditions
+        given(authenticationService.logout(any()))
+            .willReturn(Mono.error(ServerWebInputException("Test exception")))
+        // test
+        webClient.post().uri("/auth/logout").exchange().expectStatus().isBadRequest
+
+        verify(authenticationService, times(1)).logout(any())
+    }
+
+    @Test
+    fun `should return 401 on invalid or missing token`() {
+        // pre-conditions
+        given(authenticationService.logout(any()))
+            .willReturn(Mono.error(SessionValidationException("Test exception")))
+        // test
+        webClient.post().uri("/auth/logout").exchange().expectStatus().isUnauthorized
+
+        verify(authenticationService, times(1)).logout(any())
+    }
+
+    @Test
+    fun `should return 500 on unexpected error`() {
+        // pre-conditions
+        given(authenticationService.logout(any()))
+            .willReturn(Mono.error(Exception("Test exception")))
+        // test
         webClient
             .post()
             .uri("/auth/logout")
-            .contentType(MediaType.APPLICATION_JSON)
-            .bodyValue("{}")
             .exchange()
             .expectStatus()
-            .isEqualTo(HttpStatus.NOT_IMPLEMENTED)
-            .expectBody()
-            .isEmpty()
+            .isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
+
+        verify(authenticationService, times(1)).logout(any())
     }
 
     @Test

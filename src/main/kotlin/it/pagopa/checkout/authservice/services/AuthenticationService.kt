@@ -160,4 +160,13 @@ class AuthenticationService(
             }
             .then(Mono.just(Unit))
     }
+
+    fun logout(request: ServerHttpRequest): Mono<Unit> {
+        return sessionTokenUtils
+            .getSessionTokenFromRequest(request)
+            .flatMap { bearerToken ->
+                Mono.fromCallable { authenticatedUserSessionRepository.delete(bearerToken) }
+            }
+            .then(Mono.just(Unit))
+    }
 }
