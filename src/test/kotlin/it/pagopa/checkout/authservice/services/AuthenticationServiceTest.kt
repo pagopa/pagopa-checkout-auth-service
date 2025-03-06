@@ -399,4 +399,52 @@ class AuthenticationServiceTest {
         verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
         verify(authenticatedUserSessionRepository, times(1)).findById(bearerToken)
     }
+
+    @Test
+    fun `should complete successfully on delete existing session on logout`() {
+        // pre-requisites
+        val request = MockServerHttpRequest.get("/").build()
+        val bearerToken = "bearerToken"
+        // test mock
+        given { sessionTokenUtils.getSessionTokenFromRequest(request) }
+            .willReturn(Mono.just(bearerToken))
+        given { authenticatedUserSessionRepository.delete(bearerToken) }.willReturn(true)
+        // test
+        StepVerifier.create(authenticationService.logout(request)).expectNext(Unit).verifyComplete()
+        verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
+        verify(authenticatedUserSessionRepository, times(1)).delete(bearerToken)
+    }
+
+    @Test
+    fun `should complete successfully on delete not existing session on logout`() {
+        // pre-requisites
+        val request = MockServerHttpRequest.get("/").build()
+        val bearerToken = "bearerToken"
+        // test mock
+        given { sessionTokenUtils.getSessionTokenFromRequest(request) }
+            .willReturn(Mono.just(bearerToken))
+        given { authenticatedUserSessionRepository.delete(bearerToken) }.willReturn(false)
+        // test
+        StepVerifier.create(authenticationService.logout(request)).expectNext(Unit).verifyComplete()
+        verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
+        verify(authenticatedUserSessionRepository, times(1)).delete(bearerToken)
+    }
+
+    @Test
+    fun `should throw validation exception on missing or malformed request authentication header`() {
+        // pre-requisites
+        val request = MockServerHttpRequest.get("/").build()
+        val bearerToken = "bearerToken"
+        // test mock
+        given { sessionTokenUtils.getSessionTokenFromRequest(request) }
+            .willReturn(
+                Mono.error(SessionValidationException(message = "Missing or invalid token"))
+            )
+        // test
+        StepVerifier.create(authenticationService.validateAuthToken(request))
+            .expectError(SessionValidationException::class.java)
+            .verify()
+        verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
+        verify(authenticatedUserSessionRepository, times(0)).findById(bearerToken)
+    }
 }
