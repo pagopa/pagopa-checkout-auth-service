@@ -119,12 +119,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemJson'
-        '404':
-          description: User not found
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemJson'
         '500':
           description: Internal server error
           content:
@@ -165,6 +159,12 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ProblemJson'
+        '502':
+          description: Server error on identity provider side
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemJson'
         '500':
           description: Internal server error
           content:
@@ -183,12 +183,6 @@ paths:
       responses:
         '200':
           description: Token is valid
-        '400':
-          description: Invalid token
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProblemJson'
         '401':
           description: Unauthorized
           content:

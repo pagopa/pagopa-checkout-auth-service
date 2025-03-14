@@ -10,7 +10,6 @@ import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.server.ServerWebExchange
@@ -41,11 +40,23 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
      * POST /auth/logout : Logout endpoint POST logout endpoint
      *
      * @return Successful logout (status code 204) or Formally invalid input (status code 400) or
-     *   Unauthorized (status code 401) or User not found (status code 404) or Internal server error
-     *   (status code 500)
+     *   Unauthorized (status code 401) or Internal server error (status code 500)
      */
-    override fun authLogout(exchange: ServerWebExchange?): Mono<ResponseEntity<Void>> {
-        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
+    /*
+     * @formatter:off
+     *
+     * Warning kotlin:S6508 - "Unit" should be used instead of "Void"
+     * Suppressed because controller interface is generated from openapi descriptor as java code which use Void as return type.
+     * Wallet interface is generated using java generator of the following issue with
+     * kotlin generator https://github.com/OpenAPITools/openapi-generator/issues/14949
+     *
+     * @formatter:on
+     */
+    @SuppressWarnings("kotlin:S6508")
+    override fun authLogout(exchange: ServerWebExchange): Mono<ResponseEntity<Void>> {
+        return authenticationService.logout(exchange.request).map {
+            ResponseEntity.noContent().build()
+        }
     }
 
     /**
@@ -85,10 +96,23 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
     /**
      * GET /auth/validate : Validate a token GET endpoint to validate a token
      *
-     * @return Token is valid (status code 200) or Invalid token (status code 400) or Unauthorized
-     *   (status code 401) or Internal server error (status code 500)
+     * @return Token is valid (status code 200) or Unauthorized (status code 401) or Internal server
+     *   error (status code 500)
      */
-    override fun validateToken(exchange: ServerWebExchange?): Mono<ResponseEntity<Void>> {
-        return Mono.just(ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build())
+    /*
+     * @formatter:off
+     *
+     * Warning kotlin:S6508 - "Unit" should be used instead of "Void"
+     * Suppressed because controller interface is generated from openapi descriptor as java code which use Void as return type.
+     * Wallet interface is generated using java generator of the following issue with
+     * kotlin generator https://github.com/OpenAPITools/openapi-generator/issues/14949
+     *
+     * @formatter:on
+     */
+    @SuppressWarnings("kotlin:S6508")
+    override fun validateToken(exchange: ServerWebExchange): Mono<ResponseEntity<Void>> {
+        return authenticationService.validateAuthToken(exchange.request).map {
+            ResponseEntity.ok().build()
+        }
     }
 }
