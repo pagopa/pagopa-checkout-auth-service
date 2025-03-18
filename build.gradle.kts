@@ -35,7 +35,7 @@ springBoot {
 object Deps {
   const val ecsLoggingVersion = "1.5.0"
   const val openTelemetryVersion = "1.46.0"
-  const val openTelemetryInstrumentationVersion = "2.12.0"
+  const val openTelemetryInstrumentationVersion = "2.14.0-alpha"
   const val springBootVersion = "3.4.2"
   const val jsonWebTokenVersion = "0.11.5"
 }
@@ -48,9 +48,8 @@ dependencyManagement {
   }
   // otel BOM
   imports {
-    mavenBom("io.opentelemetry:opentelemetry-bom:${Deps.openTelemetryVersion}")
     mavenBom(
-      "io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom:${Deps.openTelemetryInstrumentationVersion}"
+      "io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom-alpha:${Deps.openTelemetryInstrumentationVersion}"
     )
   }
 }
@@ -60,6 +59,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
   implementation("org.openapitools:jackson-databind-nullable:0.2.6")
   implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
@@ -67,12 +67,10 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("io.arrow-kt:arrow-core:2.0.1")
   implementation("io.swagger.core.v3:swagger-annotations:2.2.28")
-  // otel api
-  implementation("io.opentelemetry:opentelemetry-api")
-  implementation("io.opentelemetry.instrumentation:opentelemetry-reactor-3.1:2.12.0-alpha")
 
   // ECS logback encoder
   implementation("co.elastic.logging:logback-ecs-encoder:${Deps.ecsLoggingVersion}")
+  runtimeOnly("io.opentelemetry.instrumentation:opentelemetry-logback-appender-1.0")
 
   // io json web token (JWT) library
   implementation("io.jsonwebtoken:jjwt-api:${Deps.jsonWebTokenVersion}")

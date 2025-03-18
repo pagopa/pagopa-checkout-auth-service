@@ -66,14 +66,14 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
-    DEFAULT_LOGGING_LEVEL: "info"
-    APP_LOGGING_LEVEL: "info"
-    WEB_LOGGING_LEVEL: "info"
-    ECS_SERVICE_NAME: "pagopa-checkout-auth-service"
-    ECS_SERVICE_ENVIRONMENT: "dev"
-    OTEL_RESOURCE_ATTRIBUTES: "service.name=pagopa-checkout-auth-service,deployment.environment=dev"
+    ROOT_LOGGING_LEVEL: "info"
+    OTEL_RESOURCE_ATTRIBUTES_ENVIRONMENT: "dev"
+    OTEL_SERVICE_NAME: "pagopa-checkout-auth-service"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.otel.svc:4317"
-    OTEL_LOGS_EXPORTER: none
+    OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+    OTEL_TRACES_EXPORTER: otlp
+    OTEL_METRICS_EXPORTER: otlp
+    OTEL_LOGS_EXPORTER: otlp
     OTEL_TRACES_SAMPLER: "always_on"
     ONE_IDENTITY_BASE_URL: "https://mock-d.example.com" # TODO: adjust for dev environment
     ONE_IDENTITY_REDIRECT_URI: "https://mock-d.example.com/client/login" # TODO: adjust for dev environment
