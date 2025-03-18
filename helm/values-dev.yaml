@@ -11,7 +11,7 @@ microservice-chart:
     httpGet:
       path: /actuator/health/liveness
       port: 8080
-    initialDelaySeconds: 30
+    initialDelaySeconds: 10
     failureThreshold: 6
     periodSeconds: 10
   readinessProbe:
@@ -19,7 +19,7 @@ microservice-chart:
     httpGet:
       path: /actuator/health/readiness
       port: 8080
-    initialDelaySeconds: 30
+    initialDelaySeconds: 10
     failureThreshold: 6
     periodSeconds: 10
   deployment:
@@ -75,15 +75,15 @@ microservice-chart:
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
-    ONE_IDENTITY_BASE_URL: "https://mock-d.example.com" # TODO: adjust for dev environment
-    ONE_IDENTITY_REDIRECT_URI: "https://mock-d.example.com/client/login" # TODO: adjust for dev environment
+    ONE_IDENTITY_BASE_URL: "https://api.dev.platform.pagopa.it/checkout/identity-provider-mock/v1"
+    ONE_IDENTITY_REDIRECT_URI: "http://dev.checkout.pagopa.it/auth-callback"
     ONE_IDENTITY_CLIENT_ID: "oneidentity-client-id"
     REDIS_PORT: "6380"
     REDIS_SSL_ENABLED: "true"
     AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS: "1800" #30 minutes
     OIDC_AUTH_STATE_CACHE_TTL_SECONDS: "300" #5 minutes
     OIDC_KEYS_CACHE_TTL_SECONDS: "3600" # 1 hour
-    ONE_IDENTITY_SERVER_URI: "http://localhost" #TODO to be changed with OI backend uri
+    ONE_IDENTITY_SERVER_URI: "https://weudev.checkout.internal.dev.platform.pagopa.it/pagopa-checkout-identity-provider-mock/"
     ONE_IDENTITY_SERVER_READ_TIMEOUT_MILLIS: "10000"
     ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS: "10000"
     SESSION_TOKEN_LENGTH_IN_BYTES: "16"
