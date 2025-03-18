@@ -1,7 +1,7 @@
 microservice-chart:
   namespace: "checkout"
   nameOverride: ""
-  fullnameOverride: "pagopa-checkout-auth-service"
+  fullnameOverride: "beta-pagopa-checkout-auth-service"
   image:
     repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
     tag: "0.9.2"
@@ -32,7 +32,7 @@ microservice-chart:
   ingress:
     create: true
     host: "weuuat.checkout.internal.uat.platform.pagopa.it"
-    path: /pagopa-checkout-auth-service/(.*)
+    path: /beta/pagopa-checkout-auth-service/(.*)
     servicePort: 8080
   serviceAccount:
     name: "checkout-workload-identity"
@@ -54,9 +54,9 @@ microservice-chart:
       memory: "256Mi"
       cpu: "150m"
   autoscaling:
-    enable: false
+    enable: true
     minReplica: 1
-    maxReplica: 5
+    maxReplica: 10
     pollingInterval: 30 # seconds
     cooldownPeriod: 30 # seconds
     triggers:
@@ -75,7 +75,7 @@ microservice-chart:
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
-    ONE_IDENTITY_BASE_URL: "https://uat.oneid.pagopa.it"
+    ONE_IDENTITY_BASE_URL: "https://api.uat.platform.pagopa.it/checkout/identity-provider-mock/v1"
     ONE_IDENTITY_REDIRECT_URI: "http://uat.checkout.pagopa.it/auth-callback"
     ONE_IDENTITY_CLIENT_ID: "DlBY1GBNsl-w33g8Cpi1MXaMFNCxxvgg0KQPhEvmZ4I"
     REDIS_PORT: "6380"
@@ -83,7 +83,7 @@ microservice-chart:
     AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS: "1800" #30 minutes
     OIDC_AUTH_STATE_CACHE_TTL_SECONDS: "300" #5 minutes
     OIDC_KEYS_CACHE_TTL_SECONDS: "3600" # 1 hour
-    ONE_IDENTITY_SERVER_URI: "https://uat.oneid.pagopa.it"
+    ONE_IDENTITY_SERVER_URI: "https://weuuat.checkout.internal.uat.platform.pagopa.it/pagopa-checkout-identity-provider-mock/"
     ONE_IDENTITY_SERVER_READ_TIMEOUT_MILLIS: "10000"
     ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS: "10000"
     SESSION_TOKEN_LENGTH_IN_BYTES: "16"
