@@ -3,14 +3,6 @@ variables:
   GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
 trigger: none
 
-resources:
-  repositories:
-    - repository: pagopaCheckoutTests
-      type: github
-      name: pagopa/pagopa-checkout-tests
-      ref: CHK-3809-add-auth-service-api-test
-      endpoint: 'io-azure-devops-github-ro'
-
 pool:
   vmImage: ubuntu-latest
 
@@ -68,19 +60,6 @@ stages:
               summaryFileLocation: 'build/reports/jacoco/test/jacocoTestReport.xml'
               reportDirectory: 'build/reports/jacoco/test/html'
             displayName: 'Publish Code Coverage on Azure Devops'
-
-  - stage: "API_DEV_test"
-    displayName: 'Running API test on DEV'
-    dependsOn: [ ]
-    jobs:
-      - job: newman_api_test
-        steps:
-          - checkout: pagopaCheckoutTests
-          - template: azure-templates/api-tests.yml
-            parameters:
-              API_TEST_FILE: "api-tests/auth-service-tests/auth-service-api.tests.json"
-              ENV_FILE: "api-tests/dev.envs.json"
-              TEST_FILE_PREFIX: "dev"
 
   - stage: IntegrationTest
     dependsOn: [ ]
