@@ -3,12 +3,12 @@
     <springProperty name="ECS_SERVICE_VERSION" source="build.version"/>
     <appender name="ECS_JSON_CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="co.elastic.logging.logback.EcsEncoder">
-            <serviceName>${ECS_SERVICE_NAME:-undefined}</serviceName>
+            <serviceName>${OTEL_SERVICE_NAME:-undefined}</serviceName>
             <serviceVersion>${ECS_SERVICE_VERSION}</serviceVersion>
-            <serviceEnvironment>${ECS_SERVICE_ENVIRONMENT:-undefined}</serviceEnvironment>
+            <serviceEnvironment>${OTEL_RESOURCE_ATTRIBUTES_DEPLOYMENT_ENVIRONMENT:-undefined}</serviceEnvironment>
         </encoder>
     </appender>
-    <root level="INFO">
+    <root level="${ROOT_LOGGING_LEVEL}">
         <appender-ref ref="ECS_JSON_CONSOLE"/>
     </root>
 </configuration>

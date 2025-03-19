@@ -15,4 +15,6 @@ EXPOSE 8080
 
 COPY --from=builder /workspace/app/build/native/nativeCompile/pagopa-checkout-auth-service .
 
+ENV OTEL_JAVA_GLOBAL_AUTOCONFIGURE_ENABLED=true
+
 ENTRYPOINT ["./pagopa-checkout-auth-service"]
