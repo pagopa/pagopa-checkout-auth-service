@@ -288,7 +288,7 @@ stages:
   # --- START Deploy PROD --- #
   - stage: "Prod_WaitForApproval"
     displayName: "PROD approval deployment"
-    dependsOn: [Deploy_UAT_Green, Release]
+    dependsOn: [Deploy_UAT_Green, API_UAT_test_green, Release]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
