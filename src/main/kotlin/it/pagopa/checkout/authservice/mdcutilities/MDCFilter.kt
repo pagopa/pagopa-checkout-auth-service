@@ -11,7 +11,7 @@ class MDCFilter : WebFilter {
     private val utils = RequestTracingUtils()
 
     companion object {
-        const val HEADER_RPT_ID = "x-rptid"
+        const val HEADER_RPT_ID = "x-rpt-id"
     }
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
