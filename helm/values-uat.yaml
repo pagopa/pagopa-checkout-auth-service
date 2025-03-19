@@ -69,7 +69,7 @@ microservice-chart:
     ROOT_LOGGING_LEVEL: "info"
     OTEL_RESOURCE_ATTRIBUTES_ENVIRONMENT: "uat"
     OTEL_SERVICE_NAME: "pagopa-checkout-auth-service"
-    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.otel.svc:4317"
+    OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_EXPORTER_OTLP_PROTOCOL: grpc
     OTEL_TRACES_EXPORTER: otlp
     OTEL_METRICS_EXPORTER: otlp
@@ -88,7 +88,6 @@ microservice-chart:
     ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS: "10000"
     SESSION_TOKEN_LENGTH_IN_BYTES: "16"
   envSecret:
-    OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
     REDIS_HOST: redis-checkout-hostname
     REDIS_PASSWORD: redis-checkout-access-key
     ONE_IDENTITY_CLIENT_SECRET: checkout-one-identity-client-secret

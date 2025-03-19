@@ -99,7 +99,6 @@ microservice-chart:
     ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS: "10000"
     SESSION_TOKEN_LENGTH_IN_BYTES: "16"
   envSecret:
-    OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
     REDIS_HOST: redis-checkout-hostname
     REDIS_PASSWORD: redis-checkout-access-key
     ONE_IDENTITY_CLIENT_SECRET: checkout-one-identity-client-secret
