@@ -14,6 +14,7 @@ resources:
       type: github
       name: pagopa/pagopa-checkout-tests
       ref: CHK-3830-add-api-tests-for-uat-green-auth-service
+      endpoint: "io-azure-devops-github-ro"
 
 pool:
   vmImage: ubuntu-latest
