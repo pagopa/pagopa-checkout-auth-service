@@ -76,7 +76,7 @@ stages:
 
   - stage: "API_uat_test"
     displayName: "Running API test on UAT green"
-    dependsOn: Deploy_for_UAT
+    dependsOn: []
     jobs:
       - job: newman_api_test
         steps:
