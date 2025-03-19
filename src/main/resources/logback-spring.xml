@@ -5,7 +5,7 @@
         <encoder class="co.elastic.logging.logback.EcsEncoder">
             <serviceName>${OTEL_SERVICE_NAME:-undefined}</serviceName>
             <serviceVersion>${ECS_SERVICE_VERSION}</serviceVersion>
-            <serviceEnvironment>${OTEL_RESOURCE_ATTRIBUTES_ENVIRONMENT:-undefined}</serviceEnvironment>
+            <serviceEnvironment>${OTEL_RESOURCE_ATTRIBUTES_DEPLOYMENT_ENVIRONMENT:-undefined}</serviceEnvironment>
         </encoder>
     </appender>
     <root level="${ROOT_LOGGING_LEVEL}">
