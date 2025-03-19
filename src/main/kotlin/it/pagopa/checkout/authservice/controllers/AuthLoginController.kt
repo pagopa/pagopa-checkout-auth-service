@@ -53,7 +53,11 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
      * @formatter:on
      */
     @SuppressWarnings("kotlin:S6508")
-    override fun authLogout(xRptId: String?, exchange: ServerWebExchange): Mono<ResponseEntity<Void>> {
+    override fun authLogout(
+        xRptId: String?,
+        exchange: ServerWebExchange,
+    ): Mono<ResponseEntity<Void>> {
+        logger.info("Received logout request for rptId [{}]", xRptId)
         return authenticationService.logout(exchange.request).map {
             ResponseEntity.noContent().build()
         }
@@ -66,7 +70,11 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
      *   (status code 400) or Unauthorized (status code 401) or User not found (status code 404) or
      *   Internal server error (status code 500)
      */
-    override fun authUsers(xRptId: String?, exchange: ServerWebExchange): Mono<ResponseEntity<UserInfoResponseDto>> {
+    override fun authUsers(
+        xRptId: String?,
+        exchange: ServerWebExchange,
+    ): Mono<ResponseEntity<UserInfoResponseDto>> {
+        logger.info("Received authUsers request for rptId [{}]", xRptId)
         return authenticationService.getUserInfo(exchange.request).map { userInfo ->
             ResponseEntity.ok(userInfo)
         }
@@ -111,7 +119,11 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
      * @formatter:on
      */
     @SuppressWarnings("kotlin:S6508")
-    override fun validateToken(xRptId: String?, exchange: ServerWebExchange): Mono<ResponseEntity<Void>> {
+    override fun validateToken(
+        xRptId: String?,
+        exchange: ServerWebExchange,
+    ): Mono<ResponseEntity<Void>> {
+        logger.info("Received validate request for rptId [{}]", xRptId)
         return authenticationService.validateAuthToken(exchange.request).map {
             ResponseEntity.ok().build()
         }
