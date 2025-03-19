@@ -4,6 +4,7 @@ variables:
 trigger: none
 
 resources:
+  repositories:
     - repository: pagopaCheckoutTests
       type: github
       name: pagopa/pagopa-checkout-tests
