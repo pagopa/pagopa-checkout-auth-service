@@ -67,7 +67,7 @@ microservice-chart:
           value: "70"
   envConfig:
     ROOT_LOGGING_LEVEL: "info"
-    OTEL_RESOURCE_ATTRIBUTES_ENVIRONMENT: "uat"
+    OTEL_RESOURCE_ATTRIBUTES_DEPLOYMENT_ENVIRONMENT: "uat"
     OTEL_SERVICE_NAME: "pagopa-checkout-auth-service"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
     OTEL_EXPORTER_OTLP_PROTOCOL: grpc
