@@ -270,7 +270,7 @@ stages:
                     VALUE_FILE: "helm/values-uat.yaml"
                     GREEN_VERSION: $(app_version)
 
-  - stage: "API_UAT_test"
+  - stage: "API_UAT_test_green"
     displayName: "Running API test on UAT green"
     dependsOn: Deploy_for_UAT
     jobs:
@@ -281,7 +281,7 @@ stages:
             parameters:
               API_TEST_FILE: "api-tests/auth-service-tests/auth-service-api.oneidentity.tests.json"
               ENV_FILE: "api-tests/uat.envs.json"
-              TEST_FILE_PREFIX: "dev"
+              TEST_FILE_PREFIX: "uat"
 
   # --- END Deploy UAT --- #
 
