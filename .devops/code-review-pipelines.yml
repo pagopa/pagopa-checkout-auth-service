@@ -3,19 +3,6 @@ variables:
   GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
 trigger: none
 
-resources:
-  repositories:
-    - repository: pagopaCommons
-      type: github
-      name: pagopa/azure-pipeline-templates
-      ref: refs/tags/v2.10.1
-      endpoint: "io-azure-devops-github-ro"
-    - repository: pagopaCheckoutTests
-      type: github
-      name: pagopa/pagopa-checkout-tests
-      ref: CHK-3830-add-api-tests-for-uat-green-auth-service
-      endpoint: "io-azure-devops-github-ro"
-
 pool:
   vmImage: ubuntu-latest
 
@@ -73,19 +60,6 @@ stages:
               summaryFileLocation: 'build/reports/jacoco/test/jacocoTestReport.xml'
               reportDirectory: 'build/reports/jacoco/test/html'
             displayName: 'Publish Code Coverage on Azure Devops'
-
-  - stage: "API_uat_test"
-    displayName: "Running API test on UAT green"
-    dependsOn: []
-    jobs:
-      - job: newman_api_test
-        steps:
-          - checkout: pagopaCheckoutTests
-          - template: azure-templates/api-tests.yml
-            parameters:
-              API_TEST_FILE: "api-tests/auth-service-tests/auth-service-api.oneidentity.tests.json"
-              ENV_FILE: "api-tests/uat.envs.json"
-              TEST_FILE_PREFIX: "UAT"
 
   - stage: IntegrationTest
     dependsOn: [ ]
