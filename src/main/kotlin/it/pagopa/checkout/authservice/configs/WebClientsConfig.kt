@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.client.reactive.ReactorClientHttpConnector
+import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.Connection
 import reactor.netty.http.client.HttpClient
 import reactor.netty.transport.NameResolverProvider.NameResolverSpec
@@ -20,12 +21,12 @@ import reactor.netty.transport.NameResolverProvider.NameResolverSpec
 class WebClientsConfig {
 
     @Bean
-    @RegisterReflectionForBinding(TokenDataDto::class, GetJwkSet200ResponseDto::class)
-    fun oneIdentityWebClient(
+    fun webClient(
         @Value("\${one-identity.server.uri}") serverUri: String,
         @Value("\${one-identity.server.readTimeoutMillis}") readTimeoutMillis: Int,
         @Value("\${one-identity.server.connectionTimeoutMillis}") connectionTimeoutMillis: Int,
-    ): TokenServerApisApi {
+    ): WebClient {
+
         val httpClient =
             HttpClient.create()
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, connectionTimeoutMillis)
@@ -36,13 +37,20 @@ class WebClientsConfig {
                 }
                 .resolver { nameResolverSpec: NameResolverSpec -> nameResolverSpec.ndots(1) }
 
-        val webClient =
-            OneIdentityApiClient.buildWebClientBuilder()
-                .clientConnector(ReactorClientHttpConnector(httpClient))
-                .baseUrl(serverUri)
-                .build()
+        return OneIdentityApiClient.buildWebClientBuilder()
+            .clientConnector(ReactorClientHttpConnector(httpClient))
+            .baseUrl(serverUri)
+            .build()
+    }
 
+    @Bean
+    @RegisterReflectionForBinding(TokenDataDto::class, GetJwkSet200ResponseDto::class)
+    fun oneIdentityWebClient(
+        webClient: WebClient,
+        @Value("\${one-identity.server.uri}") serverUri: String,
+    ): TokenServerApisApi {
         val apiClient = OneIdentityApiClient(webClient).setBasePath(serverUri)
+
         return TokenServerApisApi(apiClient)
     }
 }
