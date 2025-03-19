@@ -79,6 +79,11 @@ resources:
       name: pagopa/azure-pipeline-templates
       ref: refs/tags/v2.10.1
       endpoint: "io-azure-devops-github-ro"
+    - repository: pagopaCheckoutTests
+      type: github
+      name: pagopa/pagopa-checkout-tests
+      ref: main
+      endpoint: 'io-azure-devops-github-ro'
 
 pool:
   vmImage: ubuntu-latest
@@ -130,6 +135,20 @@ stages:
                     APP_NAME: $(K8S_IMAGE_REPOSITORY_NAME)
                     VALUE_FILE: "helm/values-dev.yaml"
                     GREEN_VERSION: $(Build.SourceVersion)
+
+  - stage: "API_DEV_test"
+    displayName: 'Running API test on DEV'
+    dependsOn: Deploy_for_DEV
+    jobs:
+      - job: newman_api_test
+        steps:
+          - checkout: pagopaCheckoutTests
+          - template: azure-templates/api-tests.yml
+            parameters:
+              COLLECTION_TEST_FILE: "api-tests/auth-service-tests/auth-service-api.tests.json"
+              ENV_FILE: "api-tests/dev.envs.json"
+              TEST_FILE_PREFIX: "dev"
+
   # --- END Deploy DEV --- #
 
   # --- START Deploy UAT --- #
@@ -250,6 +269,21 @@ stages:
                     APP_NAME: $(K8S_IMAGE_REPOSITORY_NAME)
                     VALUE_FILE: "helm/values-uat.yaml"
                     GREEN_VERSION: $(app_version)
+
+
+  - stage: "API_UAT_test"
+    displayName: 'Running API test on UAT (Blue instance)'
+    dependsOn: Deploy_for_DEV
+    jobs:
+      - job: newman_api_test
+        steps:
+          - checkout: pagopaCheckoutTests
+          - template: azure-templates/api-tests.yml
+            parameters:
+              COLLECTION_TEST_FILE: "api-tests/auth-service-tests/auth-service-api.tests.json"
+              ENV_FILE: "api-tests/uat.envs.json"
+              TEST_FILE_PREFIX: "uat"
+
   # --- END Deploy UAT --- #
 
   # --- START Deploy PROD --- #
