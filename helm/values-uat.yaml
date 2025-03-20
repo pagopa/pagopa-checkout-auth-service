@@ -16,12 +16,9 @@ microservice-chart:
       tag: "latest"
     envConfig:
       OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
-      ONE_IDENTITY_BASE_URL: "https://api.dev.platform.pagopa.it/checkout/identity-provider-mock/v1"
-      ONE_IDENTITY_REDIRECT_URI: "http://dev.checkout.pagopa.it/auth-callback"
+      ONE_IDENTITY_BASE_URL: "https://api.uat.platform.pagopa.it/checkout/identity-provider-mock/v1"
       ONE_IDENTITY_CLIENT_ID: "oneidentity-client-id"
-      ONE_IDENTITY_SERVER_URI: "https://weudev.checkout.internal.dev.platform.pagopa.it/pagopa-checkout-identity-provider-mock/"
-      ONE_IDENTITY_SERVER_READ_TIMEOUT_MILLIS: "10000"
-      ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS: "10000"
+      ONE_IDENTITY_SERVER_URI: "https://weuuat.checkout.internal.uat.platform.pagopa.it/pagopa-checkout-identity-provider-mock/"
     envSecret:
       ONE_IDENTITY_CLIENT_SECRET: checkout-one-identity-client-secret-test
   image:
