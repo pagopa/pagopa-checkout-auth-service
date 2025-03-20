@@ -4,7 +4,7 @@ microservice-chart:
   fullnameOverride: "pagopa-checkout-auth-service"
   image:
     repository: pagopapcommonacr.azurecr.io/pagopacheckoutauthservice
-    tag: "0.9.2"
+    tag: "0.10.0"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
@@ -24,7 +24,7 @@ microservice-chart:
     periodSeconds: 10
   deployment:
     create: true
-    replicas: 5
+    replicas: 3
   service:
     create: true
     type: ClusterIP
@@ -77,29 +77,28 @@ microservice-chart:
       maxSurge: 2
       maxUnavailable: 0
   envConfig:
-    DEFAULT_LOGGING_LEVEL: "info"
-    APP_LOGGING_LEVEL: "info"
-    WEB_LOGGING_LEVEL: "info"
-    ECS_SERVICE_NAME: "pagopa-checkout-auth-service"
-    ECS_SERVICE_ENVIRONMENT: "prod"
-    OTEL_RESOURCE_ATTRIBUTES: "service.name=pagopa-checkout-auth-service,deployment.environment=prod"
+    ROOT_LOGGING_LEVEL: "info"
+    OTEL_RESOURCE_ATTRIBUTES_DEPLOYMENT_ENVIRONMENT: "prod"
+    OTEL_SERVICE_NAME: "pagopa-checkout-auth-service"
     OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.elastic-system.svc:4317"
+    OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+    OTEL_TRACES_EXPORTER: otlp
+    OTEL_METRICS_EXPORTER: otlp
     OTEL_LOGS_EXPORTER: none
     OTEL_TRACES_SAMPLER: "always_on"
-    ONE_IDENTITY_BASE_URL: "https://mock-p.example.com" # TODO: adjust for prod environment
-    ONE_IDENTITY_REDIRECT_URI: "https://mock-p.example.com/client/login" # TODO: adjust for prod environment
-    ONE_IDENTITY_CLIENT_ID: "oneidentity-client-id"
+    ONE_IDENTITY_BASE_URL: "https://oneid.pagopa.it"
+    ONE_IDENTITY_REDIRECT_URI: "https://checkout.pagopa.it/auth-callback"
+    ONE_IDENTITY_CLIENT_ID: "8NiisZ34NpYuJo7WY2j7ffj5Ctn_XAzOJgAulk-g-9k"
     REDIS_PORT: "6380"
     REDIS_SSL_ENABLED: "true"
     AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS: "1800" #30 minutes
     OIDC_AUTH_STATE_CACHE_TTL_SECONDS: "300" #5 minutes
     OIDC_KEYS_CACHE_TTL_SECONDS: "3600" # 1 hour
-    ONE_IDENTITY_SERVER_URI: "http://localhost" #TODO to be changed with OI backend uri
+    ONE_IDENTITY_SERVER_URI: "https://oneid.pagopa.it"
     ONE_IDENTITY_SERVER_READ_TIMEOUT_MILLIS: "10000"
     ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS: "10000"
     SESSION_TOKEN_LENGTH_IN_BYTES: "16"
   envSecret:
-    OTEL_EXPORTER_OTLP_HEADERS: elastic-otel-token-header
     REDIS_HOST: redis-checkout-hostname
     REDIS_PASSWORD: redis-checkout-access-key
     ONE_IDENTITY_CLIENT_SECRET: checkout-one-identity-client-secret

@@ -28,6 +28,12 @@ class DomainObjectsTest {
     }
 
     @ParameterizedTest
+    @ValueSource(strings = ["TINIT-fiscalCode", "fiscalCode"])
+    fun `should convert UE User Fiscal Code format correctly`(ueFiscalCode: String) {
+        assert(UserFiscalCode.fromTinIt(ueFiscalCode).value == "fiscalCode")
+    }
+
+    @ParameterizedTest
     @ValueSource(strings = ["", "   "])
     fun `should throw exception building a OidcState instance with an invalid value`(
         invalidValue: String
@@ -55,6 +61,7 @@ class DomainObjectsTest {
     fun `Should build domain objects successfully with valid value`() {
         assertDoesNotThrow { Name("test") }
         assertDoesNotThrow { UserFiscalCode("user fiscal code") }
+        assertDoesNotThrow { UserFiscalCode("TINIT-user fiscal code") }
         assertDoesNotThrow { OidcState("oidcState") }
         assertDoesNotThrow { OidcNonce("oidcNonce") }
         assertDoesNotThrow { AuthCode("authCode") }

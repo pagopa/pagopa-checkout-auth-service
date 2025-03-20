@@ -17,7 +17,7 @@ plugins {
 
 group = "it.pagopa.checkout.authservice"
 
-version = "0.9.2"
+version = "0.10.0"
 
 description = "pagopa-checkout-auth-service"
 
@@ -34,8 +34,8 @@ springBoot {
 
 object Deps {
   const val ecsLoggingVersion = "1.5.0"
-  const val openTelemetryVersion = "1.46.0"
-  const val openTelemetryInstrumentationVersion = "2.12.0"
+  const val openTelemetryVersion = "1.48.0"
+  const val openTelemetryInstrumentationVersion = "2.14.0-alpha"
   const val springBootVersion = "3.4.2"
   const val jsonWebTokenVersion = "0.11.5"
 }
@@ -48,9 +48,8 @@ dependencyManagement {
   }
   // otel BOM
   imports {
-    mavenBom("io.opentelemetry:opentelemetry-bom:${Deps.openTelemetryVersion}")
     mavenBom(
-      "io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom:${Deps.openTelemetryInstrumentationVersion}"
+      "io.opentelemetry.instrumentation:opentelemetry-instrumentation-bom-alpha:${Deps.openTelemetryInstrumentationVersion}"
     )
   }
 }
@@ -67,9 +66,10 @@ dependencies {
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
   implementation("io.arrow-kt:arrow-core:2.0.1")
   implementation("io.swagger.core.v3:swagger-annotations:2.2.28")
+
   // otel api
-  implementation("io.opentelemetry:opentelemetry-api")
-  implementation("io.opentelemetry.instrumentation:opentelemetry-reactor-3.1:2.12.0-alpha")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-reactor-3.1")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter")
 
   // ECS logback encoder
   implementation("co.elastic.logging:logback-ecs-encoder:${Deps.ecsLoggingVersion}")
