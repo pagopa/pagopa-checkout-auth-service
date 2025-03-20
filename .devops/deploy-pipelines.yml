@@ -319,6 +319,7 @@ stages:
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.tag_docker_release.result, 'Succeeded', 'Skipped'),
+        in(dependencies.GreenDeployment_WaitForApproval.result, 'Succeeded', 'Skipped'),
         in(dependencies.Release.result, 'Succeeded', 'Skipped'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
