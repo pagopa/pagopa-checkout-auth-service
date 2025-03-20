@@ -10,9 +10,9 @@ microservice-chart:
       header: true
       headerName: deployment
       headerValue: blue
-      weightPercent: 10
+      weightPercent: 0
     image:
-      repository: pagopauitncoreacr.azurecr.io/pagopacheckoutauthservice
+      repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
       tag: "latest"
     envConfig:
       OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
