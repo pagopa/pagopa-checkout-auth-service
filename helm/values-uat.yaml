@@ -2,6 +2,25 @@ microservice-chart:
   namespace: "checkout"
   nameOverride: ""
   fullnameOverride: "pagopa-checkout-auth-service"
+  canaryDelivery:
+    create: false
+    ingress:
+      bluegreen: false
+      #set canary deployment with traffic balancing see https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#canary for more info
+      header: true
+      headerName: deployment
+      headerValue: blue
+      weightPercent: 0
+    image:
+      repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
+      tag: "latest"
+    envConfig:
+      OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
+      ONE_IDENTITY_BASE_URL: "https://api.uat.platform.pagopa.it/checkout/identity-provider-mock/v1"
+      ONE_IDENTITY_CLIENT_ID: "oneidentity-client-id"
+      ONE_IDENTITY_SERVER_URI: "https://weuuat.checkout.internal.uat.platform.pagopa.it/pagopa-checkout-identity-provider-mock/"
+    envSecret:
+      ONE_IDENTITY_CLIENT_SECRET: checkout-one-identity-client-secret-test
   image:
     repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
     tag: "0.9.4"
