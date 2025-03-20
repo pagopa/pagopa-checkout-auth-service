@@ -343,7 +343,7 @@ stages:
                   continueOnError: true
                   inputs:
                     kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
-                    namespace: "pay-wallet"
+                    namespace: checkout
                     command: uninstall
                     arguments: beta-$(K8S_IMAGE_REPOSITORY_NAME)
                 - checkout: self
