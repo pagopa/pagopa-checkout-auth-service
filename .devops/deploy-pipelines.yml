@@ -269,6 +269,7 @@ stages:
                     APP_NAME: beta-$(K8S_IMAGE_REPOSITORY_NAME)
                     VALUE_FILE: "helm/values-uat.yaml"
                     GREEN_VERSION: $(app_version)
+                    BLUE_VERSION: $(app_version)
 
   - stage: "API_UAT_test_blue"
     displayName: "Running API test on UAT (Blue instance)"
