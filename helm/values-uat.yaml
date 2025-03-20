@@ -1,7 +1,7 @@
 microservice-chart:
   namespace: "checkout"
   nameOverride: ""
-  fullnameOverride: "beta-pagopa-checkout-auth-service"
+  fullnameOverride: "soak-pagopa-checkout-auth-service"
   image:
     repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
     tag: "0.9.2"
