@@ -280,7 +280,7 @@ stages:
           - checkout: pagopaCheckoutTests
           - template: azure-templates/api-tests.yml
             parameters:
-              API_TEST_FILE: "api-tests/auth-service-tests/auth-service-api.tests.json"
+              API_TEST_FILE: "api-tests/auth-service-tests/auth-service-api.beta.tests.json"
               ENV_FILE: "api-tests/uat.envs.json"
               TEST_FILE_PREFIX: "uat"
 
