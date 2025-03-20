@@ -270,9 +270,10 @@ stages:
                     VALUE_FILE: "helm/values-uat.yaml"
                     GREEN_VERSION: $(app_version)
 
-  - stage: "API_UAT_test"
+  - stage: "API_UAT_test_blue"
     displayName: "Running API test on UAT (Blue instance)"
     dependsOn: Deploy_UAT_Blue
+    condition: eq(dependencies.Deploy_UAT_Blue.result, 'Succeeded')
     jobs:
       - job: newman_api_test
         steps:
@@ -285,7 +286,7 @@ stages:
 
   - stage: "GreenDeployment_WaitForApproval"
     displayName: "UAT green approval deployment"
-    dependsOn: [API_UAT_test, tag_docker_release, Release]
+    dependsOn: [API_UAT_test_blue, tag_docker_release, Release]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
