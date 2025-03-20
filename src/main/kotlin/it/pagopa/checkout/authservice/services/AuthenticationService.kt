@@ -105,7 +105,7 @@ class AuthenticationService(
                                             String::class.java]
                                     ),
                                 fiscalCode =
-                                    UserFiscalCode(
+                                    UserFiscalCode.fromTinIt(
                                         it[
                                             JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY,
                                             String::class.java]
