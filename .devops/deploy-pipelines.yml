@@ -290,7 +290,7 @@ stages:
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        in(dependencies.API_UAT_test.result, 'Succeeded', 'Skipped','Failed'),
+        in(dependencies.API_UAT_test_blue.result, 'Succeeded', 'Skipped','Failed'),
         in(dependencies.tag_docker_release.result, 'Succeeded'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
