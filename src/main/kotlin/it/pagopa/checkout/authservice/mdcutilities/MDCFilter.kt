@@ -11,7 +11,7 @@ class MDCFilter : WebFilter {
     private val utils = RequestTracingUtils()
 
     companion object {
-        const val HEADER_RPT_ID = "x-rpt-id"
+        const val HEADER_RPT_IDS = "x-rpt-ids"
     }
 
     override fun filter(exchange: ServerWebExchange, chain: WebFilterChain): Mono<Void> {
@@ -21,7 +21,7 @@ class MDCFilter : WebFilter {
         val path = request.uri.path
 
         // extract header values
-        var rptId = headers.getFirst(HEADER_RPT_ID)
+        var rptId = headers.getFirst(HEADER_RPT_IDS)
         if (rptId.isNullOrEmpty()) rptId = RequestTracingUtils.TracingEntry.RPT_ID.defaultValue
 
         // create info

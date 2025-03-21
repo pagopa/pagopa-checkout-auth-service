@@ -25,9 +25,9 @@ paths:
       description: 'GET login endpoint with reCAPTCHA code'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
-          description: Optional RPTID for tracking login attempts
+          description: Optional RPT ID used to track login attempts to payment notices
           schema:
             type: string
       responses:
@@ -64,9 +64,9 @@ paths:
       description: 'GET user information'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
-          description: Optional RPT ID used to track login attempts to payment notices
+          description: Optional RPT ID used to track get user information attempts to payment notices
 
           schema:
             type: string
@@ -112,9 +112,9 @@ paths:
       description: 'POST logout endpoint'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
-          description: Optional RPTID
+          description: Optional RPT ID used to track logout attempts to payment notices
           schema:
             type: string
       security:
@@ -149,9 +149,9 @@ paths:
       description: 'POST authentication endpoint with auth code'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
-          description: Optional RPTID
+          description: Optional RPT ID used to track auth token generation attempts to payment notices
           schema:
             type: string
       requestBody:
@@ -202,9 +202,9 @@ paths:
       description: 'GET endpoint to validate a token'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
-          description: Optional RPTID for tracking login attempts
+          description: Optional RPT ID used to track token validation attempts to payment notices
           schema:
             type: string
       security:

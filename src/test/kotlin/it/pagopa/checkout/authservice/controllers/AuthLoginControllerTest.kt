@@ -45,7 +45,7 @@ class AuthLoginControllerTest {
         webClient
             .get()
             .uri("/auth/login")
-            .header("x-rpt-id", "rpt-id-value")
+            .header("x-rpt-ids", "rpt-id-value")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus()
@@ -65,7 +65,7 @@ class AuthLoginControllerTest {
         webClient
             .get()
             .uri("/auth/login")
-            .header("x-rpt-id", "")
+            .header("x-rpt-ids", "")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus()
