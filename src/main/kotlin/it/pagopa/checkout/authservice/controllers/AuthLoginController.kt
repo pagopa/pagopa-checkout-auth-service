@@ -30,7 +30,7 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
         xRptId: String?,
         exchange: ServerWebExchange?,
     ): Mono<ResponseEntity<LoginResponseDto>> {
-        logger.info("Received login request for rptId [{}]", xRptId)
+        logger.info("Received login request")
         return authenticationService.login().map { loginResponse ->
             ResponseEntity.ok(loginResponse)
         }
@@ -57,7 +57,7 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
         xRptId: String?,
         exchange: ServerWebExchange,
     ): Mono<ResponseEntity<Void>> {
-        logger.info("Received logout request for rptId [{}]", xRptId)
+        logger.info("Received logout request")
         return authenticationService.logout(exchange.request).map {
             ResponseEntity.noContent().build()
         }
@@ -74,7 +74,7 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
         xRptId: String?,
         exchange: ServerWebExchange,
     ): Mono<ResponseEntity<UserInfoResponseDto>> {
-        logger.info("Received authUsers request for rptId [{}]", xRptId)
+        logger.info("Received authUsers request")
         return authenticationService.getUserInfo(exchange.request).map { userInfo ->
             ResponseEntity.ok(userInfo)
         }
@@ -123,7 +123,7 @@ class AuthLoginController(@Autowired private val authenticationService: Authenti
         xRptId: String?,
         exchange: ServerWebExchange,
     ): Mono<ResponseEntity<Void>> {
-        logger.info("Received validate request for rptId [{}]", xRptId)
+        logger.info("Received validate request")
         return authenticationService.validateAuthToken(exchange.request).map {
             ResponseEntity.ok().build()
         }
