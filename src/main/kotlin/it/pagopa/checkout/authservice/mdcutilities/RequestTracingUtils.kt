@@ -13,7 +13,7 @@ class RequestTracingUtils {
      * information are not taken from incoming request
      */
     enum class TracingEntry(val key: String, val defaultValue: String) {
-        RPT_ID("rptId", "{rptId-not-found}"),
+        RPT_ID("rptId", "{rpt-id-not-found}"),
         API_ID("apiId", "{api-id-not-found}"),
     }
 
