@@ -8,11 +8,12 @@ import org.springframework.data.redis.core.RedisTemplate
 class OIDCAuthStateDataRepository(
     redisTemplate: RedisTemplate<String, OidcAuthStateData>,
     defaultTTL: Duration,
+    keyspace: String,
 ) :
     RedisTemplateWrapper<OidcAuthStateData>(
         redisTemplate = redisTemplate,
         ttl = defaultTTL,
-        keyspace = "oidc-auth-session-data",
+        keyspace = keyspace,
     ) {
     override fun getKeyFromEntity(value: OidcAuthStateData) = value.state.value
 }
