@@ -1,7 +1,10 @@
 package it.pagopa.checkout.authservice.repositories.redis
 
 import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.*
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcKey
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import java.time.Duration
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test
@@ -23,7 +26,11 @@ class WrappedRedisTemplateRepositoriesTests {
                     ),
             )
         val extractedKey =
-            AuthenticatedUserSessionRepository(redisTemplate = mock(), Duration.ofSeconds(1))
+            AuthenticatedUserSessionRepository(
+                    redisTemplate = mock(),
+                    Duration.ofSeconds(1),
+                    "keyspace",
+                )
                 .getKeyFromEntity(domainObject)
         assertEquals(key, extractedKey)
     }
@@ -33,7 +40,7 @@ class WrappedRedisTemplateRepositoriesTests {
         val key = "key"
         val domainObject = OidcAuthStateData(state = OidcState(key), nonce = OidcNonce("nonce"))
         val extractedKey =
-            OIDCAuthStateDataRepository(redisTemplate = mock(), Duration.ofSeconds(1))
+            OIDCAuthStateDataRepository(redisTemplate = mock(), Duration.ofSeconds(1), "keyspace")
                 .getKeyFromEntity(domainObject)
         assertEquals(key, extractedKey)
     }
@@ -43,7 +50,7 @@ class WrappedRedisTemplateRepositoriesTests {
         val key = "key"
         val domainObject = OidcKey(kid = key, e = "exponent", n = "modulus")
         val extractedKey =
-            OidcKeysRepository(redisTemplate = mock(), Duration.ofSeconds(1))
+            OidcKeysRepository(redisTemplate = mock(), Duration.ofSeconds(1), "keyspace")
                 .getKeyFromEntity(domainObject)
         assertEquals(key, extractedKey)
     }

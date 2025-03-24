@@ -86,11 +86,9 @@ stages:
 
             - script: newman run api-tests/v1/checkout-auth.e2e.tests.local.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-e2e-TEST.xml
               displayName: 'Run checkout auth E2E tests with pagopa-checkout-identity-provider-mock'
-              continueOnError: true
 
             - script: newman run api-tests/v1/checkout-auth.api.tests.local.json --environment=api-tests/env/checkout-auth_local.env.json --reporters cli,junit --reporter-junit-export Results/checkout-auth-api-TEST.xml
               displayName: 'Run checkout auth api tests with mocked data'
-              continueOnError: true
 
             - task: PublishTestResults@2
               inputs:

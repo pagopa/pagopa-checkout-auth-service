@@ -25,6 +25,7 @@ class RedisConfig {
     fun authenticatedUserSessionRepository(
         redisConnectionFactory: RedisConnectionFactory,
         @Value("\${authenticated-user-session.cache.ttlSeconds}") ttlSeconds: Long,
+        @Value("\${authenticated-user-session.cache.keyspace}") keyspace: String,
     ): AuthenticatedUserSessionRepository {
         val redisTemplate = RedisTemplate<String, AuthenticatedUserSession>()
         redisTemplate.connectionFactory = redisConnectionFactory
@@ -33,7 +34,11 @@ class RedisConfig {
         redisTemplate.valueSerializer = jackson2JsonRedisSerializer
         redisTemplate.keySerializer = StringRedisSerializer()
         redisTemplate.afterPropertiesSet()
-        return AuthenticatedUserSessionRepository(redisTemplate, Duration.ofSeconds(ttlSeconds))
+        return AuthenticatedUserSessionRepository(
+            redisTemplate = redisTemplate,
+            keyspace = keyspace,
+            defaultTTL = Duration.ofSeconds(ttlSeconds),
+        )
     }
 
     @Bean
@@ -41,6 +46,7 @@ class RedisConfig {
     fun oidcAuthStateRepository(
         redisConnectionFactory: RedisConnectionFactory,
         @Value("\${oidc.auth-state.cache.ttlSeconds}") ttlSeconds: Long,
+        @Value("\${oidc.auth-state.cache.keyspace}") keyspace: String,
     ): OIDCAuthStateDataRepository {
         val redisTemplate = RedisTemplate<String, OidcAuthStateData>()
         redisTemplate.connectionFactory = redisConnectionFactory
@@ -49,7 +55,11 @@ class RedisConfig {
         redisTemplate.valueSerializer = jackson2JsonRedisSerializer
         redisTemplate.keySerializer = StringRedisSerializer()
         redisTemplate.afterPropertiesSet()
-        return OIDCAuthStateDataRepository(redisTemplate, Duration.ofSeconds(ttlSeconds))
+        return OIDCAuthStateDataRepository(
+            redisTemplate = redisTemplate,
+            defaultTTL = Duration.ofSeconds(ttlSeconds),
+            keyspace = keyspace,
+        )
     }
 
     @Bean
@@ -57,6 +67,7 @@ class RedisConfig {
     fun oidcKeyRepository(
         redisConnectionFactory: RedisConnectionFactory,
         @Value("\${oidc.keys.cache.ttlSeconds}") ttlSeconds: Long,
+        @Value("\${oidc.keys.cache.keyspace}") keyspace: String,
     ): OidcKeysRepository {
         val redisTemplate = RedisTemplate<String, OidcKey>()
         redisTemplate.connectionFactory = redisConnectionFactory
@@ -64,7 +75,11 @@ class RedisConfig {
         redisTemplate.valueSerializer = jackson2JsonRedisSerializer
         redisTemplate.keySerializer = StringRedisSerializer()
         redisTemplate.afterPropertiesSet()
-        return OidcKeysRepository(redisTemplate, Duration.ofSeconds(ttlSeconds))
+        return OidcKeysRepository(
+            redisTemplate = redisTemplate,
+            defaultTTL = Duration.ofSeconds(ttlSeconds),
+            keyspace = keyspace,
+        )
     }
 
     private fun <T> buildJackson2RedisSerializer(clazz: Class<T>): Jackson2JsonRedisSerializer<T> {
