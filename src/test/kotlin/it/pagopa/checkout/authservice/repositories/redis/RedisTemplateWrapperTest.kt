@@ -61,12 +61,12 @@ class RedisTemplateWrapperTest {
     }
 
     @Test
-    fun `should perform delete operation`() {
+    fun `should perform delete by id operation`() {
         // pre-conditions
         val key = "key"
         given(redisTemplate.delete(any<String>())).willReturn(true)
         // test
-        val returnedValue = mockedRedisTemplate.delete(key)
+        val returnedValue = mockedRedisTemplate.deleteById(key)
         // assertions
         assertEquals(true, returnedValue)
         verify(redisTemplate, times(1)).delete("$keySpace:key")
