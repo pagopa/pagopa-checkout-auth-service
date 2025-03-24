@@ -73,6 +73,20 @@ class RedisTemplateWrapperTest {
     }
 
     @Test
+    fun `should perform delete all keys operation`() {
+        // pre-conditions
+        val keys = setOf("key1", "key2")
+        given(redisTemplate.keys(any())).willReturn(keys)
+        given(redisTemplate.delete(any<Collection<String>>())).willReturn(keys.size.toLong())
+        // test
+        val returnedValue = mockedRedisTemplate.deleteAll()
+        // assertions
+        assertEquals(2, returnedValue)
+        verify(redisTemplate, times(1)).delete(keys)
+        verify(redisTemplate, times(1)).keys("$keySpace:*")
+    }
+
+    @Test
     fun `should find all keys in keyspace`() {
         // pre-conditions
 

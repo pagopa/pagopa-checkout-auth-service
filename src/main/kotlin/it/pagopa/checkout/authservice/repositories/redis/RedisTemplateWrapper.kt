@@ -17,6 +17,8 @@ abstract class RedisTemplateWrapper<V>(
 
     fun delete(key: String): Boolean = redisTemplate.delete("$keyspace:$key")
 
+    fun deleteAll(): Long = redisTemplate.delete(keysInKeyspace())
+
     fun keysInKeyspace(): Set<String> = redisTemplate.keys("$keyspace:*").toSet()
 
     fun getAllValues(): List<V> =

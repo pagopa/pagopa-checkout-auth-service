@@ -43,15 +43,15 @@ class JwtUtils(
                             as Claims
                     }
                 }
-            Mono.firstWithValue(jwtParser).onErrorResume {
-                logger.error(
-                    "Cannot validate jwt token with any of the input keys, clearing key cache",
-                    it,
-                )
-                oidcKeysRepository.keysInKeyspace().forEach { kid ->
-                    oidcKeysRepository.delete(kid)
-                }
-                Mono.error(it)
+            Mono.firstWithValue(jwtParser).onErrorResume { exception ->
+                Mono.fromCallable { oidcKeysRepository.deleteAll() }
+                    .doOnNext {
+                        logger.error(
+                            "Cannot validate jwt token with any of the input keys, cleared cached keys: [$it]",
+                            exception,
+                        )
+                    }
+                    .then(Mono.error(exception))
             }
         }
     }
