@@ -8,7 +8,8 @@ import it.pagopa.checkout.authservice.exception.SessionValidationException
 import it.pagopa.checkout.authservice.repositories.redis.AuthenticatedUserSessionRepository
 import it.pagopa.checkout.authservice.repositories.redis.OIDCAuthStateDataRepository
 import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.*
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
+import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
 import it.pagopa.checkout.authservice.utils.JwtUtils
@@ -21,8 +22,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
-import org.mockito.kotlin.mock
-import org.mockito.kotlin.whenever
 import org.springframework.mock.http.server.reactive.MockServerHttpRequest
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -208,7 +207,7 @@ class AuthenticationServiceTest {
         given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
         doNothing().`when`(authenticatedUserSessionRepository).save(any())
-        given(oidcAuthStateDataRepository.delete(any())).willReturn(true)
+        given(oidcAuthStateDataRepository.deleteById(any())).willReturn(true)
         // test
         val expectedAuthenticatedUserSession =
             AuthenticatedUserSession(
@@ -231,7 +230,7 @@ class AuthenticationServiceTest {
             .retrieveOidcToken(authCode = authCode, state = oidcState)
         verify(sessionTokenUtils, times(1)).generateSessionToken()
         verify(authenticatedUserSessionRepository, times(1)).save(expectedAuthenticatedUserSession)
-        verify(oidcAuthStateDataRepository, times(1)).delete(oidcState.value)
+        verify(oidcAuthStateDataRepository, times(1)).deleteById(oidcState.value)
     }
 
     @Test
@@ -269,7 +268,7 @@ class AuthenticationServiceTest {
             .willReturn(Mono.just(jwtResponseClaims))
 
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
-        given(oidcAuthStateDataRepository.delete(oidcState.value)).willReturn(true)
+        given(oidcAuthStateDataRepository.deleteById(oidcState.value)).willReturn(true)
 
         val expectedAuthenticatedUserSession =
             AuthenticatedUserSession(
@@ -294,7 +293,7 @@ class AuthenticationServiceTest {
             .verify()
 
         verify(oidcAuthStateDataRepository, times(2)).findById(oidcState.value)
-        verify(oidcAuthStateDataRepository, times(1)).delete(oidcState.value)
+        verify(oidcAuthStateDataRepository, times(1)).deleteById(oidcState.value)
         verify(oneIdentityClient, times(1)).retrieveOidcToken(authCode, oidcState)
     }
 
@@ -323,7 +322,7 @@ class AuthenticationServiceTest {
         given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
         doNothing().`when`(authenticatedUserSessionRepository).save(any())
-        given(oidcAuthStateDataRepository.delete(any())).willReturn(true)
+        given(oidcAuthStateDataRepository.deleteById(any())).willReturn(true)
         // test
         val expectedAuthenticatedUserSession =
             AuthenticatedUserSession(
@@ -352,7 +351,7 @@ class AuthenticationServiceTest {
             .retrieveOidcToken(authCode = authCode, state = oidcState)
         verify(sessionTokenUtils, times(0)).generateSessionToken()
         verify(authenticatedUserSessionRepository, times(0)).save(any())
-        verify(oidcAuthStateDataRepository, times(0)).delete(any())
+        verify(oidcAuthStateDataRepository, times(0)).deleteById(any())
     }
 
     @Test
@@ -408,11 +407,11 @@ class AuthenticationServiceTest {
         // test mock
         given { sessionTokenUtils.getSessionTokenFromRequest(request) }
             .willReturn(Mono.just(bearerToken))
-        given { authenticatedUserSessionRepository.delete(bearerToken) }.willReturn(true)
+        given { authenticatedUserSessionRepository.deleteById(bearerToken) }.willReturn(true)
         // test
         StepVerifier.create(authenticationService.logout(request)).expectNext(Unit).verifyComplete()
         verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
-        verify(authenticatedUserSessionRepository, times(1)).delete(bearerToken)
+        verify(authenticatedUserSessionRepository, times(1)).deleteById(bearerToken)
     }
 
     @Test
@@ -423,11 +422,11 @@ class AuthenticationServiceTest {
         // test mock
         given { sessionTokenUtils.getSessionTokenFromRequest(request) }
             .willReturn(Mono.just(bearerToken))
-        given { authenticatedUserSessionRepository.delete(bearerToken) }.willReturn(false)
+        given { authenticatedUserSessionRepository.deleteById(bearerToken) }.willReturn(false)
         // test
         StepVerifier.create(authenticationService.logout(request)).expectNext(Unit).verifyComplete()
         verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
-        verify(authenticatedUserSessionRepository, times(1)).delete(bearerToken)
+        verify(authenticatedUserSessionRepository, times(1)).deleteById(bearerToken)
     }
 
     @Test

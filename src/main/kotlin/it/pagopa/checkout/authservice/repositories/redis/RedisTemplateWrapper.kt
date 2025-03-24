@@ -15,7 +15,9 @@ abstract class RedisTemplateWrapper<V>(
 
     fun findById(key: String): V? = redisTemplate.opsForValue()["$keyspace:$key"]
 
-    fun delete(key: String): Boolean = redisTemplate.delete("$keyspace:$key")
+    fun deleteById(key: String): Boolean = redisTemplate.delete("$keyspace:$key")
+
+    fun deleteAll(): Long = redisTemplate.delete(keysInKeyspace())
 
     fun keysInKeyspace(): Set<String> = redisTemplate.keys("$keyspace:*").toSet()
 

@@ -125,7 +125,7 @@ class AuthenticationService(
             .doOnNext {
                 logger.info("User logged successfully for state: [{}]", state.value)
                 // user logged in, delete authentication state-nonce from cache
-                oidcAuthStateDataRepository.delete(state.value)
+                oidcAuthStateDataRepository.deleteById(state.value)
             }
     }
 
@@ -165,7 +165,7 @@ class AuthenticationService(
         return sessionTokenUtils
             .getSessionTokenFromRequest(request)
             .flatMap { bearerToken ->
-                Mono.fromCallable { authenticatedUserSessionRepository.delete(bearerToken) }
+                Mono.fromCallable { authenticatedUserSessionRepository.deleteById(bearerToken) }
             }
             .then(Mono.just(Unit))
     }

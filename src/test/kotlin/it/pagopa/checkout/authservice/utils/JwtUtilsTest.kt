@@ -83,8 +83,7 @@ class JwtUtilsTest {
         verify(oidcKeysRepository, times(1)).getAllValues()
         verify(oneIdentityClient, times(1)).getKeys()
         expectedSavedKeys.forEach { verify(oidcKeysRepository, times(1)).save(it) }
-        verify(oidcKeysRepository, times(0)).keysInKeyspace()
-        verify(oidcKeysRepository, times(0)).delete(any())
+        verify(oidcKeysRepository, times(0)).deleteAll()
     }
 
     @Test
@@ -134,8 +133,7 @@ class JwtUtilsTest {
         verify(oidcKeysRepository, times(1)).getAllValues()
         verify(oneIdentityClient, times(0)).getKeys()
         verify(oidcKeysRepository, times(0)).save(any())
-        verify(oidcKeysRepository, times(0)).keysInKeyspace()
-        verify(oidcKeysRepository, times(0)).delete(any())
+        verify(oidcKeysRepository, times(0)).deleteAll()
     }
 
     @Test
@@ -194,8 +192,7 @@ class JwtUtilsTest {
         verify(oidcKeysRepository, times(1)).getAllValues()
         verify(oneIdentityClient, times(1)).getKeys()
         verify(oidcKeysRepository, times(0)).save(any())
-        verify(oidcKeysRepository, times(0)).keysInKeyspace()
-        verify(oidcKeysRepository, times(0)).delete(any())
+        verify(oidcKeysRepository, times(0)).deleteAll()
     }
 
     @Test
@@ -243,8 +240,7 @@ class JwtUtilsTest {
         verify(oidcKeysRepository, times(1)).getAllValues()
         verify(oneIdentityClient, times(1)).getKeys()
         expectedSavedKeys.forEach { verify(oidcKeysRepository, times(1)).save(it) }
-        verify(oidcKeysRepository, times(0)).keysInKeyspace()
-        verify(oidcKeysRepository, times(0)).delete(any())
+        verify(oidcKeysRepository, times(0)).deleteAll()
     }
 
     @Test
@@ -295,7 +291,7 @@ class JwtUtilsTest {
                 .compact()
         given(oidcKeysRepository.getAllValues()).willReturn(emptyList())
         given(oneIdentityClient.getKeys()).willReturn(Mono.just(oneIdentityResponse))
-        given(oidcKeysRepository.keysInKeyspace()).willReturn(cachedKeys)
+        given(oidcKeysRepository.deleteAll()).willReturn(cachedKeys.size.toLong())
         doNothing().`when`(oidcKeysRepository).save(any())
         Hooks.onOperatorDebug()
         // test
@@ -314,7 +310,6 @@ class JwtUtilsTest {
         verify(oidcKeysRepository, times(1)).getAllValues()
         verify(oneIdentityClient, times(1)).getKeys()
         expectedSavedKeys.forEach { verify(oidcKeysRepository, times(1)).save(it) }
-        verify(oidcKeysRepository, times(1)).keysInKeyspace()
-        cachedKeys.forEach { verify(oidcKeysRepository, times(1)).delete(it) }
+        verify(oidcKeysRepository, times(1)).deleteAll()
     }
 }
