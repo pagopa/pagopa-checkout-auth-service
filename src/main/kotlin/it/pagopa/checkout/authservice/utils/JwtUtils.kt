@@ -44,11 +44,15 @@ class JwtUtils(
                     }
                 }
             Mono.firstWithValue(jwtParser).onErrorResume { exception ->
+                logger.error(
+                    "Error performing signature validation for received JWT idToken",
+                    exception,
+                )
                 Mono.fromCallable { oidcKeysRepository.deleteAll() }
                     .doOnNext {
-                        logger.error(
-                            "Cannot validate jwt token with any of the input keys, cleared cached keys: [$it]",
-                            exception,
+                        logger.warn(
+                            "No cached key were valid to validate JWT token, cleared cached keys: [{}]",
+                            it,
                         )
                     }
                     .then(Mono.error(exception))
