@@ -8,10 +8,11 @@ import org.springframework.data.redis.core.RedisTemplate
 class AuthenticatedUserSessionRepository(
     redisTemplate: RedisTemplate<String, AuthenticatedUserSession>,
     defaultTTL: Duration,
+    keyspace: String,
 ) :
     RedisTemplateWrapper<AuthenticatedUserSession>(
         ttl = defaultTTL,
-        keyspace = "authenticated-user-session",
+        keyspace = keyspace,
         redisTemplate = redisTemplate,
     ) {
     override fun getKeyFromEntity(value: AuthenticatedUserSession) = value.sessionToken.value

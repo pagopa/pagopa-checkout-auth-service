@@ -158,8 +158,8 @@
 							"    const name = responseJson.name;",
 							"    const familyName = responseJson.familyName;",
 							"    pm.expect(userId).to.be.eq(\"fiscalNumber\");",
-							"    pm.expect(name).to.be.eq(\"name\");",
-							"    pm.expect(familyName).to.be.eq(\"familyName\");",
+							"    pm.expect(name).to.be.eq(\"NomeTest\");",
+							"    pm.expect(familyName).to.be.eq(\"CognomeTest\");",
 							"});",
 							""
 						],
