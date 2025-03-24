@@ -21,13 +21,14 @@ class MDCFilter : WebFilter {
         val path = request.uri.path
 
         // extract header values
-        var rptId = headers.getFirst(HEADER_RPT_IDS)
-        if (rptId.isNullOrEmpty()) rptId = RequestTracingUtils.TracingEntry.RPT_ID.defaultValue
+        val rptIds =
+            headers.getFirst(HEADER_RPT_IDS).takeIf { !it.isNullOrEmpty() }
+                ?: RequestTracingUtils.TracingEntry.RPT_IDS.defaultValue
 
         // create info
         val requestTracingInfo =
             RequestTracingUtils.RequestTracingInfo(
-                rptId = rptId,
+                rptIds = rptIds,
                 requestMethod = method,
                 requestUriPath = path,
             )
