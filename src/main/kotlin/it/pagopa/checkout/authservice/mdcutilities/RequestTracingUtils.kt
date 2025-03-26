@@ -13,13 +13,13 @@ class RequestTracingUtils {
      * information are not taken from incoming request
      */
     enum class TracingEntry(val key: String, val defaultValue: String) {
-        RPT_ID("rptId", "{rptId-not-found}"),
+        RPT_IDS("rptIds", "{rpt-id-not-found}"),
         API_ID("apiId", "{api-id-not-found}"),
     }
 
     /** Request tracing info */
     data class RequestTracingInfo(
-        val rptId: String,
+        val rptIds: String,
         val requestMethod: String,
         val requestUriPath: String,
     )
@@ -39,11 +39,11 @@ class RequestTracingUtils {
         // starting context
         var context = reactorContext
 
-        // add RPT ID
+        // add RPT IDS
         context =
             putInReactorContextIfSetToDefault(
-                TracingEntry.RPT_ID,
-                requestTracingInfo.rptId,
+                TracingEntry.RPT_IDS,
+                requestTracingInfo.rptIds,
                 context,
             )
 

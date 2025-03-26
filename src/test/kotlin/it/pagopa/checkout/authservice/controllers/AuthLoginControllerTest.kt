@@ -45,7 +45,27 @@ class AuthLoginControllerTest {
         webClient
             .get()
             .uri("/auth/login")
-            .header("127.0.0.1")
+            .header("x-rpt-id", "rpt-id-value")
+            .accept(MediaType.APPLICATION_JSON)
+            .exchange()
+            .expectStatus()
+            .is2xxSuccessful
+            .expectBody()
+            .jsonPath("$.urlRedirect")
+            .isEqualTo("https://mock.example.com/login?param=value")
+    }
+
+    @Test
+    fun `authLogin should return successful response when service returns login URL with empty x-rpt-id`() {
+        val loginResponse = LoginResponseDto()
+        loginResponse.urlRedirect = "https://mock.example.com/login?param=value"
+
+        whenever(authenticationService.login()).thenReturn(Mono.just(loginResponse))
+
+        webClient
+            .get()
+            .uri("/auth/login")
+            .header("x-rpt-id", "")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus()
