@@ -72,7 +72,7 @@ parameters:
       - False
       - True
   - name: "NATIVE_COMPILATION"
-    displayName: "Boolean flag to use native compilation or JVM runtime for the output executable"
+    displayName: "Boolean flag to use native compilation or JVM runtime for the output executable: activating this parameter native compilation will be used, jvm otherwise"
     type: boolean
     default: True
     values:
