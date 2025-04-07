@@ -1,0 +1,15 @@
+#overrides from jvm version
+microservice-chart:
+  livenessProbe:
+    initialDelaySeconds: 60
+  readinessProbe:
+    initialDelaySeconds: 60
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "300m"
+    limits:
+      memory: "512Mi"
+      cpu: "900m"
+  envConfig:
+    RUNTIME: "jvm"
