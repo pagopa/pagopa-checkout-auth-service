@@ -96,16 +96,16 @@ pool:
   vmImage: ubuntu-latest
 
 variables:
-${{ if eq(parameters['NATIVE_COMPILATION'], True) }}:
   - name: DOCKER_FILE_NAME
-    value: "Dockerfile.native"
+    ${{ if eq(parameters['NATIVE_COMPILATION'], True) }}:
+      value: "Dockerfile.native"
+    ${{ else }}:
+      value: "Dockerfile.jvm"
   - name: DOCKER_FILE_VERSION_SUFFIX
-    value: ""
-${{ else }}:
-  - name: DOCKER_FILE_NAME
-    value: "Dockerfile.jvm"
-  - name: DOCKER_FILE_VERSION_SUFFIX
-    value: "-jvm"
+    ${{ if eq(parameters['NATIVE_COMPILATION'], True) }}:
+      value: ""
+    ${{ else }}:
+      value: "-jvm"
 
 # --- START Deploy DEV --- #
 stages:
