@@ -71,13 +71,20 @@ parameters:
     values:
       - False
       - True
+  - name: "NATIVE_COMPILATION"
+    displayName: "Boolean flag to use native compilation or JVM runtime for the output executable"
+    type: boolean
+    default: True
+    values:
+      - False
+      - True
 
 resources:
   repositories:
     - repository: pagopaCommons
       type: github
       name: pagopa/azure-pipeline-templates
-      ref: refs/tags/v2.10.1
+      ref: refs/tags/v6.14.0
       endpoint: "io-azure-devops-github-ro"
     - repository: pagopaCheckoutTests
       type: github
@@ -87,6 +94,18 @@ resources:
 
 pool:
   vmImage: ubuntu-latest
+
+variables:
+  - name: DOCKER_FILE_NAME
+    ${{ if eq(parameters['NATIVE_COMPILATION'], True) }}:
+      value: "Dockerfile.native"
+    ${{ else }}:
+      value: "Dockerfile.jvm"
+  - name: DOCKER_FILE_VERSION_SUFFIX
+    ${{ if eq(parameters['NATIVE_COMPILATION'], True) }}:
+      value: ""
+    ${{ else }}:
+      value: "-jvm"
 
 # --- START Deploy DEV --- #
 stages:
@@ -102,9 +121,9 @@ stages:
               CONTAINER_REGISTRY_SERVICE_CONN: $(DEV_CONTAINER_REGISTRY_SERVICE_CONN)
               CONTAINER_REGISTRY_FQDN: $(DEV_CONTAINER_NAMESPACE)
               DOCKER_IMAGE_NAME: $(K8S_IMAGE_REPOSITORY_NAME)
-              DOCKER_IMAGE_TAG: $(Build.SourceVersion)
+              DOCKER_IMAGE_TAG: $(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
-
+              DOCKERFILE: ${{ variables.DOCKER_FILE_NAME }}
   - stage: "Deploy_for_DEV"
     displayName: "Deploy DEV"
     dependsOn: Build_for_DEV
@@ -134,7 +153,7 @@ stages:
                     NAMESPACE: checkout
                     APP_NAME: $(K8S_IMAGE_REPOSITORY_NAME)
                     VALUE_FILE: "helm/values-dev.yaml"
-                    GREEN_VERSION: $(Build.SourceVersion)
+                    GREEN_VERSION: $(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
 
   - stage: "API_DEV_test"
     displayName: "Running API test on DEV"
@@ -172,8 +191,12 @@ stages:
               CONTAINER_REGISTRY_SERVICE_CONN: $(UAT_CONTAINER_REGISTRY_SERVICE_CONN)
               CONTAINER_REGISTRY_FQDN: $(UAT_CONTAINER_NAMESPACE)
               DOCKER_IMAGE_NAME: $(K8S_IMAGE_REPOSITORY_NAME)
-              DOCKER_IMAGE_TAG: $(Build.SourceVersion)
+              DOCKER_IMAGE_TAG: $(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
+              ${{ if eq(parameters['NATIVE_COMPILATION'], True) }}:
+                DOCKERFILE: Dockerfile.native
+              ${{ else }}:
+                DOCKERFILE: Dockerfile.jvm
           - template: azure-templates/chart-current-version.yml
 
   - stage: Release
@@ -219,9 +242,9 @@ stages:
             inputs:
               targetType: "inline"
               script: |
-                docker pull $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(Build.SourceVersion)
-                docker tag $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(Build.SourceVersion) $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(app_version)
-                docker push $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(app_version)
+                docker pull $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
+                docker tag $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }} $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
+                docker push $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
 
   - stage: "Deploy_UAT_Blue"
     displayName: "UAT blue deployment"
@@ -268,8 +291,8 @@ stages:
                     NAMESPACE: checkout
                     APP_NAME: beta-$(K8S_IMAGE_REPOSITORY_NAME)
                     VALUE_FILE: "helm/values-uat.yaml"
-                    GREEN_VERSION: $(app_version)
-                    BLUE_VERSION: $(app_version)
+                    GREEN_VERSION: $(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
+                    BLUE_VERSION: $(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
 
   - stage: "API_UAT_test_blue"
     displayName: "Running API test on UAT (Blue instance)"
@@ -368,7 +391,7 @@ stages:
                     NAMESPACE: checkout
                     APP_NAME: $(K8S_IMAGE_REPOSITORY_NAME)
                     VALUE_FILE: "helm/values-uat.yaml"
-                    GREEN_VERSION: $(app_version)
+                    GREEN_VERSION: $(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
 
   - stage: "API_UAT_test_green"
     displayName: "Running API test on UAT green"
@@ -437,7 +460,7 @@ stages:
             inputs:
               targetType: "inline"
               script: |
-                docker pull $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)
+                docker pull $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
           - task: Docker@2
             displayName: "docker login for PROD"
             inputs:
@@ -448,8 +471,8 @@ stages:
             inputs:
               targetType: "inline"
               script: |
-                docker tag $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version) $(PROD_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)
-                docker push $(PROD_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)
+                docker tag $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }} $(PROD_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
+                docker push $(PROD_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
   - stage: "Deploy_PROD_Green"
     displayName: "PROD green deployment"
     dependsOn: [Build_PROD_Green, Release]
@@ -490,7 +513,7 @@ stages:
                     NAMESPACE: checkout
                     APP_NAME: $(K8S_IMAGE_REPOSITORY_NAME)
                     VALUE_FILE: "helm/values-prod.yaml"
-                    GREEN_VERSION: $(prod_version)
+                    GREEN_VERSION: $(prod_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
   # --- END Deploy PROD --- #
 
   # --- START ROLLBACK PROD --- #
