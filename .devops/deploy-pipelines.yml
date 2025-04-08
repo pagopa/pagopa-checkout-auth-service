@@ -232,7 +232,7 @@ stages:
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.API_UAT_test_blue.result, 'Succeeded', 'Skipped','Failed'),
-        in(dependencies.tag_docker_release.result, 'Succeeded'),
+        in(dependencies.tag_docker_release.result, 'Succeeded')
       )
     variables:
       commitUrl: $[ stageDependencies.Release.build.outputs['chart_current_version.commitUrl'] ]
@@ -257,7 +257,7 @@ stages:
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.tag_docker_release.result, 'Succeeded', 'Skipped'),
         in(dependencies.GreenDeployment_WaitForApproval.result, 'Succeeded', 'Skipped'),
-        in(dependencies.Release.result, 'Succeeded', 'Skipped'),
+        in(dependencies.Release.result, 'Succeeded', 'Skipped')
       )
     variables:
       app_version: perf
