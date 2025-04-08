@@ -1,4 +1,5 @@
-#overrides from jvm version
+# overrides from helm/values-dev.yaml.
+# all the properties defined here will take precedence against values-dev.yaml file
 microservice-chart:
   livenessProbe:
     initialDelaySeconds: 30
