@@ -25,7 +25,7 @@ paths:
       description: 'GET login endpoint with reCAPTCHA code'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
           description: Optional RPT ID used to track login attempts to payment notices
           schema:
@@ -64,7 +64,7 @@ paths:
       description: 'GET user information'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
           description: Optional RPT ID used to track get user information attempts to payment notices
 
@@ -112,7 +112,7 @@ paths:
       description: 'POST logout endpoint'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
           description: Optional RPT ID used to track logout attempts to payment notices
           schema:
@@ -149,7 +149,7 @@ paths:
       description: 'POST authentication endpoint with auth code'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
           description: Optional RPT ID used to track auth token generation attempts to payment notices
           schema:
@@ -202,7 +202,7 @@ paths:
       description: 'GET endpoint to validate a token'
       parameters:
         - in: header
-          name: x-rpt-id
+          name: x-rpt-ids
           required: false
           description: Optional RPT ID used to track token validation attempts to payment notices
           schema:
