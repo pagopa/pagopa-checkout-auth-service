@@ -13,18 +13,20 @@ jobs:
   semver-update:
     name: Update semver for every eligible file of repo (helm charts, gradle files, etc.)
     runs-on: ubuntu-latest
+    outputs:
+      semver: ${{ steps.get_new_ver.outputs.version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Set up JDK 21
-        id: getNewAppVersion
         uses: actions/setup-java@v3
         with:
           java-version: '21'
           distribution: 'corretto'
       - name: Run Gradle task
+        id: get_new_ver
         run: |
           ./gradlew help incrementVersion --versionIncrementType=patch 
           version=$(./gradlew printVersion -Psnapshot=false  -q | head -n1 | cut -d' ' -f2)
           echo $version
-          echo $version >> $GITHUB_OUTPUT
+          echo "version=$version" >> $GITHUB_OUTPUT
