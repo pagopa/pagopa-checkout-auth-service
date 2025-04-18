@@ -22,5 +22,7 @@ jobs:
           distribution: 'corretto'
       - name: Run Gradle task
         run: |
-          echo "version=./gradlew help incrementVersion --versionIncrementType=patch" >> $GITHUB_OUTPUT
+          ./gradlew help incrementVersion --versionIncrementType=patch 
+          version=$(./gradlew printVersion -Psnapshot=false  -q | head -n1 | cut -d' ' -f2)
           echo $version
+          echo $version >> $GITHUB_OUTPUT
