@@ -1,7 +1,8 @@
 name: Semantic versioning
 
 on:
-  workflow_call:
+  push:
+    branches: [ "CHK-4016-fix-app-version" ]
 
 permissions:
   contents: write
