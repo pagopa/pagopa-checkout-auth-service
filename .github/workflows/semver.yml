@@ -8,25 +8,9 @@ permissions:
   contents: write
 
 jobs:
-  semver_labels:
-    name: Read semver labels from merged PR
-    runs-on: ubuntu-latest
-    outputs:
-      semver_app: ${{ steps.semver_labels.outputs.semver_app }}
-      semver_chart: ${{ steps.semver_labels.outputs.semver_chart }}
-      skip_release: ${{ steps.semver_labels.outputs.skip_release }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.github_token }}
-      - uses: ./.github/actions/check-pr-semver-labels
-        id: semver_labels
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
   semver-update:
     name: Update semver for every eligible file of repo (helm charts, gradle files, etc.)
     runs-on: ubuntu-latest
-    needs: semver_labels
     environment: prod
     steps:
       - name: Set up JDK 21
@@ -36,5 +20,5 @@ jobs:
           java-version: '21'
       - name: Run Gradle task
         run: |
-          echo "version=./gradlew help --incrementVersion --versionIncrementType=${{ needs.semver_labels.outputs.semver_app }}" >> $GITHUB_OUTPUT
+          echo "version=./gradlew help --incrementVersion --versionIncrementType=patch" >> $GITHUB_OUTPUT
           echo $version
