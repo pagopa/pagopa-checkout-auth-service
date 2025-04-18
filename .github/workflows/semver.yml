@@ -19,6 +19,7 @@ jobs:
         uses: actions/setup-java@v3
         with:
           java-version: '21'
+          distribution: 'corretto'
       - name: Run Gradle task
         run: |
           echo "version=./gradlew help --incrementVersion --versionIncrementType=patch" >> $GITHUB_OUTPUT
