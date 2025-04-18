@@ -1,0 +1,24 @@
+name: Semantic versioning
+
+on:
+  workflow_call:
+
+permissions:
+  contents: write
+
+jobs:
+  semver-update:
+    name: Update semver for every eligible file of repo (helm charts, gradle files, etc.)
+    runs-on: ubuntu-latest
+    needs: semver_labels
+    environment: prod
+    steps:
+      - name: Set up JDK 21
+        id: getNewAppVersion
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+      - name: Run Gradle task
+        run: |
+          echo "version=./gradlew help --incrementVersion --versionIncrementType=${{ needs.semver_labels.outputs.semver_app }}" >> $GITHUB_OUTPUT
+          echo $version
