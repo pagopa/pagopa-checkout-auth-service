@@ -36,19 +36,34 @@ jobs:
           git add build.gradle.kts
           echo $version
           echo "version=$version" >> $GITHUB_OUTPUT
-      - name: Update Version Values Helm
+      - name: Update Helm Version Values
         run: |
           for i in helm/values-*.yaml; do
             [ -f "$i" ] || break
             yq -i ".microservice-chart.image.tag = \"$(steps.get_new_ver.outputs.version)\"" "$i"
             git add "$i"
           done
-      - name: Update App Version Chart
+      - name: Update Chart App Version
         run: |
           CHART_FILE="helm/Chart.yaml"
             if [[ -f "$CHART_FILE" ]]; then
               yq -i ".appVersion = \"$(steps.get_new_ver.outputs.version)\"" "$CHART_FILE"
               git add "$CHART_FILE"
+          fi
+      - name: Setup semver utility
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          run: |
+            yarn global add semver
+      - name: Update Chart Version
+        run: |
+          RELEASE_CHART_SEMVER=${{parameters.semver_chart}}
+          CHART_FILE="helm/Chart.yaml"
+          CURRENT_CHART_VERSION=$(yq -r '.version' $CHART_FILE)
+          if [[ -f "$CHART_FILE" ]]; then
+            yq -i ".version = \"$(semver $CURRENT_CHART_VERSION -i $RELEASE_CHART_SEMVER )\"" "$CHART_FILE"
+            git add "$CHART_FILE"
           fi
       - name: Push New Version
         run: |
