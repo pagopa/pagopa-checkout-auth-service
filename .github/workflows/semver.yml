@@ -47,7 +47,7 @@ jobs:
         run: |
           CHART_FILE="helm/Chart.yaml"
             if [[ -f "$CHART_FILE" ]]; then
-              yq -i ".appVersion = \"$(steps.get_new_ver.outputs.version)\"" "$CHART_FILE"
+              yq -i ".appVersion = \"${{steps.get_new_ver.outputs.version}}\"" "$CHART_FILE"
               git add "$CHART_FILE"
           fi
       - name: Setup Node.js
