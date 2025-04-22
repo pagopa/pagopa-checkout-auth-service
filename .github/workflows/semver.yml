@@ -18,9 +18,11 @@ jobs:
     steps:
       - name: Setup git author
         run: |
-          git config --global user.email "${{ secrets.GIT_EMAIL }}" && git config --global user.name "${{ secrets.GIT_USERNAME }}"
+          git config --global user.email $(GIT_EMAIL) && git config --global user.name $(GIT_USERNAME)
       - name: Checkout release branch
         uses: actions/checkout@v2
+        with:
+          ref: 'CHK-4016-fix-app-version'
       - name: Set up JDK 21
         uses: actions/setup-java@v3
         with:
