@@ -28,7 +28,7 @@ jobs:
         with:
           java-version: '21'
           distribution: 'corretto'
-      - name: Get new gradle version
+      - name: Get New App Version
         id: get_new_ver
         run: |
           ./gradlew help incrementVersion --versionIncrementType=patch 
@@ -67,6 +67,6 @@ jobs:
           fi
       - name: Push New Version
         run: |
-          git status
+          git diff --cached
           git commit -m "Bump version [skip ci]"
           git push origin CHK-4016-fix-app-version
