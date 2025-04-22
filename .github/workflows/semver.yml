@@ -50,12 +50,12 @@ jobs:
               yq -i ".appVersion = \"$(steps.get_new_ver.outputs.version)\"" "$CHART_FILE"
               git add "$CHART_FILE"
           fi
-      - name: Setup semver utility
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '22'
-          run: |
-            yarn global add semver
+      - name: Install semver globally
+        run: yarn global add semver
       - name: Update Chart Version
         run: |
           RELEASE_CHART_SEMVER= patch
@@ -67,5 +67,6 @@ jobs:
           fi
       - name: Push New Version
         run: |
+          git status
           git commit -m "Bump version [skip ci]"
           git push origin CHK-4016-fix-app-version
