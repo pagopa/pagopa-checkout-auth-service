@@ -4,17 +4,16 @@ on:
   push:
     branches: [ "CHK-4016-fix-app-version" ]
 
-  workflow_dispatch:
-
 permissions:
   contents: write
+  pull-requests: write
 
 jobs:
   semver-update:
     name: Update semver for every eligible file of repo (helm charts, gradle files, etc.)
     runs-on: ubuntu-latest
     outputs:
-      semver: ${{ steps.get_new_ver.outputs.version }}
+      app_version: ${{ steps.get_new_ver.outputs.version }}
     steps:
       - name: Setup git author
         run: |
@@ -70,3 +69,27 @@ jobs:
           git diff --cached
           git commit -m "Bump version [skip ci]"
           git push origin CHK-4016-fix-app-version
+      - name: Set Up Github Release
+        id: setup_github_release
+        run: |
+          CHART_FILE="helm/Chart.yaml"
+          chart_version=$(yq -r '.version' $CHART_FILE)
+          HEAD_SHA=$(git rev-parse HEAD)
+          TAG="$(chart_version)"
+          TITLE="Release $(chart_version)"
+          echo "HEAD_SHA=$HEAD_SHA" >> $GITHUB_OUTPUT
+          echo "TAG=$TAG" >> $GITHUB_OUTPUT
+          echo "TITLE=$TITLE" >> $GITHUB_OUTPUT
+      - name: Create New Github Release
+        uses: comnoco/create-release@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.setup_github_release.TAG }}
+          release_name: ${{ steps.setup_github_release.TITLE }}
+          commitish: ${{ steps.setup_github_release.HEAD_SHA }}
+          body: |
+            ## Changelog
+            git log -2 --pretty=format:"%h - %s"
+          draft: false
+          prerelease: false

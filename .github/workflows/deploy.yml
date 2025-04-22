@@ -65,7 +65,11 @@ jobs:
           echo "PROD_SKIP_BLUE_DEPLOYMENT=${{ steps.configure_pipeline_parameters.outputs.PROD_SKIP_BLUE_DEPLOYMENT }}"
           echo "SKIP_BUILD=${{ steps.configure_pipeline_parameters.outputs.SKIP_BUILD }}"
         shell: bash
+      - name: Make New Release
+        id: make_new_release
+        uses: ./.github/actions/make-new-release
       - name: Azure Pipelines Action
+        if: ${{ success() && steps.make_new_release.outcome == 'success' && steps.configure_pipeline_parameters.outputs.skip_release == 'False'}}
         uses: jacopocarlini/azure-pipelines@v1.3
         with:
           azure-devops-project-url: https://dev.azure.com/pagopaspa/pagoPA-projects
