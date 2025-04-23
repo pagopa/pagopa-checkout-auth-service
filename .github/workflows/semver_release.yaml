@@ -103,6 +103,7 @@ jobs:
       - name: Checkout release branch
         uses: actions/checkout@v3
         with:
+          persist-credentials: false
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
           ref: 'CHK-4016-fix-app-version'
       - name: Set Up Github Release
