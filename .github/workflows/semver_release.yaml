@@ -20,7 +20,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
         with:
-          persist-credentials: false
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
           ref: 'CHK-4016-fix-app-version'
       - uses: ./.github/actions/check-pr-semver-labels
@@ -39,7 +38,6 @@ jobs:
       - name: Checkout release branch
         uses: actions/checkout@v3
         with:
-          persist-credentials: false
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
           ref: 'CHK-4016-fix-app-version'
       # setup git author
