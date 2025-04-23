@@ -166,14 +166,11 @@ jobs:
           azure-devops-project-url: https://dev.azure.com/pagopaspa/pagoPA-projects
           azure-pipeline-name: 'pagopa-checkout-auth-service.deploy'
           azure-devops-token: ${{ secrets.AZURE_DEVOPS_TOKEN }}
-          azure-pipeline-variables: |
-            {
-                "NEW_APP_VERSION": "${{ needs.semver_update.outputs.app_version }}"
-            }
           azure-template-parameters: |
             {
                 "DEV_DEPLOY": "${{ steps.configure_pipeline_parameters.outputs.DEV_DEPLOY }}",
                 "SKIP_BUILD": "${{ steps.configure_pipeline_parameters.outputs.SKIP_BUILD }}",
                 "FORCE_REPLACE_DOCKER_IMAGE": "${{ steps.configure_pipeline_parameters.outputs.FORCE_REPLACE_DOCKER_IMAGE }}",
-                "UAT_PROD_DEPLOY": "${{ steps.configure_pipeline_parameters.outputs.UAT_PROD_DEPLOY }}"
+                "UAT_PROD_DEPLOY": "${{ steps.configure_pipeline_parameters.outputs.UAT_PROD_DEPLOY }}",
+                "NEW_APP_VERSION": "${{ needs.semver_update.outputs.app_version }}"
             }
