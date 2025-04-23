@@ -55,7 +55,7 @@ jobs:
       - name: Get New App Version
         id: get_new_ver
         run: |
-          ./gradlew help incrementVersion --versionIncrementType=${{ steps.semver_labels.outputs.semver_app }} 
+          ./gradlew help incrementVersion --versionIncrementType=${{ needs.semver_labels.outputs.semver_app }} 
           version=$(./gradlew printVersion -Psnapshot=false  -q | head -n1 | cut -d' ' -f2)
           git add build.gradle.kts
           echo $version
@@ -82,7 +82,7 @@ jobs:
         run: yarn global add semver
       - name: Update Chart Version
         run: |
-          RELEASE_CHART_SEMVER= ${{ steps.semver_labels.outputs.semver_chart }}
+          RELEASE_CHART_SEMVER= ${{ needs.semver_labels.outputs.semver_chart }}
           CHART_FILE="helm/Chart.yaml"
           CURRENT_CHART_VERSION=$(yq -r '.version' $CHART_FILE)
           if [[ -f "$CHART_FILE" ]]; then
