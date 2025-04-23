@@ -80,8 +80,8 @@ jobs:
           CHART_FILE="helm/Chart.yaml"
           chart_version=$(yq -r '.version' $CHART_FILE)
           HEAD_SHA=$(git rev-parse HEAD)
-          TAG="$(chart_version)"
-          TITLE="Release $(chart_version)"
+          TAG="$chart_version"
+          TITLE="Release $chart_version"
           echo "HEAD_SHA=$HEAD_SHA" >> $GITHUB_OUTPUT
           echo "TAG=$TAG" >> $GITHUB_OUTPUT
           echo "TITLE=$TITLE" >> $GITHUB_OUTPUT
