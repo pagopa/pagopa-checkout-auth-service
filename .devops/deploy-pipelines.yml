@@ -168,7 +168,7 @@ stages:
     dependsOn: Build_release_candidate
     condition: succeeded()
     variables:
-      app_version: ${{ variables['NEW_APP_VERSION'] }}
+      app_version: ${{ variables.NEW_APP_VERSION }}
     jobs:
       - job: "build"
         displayName: "Build UAT service beta"
@@ -200,7 +200,7 @@ stages:
         )
       )
     variables:
-      app_version: ${{ variables['NEW_APP_VERSION'] }}
+      app_version: ${{ variables.NEW_APP_VERSION }}
     jobs:
       - deployment: "Blue_deployment"
         displayName: "Blue deployment"
@@ -265,7 +265,7 @@ stages:
         )
       )
     variables:
-      app_version: ${{ variables['NEW_APP_VERSION'] }}
+      app_version: ${{ variables.NEW_APP_VERSION }}
     jobs:
       - job: GreenDeployment_WaitForApproval
         displayName: Manual blue deploy approval
@@ -293,7 +293,7 @@ stages:
         )
       )
     variables:
-      app_version: ${{ variables['NEW_APP_VERSION'] }}
+      app_version: ${{ variables.NEW_APP_VERSION }}
     jobs:
       - deployment: "Green_deployment"
         displayName: "Green deployment"
@@ -364,7 +364,7 @@ stages:
         eq(dependencies.Deploy_UAT_Green.result, 'Succeeded')
       )
     variables:
-      app_version: ${{ variables['NEW_APP_VERSION'] }}
+      app_version: ${{ variables.NEW_APP_VERSION }}
     jobs:
       - job: Prod_Approval
         displayName: Manual prod deploy approval
@@ -383,7 +383,7 @@ stages:
     displayName: "PROD green Build"
     dependsOn: [Prod_WaitForApproval]
     variables:
-      prod_version: ${{ variables['NEW_APP_VERSION'] }}
+      prod_version: ${{ variables.NEW_APP_VERSION }}
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
@@ -425,7 +425,7 @@ stages:
         eq(dependencies.Build_PROD_Green.result, 'Succeeded')
       )
     variables:
-      prod_version: ${{ variables['NEW_APP_VERSION'] }}
+      prod_version: ${{ variables.NEW_APP_VERSION }}
     jobs:
       - deployment: "Green_PROD_deployment"
         displayName: "Green PROD deployment"
@@ -471,7 +471,7 @@ stages:
         eq(dependencies.Deploy_PROD_Green.result, 'Succeeded')
       )
     variables:
-      app_version: ${{ variables['NEW_APP_VERSION'] }}
+      app_version: ${{ variables.NEW_APP_VERSION }}
     jobs:
       - job: Prod_Rollback_Approval
         displayName: Manual prod rollback approval
