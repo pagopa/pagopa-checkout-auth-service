@@ -120,12 +120,11 @@ jobs:
         # create new github release
       - name: Create New Github Release
         uses: ncipollo/release-action@v1.16.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
         with:
           commit: ${{ steps.setup_github_release.outputs.HEAD_SHA }}
           tag: ${{ steps.setup_github_release.outputs.TAG }}
           name: ${{ steps.setup_github_release.outputs.TITLE }}
+          token: ${{ secrets.BOT_GITHUB_TOKEN }}
           makeLatest: true
           generateReleaseNotes: true
           draft: false
