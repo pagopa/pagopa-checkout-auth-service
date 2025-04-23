@@ -12,6 +12,13 @@ parameters:
     values:
       - False
       - True
+  - name: "UAT_PROD_DEPLOY"
+    displayName: "Deploy on UAT environment with PROD promotion"
+    type: boolean
+    default: False
+    values:
+      - False
+      - True
   - name: "SKIP_BUILD"
     displayName: "Check this flag to skip build and proceed to deploy a docker image previously built"
     type: boolean
@@ -33,13 +40,7 @@ parameters:
     values:
       - False
       - True
-  - name: "UAT_PROD_DEPLOY"
-    displayName: "Deploy on UAT environment with PROD promotion"
-    type: boolean
-    default: False
-    values:
-      - False
-      - True
+
 resources:
   repositories:
     - repository: pagopaCommons
