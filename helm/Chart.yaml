@@ -1,7 +1,7 @@
 apiVersion: v2
 type: application
-version: 0.13.4
-appVersion: 0.12.4
+version: 0.13.5
+appVersion: 0.12.5
 name: pagopa-checkout-auth-service
 description: Microservice that provides the auth flow related to the checkout process
 dependencies:
