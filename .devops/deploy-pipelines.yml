@@ -33,7 +33,17 @@ parameters:
     values:
       - False
       - True
-
+  - name: "UAT_PROD_DEPLOY"
+    displayName: "Deploy on UAT environment with PROD promotion"
+    type: boolean
+    default: False
+    values:
+      - False
+      - True
+  - name: "NEW_APP_VERSION"
+    displayName: "New app version"
+    type: string
+    required: true
 resources:
   repositories:
     - repository: pagopaCommons
@@ -134,7 +144,7 @@ stages:
     dependsOn: []
     condition: and(
       succeeded(),
-      eq(variables['UAT_PROD_DEPLOY'], true),
+      eq(${{parameters.UAT_PROD_DEPLOY}}, true),
       or(
       eq(variables['Build.SourceBranch'], 'refs/heads/main'),
       startsWith(variables['Build.SourceBranch'], 'refs/tags')
@@ -162,7 +172,7 @@ stages:
     dependsOn: Build_release_candidate
     condition: succeeded()
     variables:
-      app_version: $[ variables['NEW_APP_VERSION'] ]
+      app_version: ${{ parameters.NEW_APP_VERSION }}
     jobs:
       - job: "build"
         displayName: "Build UAT service beta"
@@ -186,7 +196,7 @@ stages:
     dependsOn: [tag_docker_release]
     condition: |
       and(
-        eq(variables['UAT_PROD_DEPLOY'], true),
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.tag_docker_release.result, 'Succeeded', 'Skipped'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
@@ -194,7 +204,7 @@ stages:
         )
       )
     variables:
-      app_version: $[ variables['NEW_APP_VERSION'] ]
+      app_version: ${{ parameters.NEW_APP_VERSION }}
     jobs:
       - deployment: "Blue_deployment"
         displayName: "Blue deployment"
@@ -250,7 +260,7 @@ stages:
     dependsOn: [API_UAT_test_blue, tag_docker_release]
     condition: |
       and(
-        eq(variables['UAT_PROD_DEPLOY'], true),
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.API_UAT_test_blue.result, 'Succeeded', 'Skipped','Failed'),
         in(dependencies.tag_docker_release.result, 'Succeeded'),
         or(
@@ -259,7 +269,7 @@ stages:
         )
       )
     variables:
-      app_version: $[ variables['NEW_APP_VERSION'] ]
+      app_version: ${{ parameters.NEW_APP_VERSION }}
     jobs:
       - job: GreenDeployment_WaitForApproval
         displayName: Manual blue deploy approval
@@ -278,7 +288,7 @@ stages:
     dependsOn: [GreenDeployment_WaitForApproval, tag_docker_release]
     condition: |
       and(
-        eq(variables['UAT_PROD_DEPLOY'], true),
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.tag_docker_release.result, 'Succeeded', 'Skipped'),
         in(dependencies.GreenDeployment_WaitForApproval.result, 'Succeeded', 'Skipped'),
         or(
@@ -287,7 +297,7 @@ stages:
         )
       )
     variables:
-      app_version: $[ variables['NEW_APP_VERSION'] ]
+      app_version: ${{ parameters.NEW_APP_VERSION }}
     jobs:
       - deployment: "Green_deployment"
         displayName: "Green deployment"
@@ -354,11 +364,11 @@ stages:
     dependsOn: [Deploy_UAT_Green, API_UAT_test_green]
     condition: |
       and(
-        eq(variables['UAT_PROD_DEPLOY'], true),
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         eq(dependencies.Deploy_UAT_Green.result, 'Succeeded')
       )
     variables:
-      app_version: $[ variables['NEW_APP_VERSION'] ]
+      app_version: ${{ parameters.NEW_APP_VERSION }}
     jobs:
       - job: Prod_Approval
         displayName: Manual prod deploy approval
@@ -377,10 +387,10 @@ stages:
     displayName: "PROD green Build"
     dependsOn: [Prod_WaitForApproval]
     variables:
-      prod_version: $[ variables['NEW_APP_VERSION'] ]
+      prod_version: ${{ parameters.NEW_APP_VERSION }}
     condition: |
       and(
-        eq(variables['UAT_PROD_DEPLOY'], true),
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         eq(dependencies.Prod_WaitForApproval.result, 'Succeeded')
       )
     jobs:
@@ -415,11 +425,11 @@ stages:
     dependsOn: [Build_PROD_Green]
     condition: |
       and(
-        eq(variables['UAT_PROD_DEPLOY'], true),
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         eq(dependencies.Build_PROD_Green.result, 'Succeeded')
       )
     variables:
-      prod_version: $[ variables['NEW_APP_VERSION'] ]
+      prod_version: ${{ parameters.NEW_APP_VERSION }}
     jobs:
       - deployment: "Green_PROD_deployment"
         displayName: "Green PROD deployment"
@@ -461,11 +471,11 @@ stages:
     dependsOn: [Deploy_PROD_Green]
     condition: |
       and(
-        eq(variables['UAT_PROD_DEPLOY'], true),
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         eq(dependencies.Deploy_PROD_Green.result, 'Succeeded')
       )
     variables:
-      app_version: $[ variables['NEW_APP_VERSION'] ]
+      app_version: ${{ parameters.NEW_APP_VERSION }}
     jobs:
       - job: Prod_Rollback_Approval
         displayName: Manual prod rollback approval
