@@ -393,7 +393,7 @@ stages:
     displayName: "PROD green Build"
     dependsOn: [Prod_WaitForApproval]
     variables:
-      prod_version: ${{ parameters.NEW_APP_VERSION }}
+      prod_version: $[ stageDependencies.get_version.get_version.outputs['chart_current_version.appVersion'] ]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
@@ -435,7 +435,7 @@ stages:
         eq(dependencies.Build_PROD_Green.result, 'Succeeded')
       )
     variables:
-      prod_version: ${{ parameters.NEW_APP_VERSION }}
+      prod_version: $[ stageDependencies.get_version.get_version.outputs['chart_current_version.appVersion'] ]
     jobs:
       - deployment: "Green_PROD_deployment"
         displayName: "Green PROD deployment"
