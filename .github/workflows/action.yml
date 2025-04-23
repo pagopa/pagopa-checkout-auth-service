@@ -88,14 +88,15 @@ jobs:
           echo "TITLE=$TITLE" >> $GITHUB_OUTPUT
         # create new github release
       - name: Create New Github Release
-        uses: ncipollo/release-action@v1.16.0
+        uses: comnoco/create-release-action@v2.0.5
         env:
-          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          commit: ${{ steps.setup_github_release.HEAD_SHA }}
-          tag: ${{ steps.setup_github_release.TAG }}
-          name: ${{ steps.setup_github_release.TITLE }}
-          makeLatest: true
-          generateReleaseNotes: true
+          tag_name: ${{ steps.setup_github_release.TAG }}
+          release_name: ${{ steps.setup_github_release.TITLE }}
+          commitish: ${{ steps.setup_github_release.HEAD_SHA }}
+          body: |
+            ## Changelog
+            $(git log -2 --pretty=format:"%h - %s")
           draft: false
           prerelease: false
