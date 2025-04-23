@@ -24,7 +24,7 @@ jobs:
       # setup git author
       - name: Setup git author
         run: |
-          git remote set-url origin https://${{secrets.BOT_GIT_USER}}:${{ secrets.BOT_GITHUB_TOKEN }}@github.com/pagopa/pagopa-checkout-auth-service.git
+          git config --global user.email "${{ secrets.BOT_GIT_MAIL }}" && git config --global user.name "${{ secrets.BOT_GIT_USER }}"
         # bump version
       - name: Set up JDK 21
         uses: actions/setup-java@v3
