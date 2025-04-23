@@ -172,7 +172,7 @@ stages:
           - template: azure-templates/chart-current-version.yml
   - stage: "tag_docker_release"
     displayName: "Tag Docker image to be release"
-    dependsOn: Build_release_candidate
+    dependsOn: get_version
     condition: succeeded()
     variables:
       app_version: $[ stageDependencies.get_version.get_version.outputs['chart_current_version.appVersion'] ]
