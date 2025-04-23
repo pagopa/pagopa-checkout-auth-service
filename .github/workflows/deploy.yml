@@ -82,7 +82,7 @@ jobs:
         run: yarn global add semver
       - name: Update Chart Version
         run: |
-          RELEASE_CHART_SEMVER= $(echo ${{ needs.semver_labels.outputs.semver_chart }} |  cut -d'-' -f2 )
+          RELEASE_CHART_SEMVER=$(echo ${{ needs.semver_labels.outputs.semver_chart }} |  cut -d'-' -f2 )
           CHART_FILE="helm/Chart.yaml"
           CURRENT_CHART_VERSION=$(yq -r '.version' $CHART_FILE)
           if [[ -f "$CHART_FILE" ]]; then
