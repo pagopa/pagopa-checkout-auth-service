@@ -24,7 +24,7 @@ jobs:
       # setup git author
       - name: Setup git author
         run: |
-          git remote set-url origin https://${{ secrets.BOT_GITHUB_TOKEN }}@github.com/pagopa/pagopa-checkout-auth-service.git
+          git remote set-url origin https://${{secrets.BOT_GIT_USER}}:${{ secrets.BOT_GITHUB_TOKEN }}@github.com/pagopa/pagopa-checkout-auth-service.git
         # bump version
       - name: Set up JDK 21
         uses: actions/setup-java@v3
@@ -73,7 +73,6 @@ jobs:
         run: |
           git diff --cached
           git commit -m "Bump version [skip ci]"
-          git remote set-url origin https://${{ secrets.BOT_GITHUB_TOKEN }}@github.com/pagopa/pagopa-checkout-auth-service.git
           git push origin CHK-4016-fix-app-version
       - name: Set Up Github Release
         id: setup_github_release
@@ -88,15 +87,14 @@ jobs:
           echo "TITLE=$TITLE" >> $GITHUB_OUTPUT
         # create new github release
       - name: Create New Github Release
-        uses: comnoco/create-release-action@v2.0.5
+        uses: ncipollo/release-action@v1.16.0
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.setup_github_release.TAG }}
-          release_name: ${{ steps.setup_github_release.TITLE }}
-          commitish: ${{ steps.setup_github_release.HEAD_SHA }}
-          body: |
-            ## Changelog
-            $(git log -2 --pretty=format:"%h - %s")
+          tag: ${{ steps.setup_github_release.TAG }}
+          name: ${{ steps.setup_github_release.TITLE }}
+          commit: ${{ steps.setup_github_release.HEAD_SHA }}
+          makeLatest: true
+          generateReleaseNotes: true
           draft: false
           prerelease: false
