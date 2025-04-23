@@ -91,9 +91,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.BOT_GITHUB_TOKEN }}
         with:
+          commit: ${{ steps.setup_github_release.HEAD_SHA }}
           tag: ${{ steps.setup_github_release.TAG }}
           name: ${{ steps.setup_github_release.TITLE }}
-          commit: ${{ steps.setup_github_release.HEAD_SHA }}
           makeLatest: true
           generateReleaseNotes: true
           draft: false
