@@ -1,9 +1,8 @@
 name: Trigger pipeline deploy
 
 on:
-  push:
-    tags:
-      - .*
+  release:
+    types: [created,published]
 
   workflow_dispatch:
 
