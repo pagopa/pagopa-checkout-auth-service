@@ -36,7 +36,6 @@ jobs:
           echo "SKIP_BUILD=${{ steps.configure_pipeline_parameters.outputs.SKIP_BUILD }}"
         shell: bash
       - name: Azure Pipelines Action
-        if: ${{ success() && steps.configure_pipeline_parameters.outputs.SKIP_RELEASE == 'False'}}
         uses: jacopocarlini/azure-pipelines@v1.3
         with:
           azure-devops-project-url: https://dev.azure.com/pagopaspa/pagoPA-projects
