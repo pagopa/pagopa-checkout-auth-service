@@ -2,7 +2,7 @@ name: Make New Release
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "CHK-4016-fix-app-version" ]
 
 permissions:
   contents: write
