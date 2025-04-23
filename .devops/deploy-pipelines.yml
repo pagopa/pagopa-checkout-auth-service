@@ -160,9 +160,7 @@ stages:
   - stage: "tag_docker_release"
     displayName: "Tag Docker image to be release"
     dependsOn: Build_release_candidate
-    condition: and(
-      succeeded()
-      )
+    condition: succeeded()
     variables:
       app_version: $[ variables['NEW_APP_VERSION'] ]
     jobs:
