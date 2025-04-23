@@ -170,7 +170,7 @@ stages:
     dependsOn: Build_release_candidate
     condition: succeeded()
     variables:
-      app_version: $[ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] ]
+      app_version: ${{ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] }}
     jobs:
       - job: "build"
         displayName: "Build UAT service beta"
@@ -203,7 +203,7 @@ stages:
         )
       )
     variables:
-      app_version: $[ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] ]
+      app_version: ${{ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] }}
     jobs:
       - deployment: "Blue_deployment"
         displayName: "Blue deployment"
@@ -269,7 +269,7 @@ stages:
         )
       )
     variables:
-      app_version: $[ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] ]
+      app_version: ${{ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] }}
     jobs:
       - job: GreenDeployment_WaitForApproval
         displayName: Manual blue deploy approval
@@ -298,7 +298,7 @@ stages:
         )
       )
     variables:
-      app_version: $[ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] ]
+      app_version: ${{ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] }}
     jobs:
       - deployment: "Green_deployment"
         displayName: "Green deployment"
@@ -369,7 +369,7 @@ stages:
         eq(dependencies.Deploy_UAT_Green.result, 'Succeeded')
       )
     variables:
-      app_version: $[ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] ]
+      app_version: ${{ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] }}
     jobs:
       - job: Prod_Approval
         displayName: Manual prod deploy approval
@@ -476,7 +476,7 @@ stages:
         eq(dependencies.Deploy_PROD_Green.result, 'Succeeded')
       )
     variables:
-      app_version: $[ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] ]
+      app_version: ${{ stageDependencies.Build_release_candidate.build.outputs['chart_current_version.appVersion'] }}
     jobs:
       - job: Prod_Rollback_Approval
         displayName: Manual prod rollback approval
