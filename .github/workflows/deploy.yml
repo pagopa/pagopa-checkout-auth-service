@@ -96,6 +96,7 @@ jobs:
           git commit -m "Bump version [skip ci]"
           git push origin 'CHK-4016-fix-app-version'
   github_release:
+    if: ${{needs.semver_labels.outputs.skip_release == 'False'}}
     name: Create a New Github Release
     needs: semver_update
     runs-on: ubuntu-latest
@@ -159,7 +160,7 @@ jobs:
           echo "SKIP_BUILD=${{ steps.configure_pipeline_parameters.outputs.SKIP_BUILD }}"
         shell: bash
       - name: Azure Pipelines Action
-        if: ${{ success() && steps.make_new_release.outcome == 'success' && steps.configure_pipeline_parameters.outputs.skip_release == 'False'}}
+        if: ${{ success() && steps.configure_pipeline_parameters.outputs.SKIP_RELEASE == 'False'}}
         uses: jacopocarlini/azure-pipelines@v1.3
         with:
           azure-devops-project-url: https://dev.azure.com/pagopaspa/pagoPA-projects
