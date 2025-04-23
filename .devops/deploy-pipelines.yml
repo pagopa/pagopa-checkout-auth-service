@@ -43,7 +43,6 @@ parameters:
   - name: "NEW_APP_VERSION"
     displayName: "New app version"
     type: string
-    required: true
 resources:
   repositories:
     - repository: pagopaCommons
