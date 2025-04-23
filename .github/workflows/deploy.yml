@@ -134,7 +134,7 @@ jobs:
   azure-devops-deploy-pipeline:
     name: Trigger azure devops deploy pipeline
     runs-on: ubuntu-latest
-    needs: [semver_labels,github_release]
+    needs: [semver_labels,semver_update,github_release]
     environment: prod
     steps:
       - name: Configure pipeline parameters
@@ -169,7 +169,7 @@ jobs:
           azure-pipeline-variables: |
             {
                 "UAT_PROD_DEPLOY": "${{ steps.configure_pipeline_parameters.outputs.UAT_PROD_DEPLOY }}",
-                "NEW_APP_VERSION": "${{ steps.semver_update.outputs.new_app_version }}"
+                "NEW_APP_VERSION": "${{ needs.semver_update.outputs.app_version }}"
             }
           azure-template-parameters: |
             {
