@@ -73,6 +73,7 @@ jobs:
         run: |
           git diff --cached
           git commit -m "Bump version [skip ci]"
+          git remote set-url origin https://${{ secrets.BOT_GITHUB_TOKEN }}@github.com/pagopa/pagopa-checkout-auth-service.git
           git push origin CHK-4016-fix-app-version
       - name: Set Up Github Release
         id: setup_github_release
