@@ -479,7 +479,7 @@ stages:
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(dependencies.Deploy_PROD_Green.result, 'Succeeded')
+        eq(dependencies.Deploy_PROD_Green.result, 'Succeeded', 'SucceededWithIssues', 'Failed', 'Skipped', 'Canceled'),
       )
     variables:
       app_version: $[ stageDependencies.get_version.get_version.outputs['chart_current_version.appVersion'] ]
