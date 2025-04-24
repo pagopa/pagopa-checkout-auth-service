@@ -141,6 +141,7 @@ stages:
     dependsOn: []
     condition: and(
       succeeded(),
+      eq(${{parameters.SKIP_BUILD}}, false),
       eq(${{parameters.UAT_PROD_DEPLOY}}, true),
       or(
       eq(variables['Build.SourceBranch'], 'refs/heads/main'),
@@ -173,7 +174,10 @@ stages:
   - stage: "tag_docker_release"
     displayName: "Tag Docker image to be release"
     dependsOn: get_version
-    condition: succeeded()
+    condition: and(
+      succeeded(),
+      eq(${{parameters.SKIP_BUILD}}, false)
+      )
     variables:
       app_version: $[ stageDependencies.get_version.get_version.outputs['chart_current_version.appVersion'] ]
     jobs:
@@ -266,7 +270,7 @@ stages:
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.API_UAT_test_blue.result, 'Succeeded', 'Skipped','Failed'),
-        in(dependencies.tag_docker_release.result, 'Succeeded'),
+        in(dependencies.tag_docker_release.result, 'Succeeded', 'Skipped'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
           contains(variables['Build.SourceBranch'], 'CHK-4016-fix-app-version'),
