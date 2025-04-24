@@ -2,7 +2,7 @@ name: Make new release
 
 on:
   push:
-    branches: [ "CHK-4016-fix-app-version" ]
+    branches: [ "main" ]
 
 permissions:
   contents: write
@@ -21,7 +21,6 @@ jobs:
       - uses: actions/checkout@v3
         with:
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
-          ref: 'CHK-4016-fix-app-version'
       - uses: ./.github/actions/check-pr-semver-labels
         id: semver_labels
         with:
@@ -39,7 +38,6 @@ jobs:
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
-          ref: 'CHK-4016-fix-app-version'
       # setup git author
       - name: Setup git author
         run: |
@@ -92,7 +90,7 @@ jobs:
         run: |
           git diff --cached
           git commit -m "Bump version [skip ci]"
-          git push origin 'CHK-4016-fix-app-version'
+          git push origin 'main'
   github_release:
     if: ${{needs.semver_labels.outputs.skip_release == 'False'}}
     name: Create a New Github Release
@@ -105,7 +103,6 @@ jobs:
         with:
           persist-credentials: false
           token: ${{ secrets.BOT_GITHUB_TOKEN }}
-          ref: 'CHK-4016-fix-app-version'
       - name: Set Up Github Release
         id: setup_github_release
         run: |

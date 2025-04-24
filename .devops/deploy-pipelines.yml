@@ -145,7 +145,6 @@ stages:
       eq(${{parameters.UAT_PROD_DEPLOY}}, true),
       or(
       eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-      contains(variables['Build.SourceBranch'], 'CHK-4016-fix-app-version'),
       startsWith(variables['Build.SourceBranch'], 'refs/tags')
       )
       )
@@ -208,7 +207,6 @@ stages:
         in(dependencies.tag_docker_release.result, 'Succeeded', 'Skipped'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-          contains(variables['Build.SourceBranch'], 'CHK-4016-fix-app-version'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags')
         )
       )
@@ -274,7 +272,6 @@ stages:
         in(dependencies.tag_docker_release.result, 'Succeeded', 'Skipped'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-          contains(variables['Build.SourceBranch'], 'CHK-4016-fix-app-version'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags')
         )
       )
@@ -303,7 +300,6 @@ stages:
         in(dependencies.GreenDeployment_WaitForApproval.result, 'Succeeded', 'Skipped'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-          contains(variables['Build.SourceBranch'], 'CHK-4016-fix-app-version'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags')
         )
       )
