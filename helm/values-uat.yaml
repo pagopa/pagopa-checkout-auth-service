@@ -27,7 +27,7 @@ microservice-chart:
       ONE_IDENTITY_CLIENT_SECRET: checkout-one-identity-client-secret-test
   image:
     repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
-    tag: "1.0.0"
+    tag: "1.0.1"
     pullPolicy: Always
   livenessProbe:
     handlerType: httpGet
