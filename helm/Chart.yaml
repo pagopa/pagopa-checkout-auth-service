@@ -7,4 +7,4 @@ description: Microservice that provides the auth flow related to the checkout pr
 dependencies:
   - name: microservice-chart
     repository: "https://pagopa.github.io/aks-microservice-chart-blueprint"
-    version: 7.3.1
+    version: 7.5.0
