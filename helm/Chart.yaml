@@ -1,7 +1,7 @@
 apiVersion: v2
 type: application
-version: 1.0.1
-appVersion: 1.0.1
+version: 1.0.2
+appVersion: https://services.gradle.org/distributions/gradle-8.12.1-bin.zip
 name: pagopa-checkout-auth-service
 description: Microservice that provides the auth flow related to the checkout process
 dependencies:
