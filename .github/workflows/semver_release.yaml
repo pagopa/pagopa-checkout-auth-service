@@ -57,7 +57,7 @@ jobs:
           then
             ./gradlew help incrementVersion --versionIncrementType="$RELEASE_APP_SEMVER"
           fi
-          version=$(./gradlew printVersion -Psnapshot=false  -q | head -n1 | cut -d' ' -f2)
+          version=$(./gradlew printVersion -Psnapshot=false  -q | sed -n 's/^Version: \([0-9.]*\)/\1/p')
           git add build.gradle.kts
           echo $version
           echo "version=$version" >> $GITHUB_OUTPUT
