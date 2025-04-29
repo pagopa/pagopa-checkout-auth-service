@@ -1,4 +1,5 @@
 name: Check PR semantic versioning labels
+
 description: "Check semantic versioning labels"
 
 inputs:
