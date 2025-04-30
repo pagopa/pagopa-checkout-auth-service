@@ -210,8 +210,8 @@ graalvmNative {
                     vendor.set(JvmVendorSpec.GRAAL_VM)
                     buildArgs.addAll(
                         "--parallelism=32",
-                        "-Xmx4g",
-                        "-XX:+ExitOnOutOfMemoryError",
+                        "-J-Xmx4g",
+                        "-J-XX:+ExitOnOutOfMemoryError",
                     )
                 }
         }
