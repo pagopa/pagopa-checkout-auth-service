@@ -1,11 +1,12 @@
 package it.pagopa.checkout.authservice.utils
 
 import io.jsonwebtoken.Jwts
-import it.pagopa.checkout.authservice.clients.oneidentity.OneIdentityClient
-import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
-import it.pagopa.checkout.authservice.exception.OneIdentityServerException
-import it.pagopa.checkout.authservice.repositories.redis.OidcKeysRepository
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcKey
+import it.pagopa.checkout.authservice.v1.clients.oneidentity.OneIdentityClient
+import it.pagopa.checkout.authservice.v1.exception.OneIdentityConfigurationException
+import it.pagopa.checkout.authservice.v1.exception.OneIdentityServerException
+import it.pagopa.checkout.authservice.v1.repositories.redis.OidcKeysRepository
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.OidcKey
+import it.pagopa.checkout.authservice.v1.utils.JwtUtils
 import it.pagopa.generated.checkout.oneidentity.model.GetJwkSet200ResponseDto
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPublicKey

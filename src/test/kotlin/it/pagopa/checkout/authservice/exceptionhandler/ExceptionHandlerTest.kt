@@ -1,8 +1,9 @@
 package it.pagopa.checkout.authservice.exceptionhandler
 
 import it.pagopa.checkout.authservice.AuthTestUtils
-import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
-import it.pagopa.checkout.authservice.exception.RestApiException
+import it.pagopa.checkout.authservice.v1.exception.OneIdentityConfigurationException
+import it.pagopa.checkout.authservice.v1.exception.RestApiException
+import it.pagopa.checkout.authservice.v1.exceptionhandler.ExceptionHandlerV1
 import it.pagopa.generated.checkout.authservice.v1.model.ProblemJsonDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -10,7 +11,7 @@ import org.springframework.http.HttpStatus
 
 class ExceptionHandlerTest {
 
-    private val exceptionHandler = ExceptionHandler()
+    private val exceptionHandler = ExceptionHandlerV1()
 
     @Test
     fun `Should handle generic Exception`() {

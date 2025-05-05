@@ -1,5 +1,6 @@
 package it.pagopa.checkout.authservice.repositories.redis
 
+import it.pagopa.checkout.authservice.v1.repositories.redis.RedisTemplateWrapper
 import java.time.Duration
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test

@@ -1,6 +1,7 @@
 package it.pagopa.checkout.authservice.utils
 
-import it.pagopa.checkout.authservice.exception.SessionValidationException
+import it.pagopa.checkout.authservice.v1.exception.SessionValidationException
+import it.pagopa.checkout.authservice.v1.utils.SessionTokenUtils
 import java.util.*
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
