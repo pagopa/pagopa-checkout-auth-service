@@ -88,3 +88,32 @@ stages:
               DOCKER_IMAGE_TAG: $(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
               FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
               DOCKERFILE: ${{ variables.DOCKER_FILE_NAME }}
+
+
+  # --- START Deploy UAT --- #
+  - stage: "Build_release_candidate"
+    displayName: "Build release candidate"
+    dependsOn: []
+    jobs:
+      - job: "build"
+        displayName: "Build release candidate docker image"
+        steps:
+          - template: templates/docker-release/template.yaml@pagopaCommons
+            parameters:
+              CONTAINER_REGISTRY_SERVICE_CONN: $(UAT_CONTAINER_REGISTRY_SERVICE_CONN)
+              CONTAINER_REGISTRY_FQDN: $(UAT_CONTAINER_NAMESPACE)
+              DOCKER_IMAGE_NAME: $(K8S_IMAGE_REPOSITORY_NAME)
+              DOCKER_IMAGE_TAG: $(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
+              FORCE_REPLACE_DOCKER_IMAGE: ${{ parameters.FORCE_REPLACE_DOCKER_IMAGE }}
+              ${{ if eq(parameters['NATIVE_COMPILATION'], True) }}:
+                DOCKERFILE: Dockerfile.native
+              ${{ else }}:
+                DOCKERFILE: Dockerfile.jvm
+  - stage: "Get_Release_Version"
+    displayName: "Get the app version to deploy"
+    dependsOn: Build_release_candidate
+    condition: in(dependencies.Build_release_candidate.result, 'Succeeded', 'Skipped')
+    jobs:
+      - job: "get_version"
+        steps:
+          - template: azure-templates/chart-current-version.yml
