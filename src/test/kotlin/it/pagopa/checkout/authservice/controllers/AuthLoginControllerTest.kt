@@ -1,12 +1,13 @@
 package it.pagopa.checkout.authservice.controllers
 
-import it.pagopa.checkout.authservice.exception.AuthFailedException
-import it.pagopa.checkout.authservice.exception.OneIdentityServerException
-import it.pagopa.checkout.authservice.exception.SessionValidationException
-import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
-import it.pagopa.checkout.authservice.services.AuthenticationService
+import it.pagopa.checkout.authservice.v1.controllers.AuthLoginController
+import it.pagopa.checkout.authservice.v1.exception.AuthFailedException
+import it.pagopa.checkout.authservice.v1.exception.OneIdentityServerException
+import it.pagopa.checkout.authservice.v1.exception.SessionValidationException
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.auth.*
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.AuthCode
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.OidcState
+import it.pagopa.checkout.authservice.v1.services.AuthenticationService
 import it.pagopa.generated.checkout.authservice.v1.model.AuthRequestDto
 import it.pagopa.generated.checkout.authservice.v1.model.LoginResponseDto
 import it.pagopa.generated.checkout.authservice.v1.model.ProblemJsonDto
@@ -14,9 +15,6 @@ import it.pagopa.generated.checkout.authservice.v1.model.UserInfoResponseDto
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
-import org.mockito.kotlin.any
-import org.mockito.kotlin.given
-import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest
 import org.springframework.http.HttpStatus

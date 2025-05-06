@@ -143,6 +143,258 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("aut
   )
 }
 
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v2") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v2/openapi.yaml")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v2.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v2.model")
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v3") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v3/openapi.yaml")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v3.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v3.model")
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v4") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v4/openapi.yaml")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v4.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v4.model")
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v5") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v5/openapi.yaml")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v5.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v5.model")
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v6") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v6/openapi.yaml")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v6.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v6.model")
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v7") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v7/openapi.yaml")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v7.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v7.model")
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v8") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v8/openapi.yaml")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v8.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v8.model")
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v9") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v9/openapi.yaml")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v9.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v9.model")
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
+tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("auth-v10") {
+  generatorName.set("spring")
+  inputSpec.set("$rootDir/api-spec/v10/openapi.yaml")
+  outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
+  apiPackage.set("it.pagopa.generated.checkout.authservice.v10.api")
+  modelPackage.set("it.pagopa.generated.checkout.authservice.v10.model")
+  generateApiDocumentation.set(false)
+  generateApiTests.set(false)
+  generateModelTests.set(false)
+  library.set("spring-boot")
+  modelNameSuffix.set("Dto")
+  configOptions.set(
+    mapOf(
+      "swaggerAnnotations" to "false",
+      "openApiNullable" to "true",
+      "interfaceOnly" to "true",
+      "hideGenerationTimestamp" to "true",
+      "skipDefaultInterface" to "true",
+      "useSwaggerUI" to "false",
+      "reactive" to "true",
+      "useSpringBoot3" to "true",
+      "oas3" to "true",
+      "generateSupportingFiles" to "true",
+      "enumPropertyNaming" to "MACRO_CASE",
+    )
+  )
+}
+
 tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("oneidentity") {
   description = "Generates the OneIdentity classes for this project."
   group = "openapi-generation"
@@ -174,7 +426,19 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("one
 }
 
 tasks.withType<KotlinCompile> {
-  dependsOn("auth-v1", "oneidentity")
+  dependsOn(
+    "auth-v1",
+    "auth-v2",
+    "auth-v3",
+    "auth-v4",
+    "auth-v5",
+    "auth-v6",
+    "auth-v7",
+    "auth-v8",
+    "auth-v9",
+    "auth-v10",
+    "oneidentity",
+  )
   compilerOptions { jvmTarget.set(JvmTarget.JVM_21) }
 }
 
@@ -208,6 +472,7 @@ graalvmNative {
         javaToolchains.launcherFor {
           languageVersion = JavaLanguageVersion.of(21)
           vendor.set(JvmVendorSpec.GRAAL_VM)
+          buildArgs.addAll("-J-Xmx4g", "-J-XX:+ExitOnOutOfMemoryError")
         }
     }
   }

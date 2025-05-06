@@ -1,10 +1,13 @@
 package it.pagopa.checkout.authservice.repositories.redis
 
-import it.pagopa.checkout.authservice.repositories.redis.bean.auth.*
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcKey
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
+import it.pagopa.checkout.authservice.v1.repositories.redis.AuthenticatedUserSessionRepository
+import it.pagopa.checkout.authservice.v1.repositories.redis.OIDCAuthStateDataRepository
+import it.pagopa.checkout.authservice.v1.repositories.redis.OidcKeysRepository
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.auth.*
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.OidcAuthStateData
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.OidcKey
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.OidcNonce
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.OidcState
 import java.time.Duration
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.Test

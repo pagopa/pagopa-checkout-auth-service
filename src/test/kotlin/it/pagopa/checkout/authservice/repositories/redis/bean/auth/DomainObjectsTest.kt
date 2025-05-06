@@ -1,8 +1,10 @@
 package it.pagopa.checkout.authservice.repositories.redis.bean.auth
 
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcNonce
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.auth.Name
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.auth.UserFiscalCode
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.AuthCode
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.OidcNonce
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.OidcState
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.junit.jupiter.api.assertThrows

@@ -1,10 +1,11 @@
 package it.pagopa.checkout.authservice.clients.oneidentity
 
-import it.pagopa.checkout.authservice.exception.AuthFailedException
-import it.pagopa.checkout.authservice.exception.OneIdentityConfigurationException
-import it.pagopa.checkout.authservice.exception.OneIdentityServerException
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.AuthCode
-import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcState
+import it.pagopa.checkout.authservice.v1.clients.oneidentity.OneIdentityClient
+import it.pagopa.checkout.authservice.v1.exception.AuthFailedException
+import it.pagopa.checkout.authservice.v1.exception.OneIdentityConfigurationException
+import it.pagopa.checkout.authservice.v1.exception.OneIdentityServerException
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.AuthCode
+import it.pagopa.checkout.authservice.v1.repositories.redis.bean.oidc.OidcState
 import it.pagopa.generated.checkout.oneidentity.api.TokenServerApisApi
 import it.pagopa.generated.checkout.oneidentity.model.GetJwkSet200ResponseDto
 import it.pagopa.generated.checkout.oneidentity.model.TokenDataDto
