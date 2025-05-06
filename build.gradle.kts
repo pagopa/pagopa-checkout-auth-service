@@ -472,7 +472,7 @@ graalvmNative {
         javaToolchains.launcherFor {
           languageVersion = JavaLanguageVersion.of(21)
           vendor.set(JvmVendorSpec.GRAAL_VM)
-          // buildArgs.addAll("-J-Xmx4g", "-J-XX:+ExitOnOutOfMemoryError")
+          buildArgs.addAll("-J-Xmx4g", "-J-XX:+ExitOnOutOfMemoryError")
         }
     }
   }
