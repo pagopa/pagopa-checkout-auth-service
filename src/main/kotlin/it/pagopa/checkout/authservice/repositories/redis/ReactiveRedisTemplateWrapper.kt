@@ -2,10 +2,10 @@ package it.pagopa.checkout.authservice.repositories.redis
 
 import java.time.Duration
 import org.springframework.data.redis.core.ReactiveRedisTemplate
-import reactor.core.publisher.Mono
 import reactor.core.publisher.Flux
+import reactor.core.publisher.Mono
 
-abstract class ReactiveRedisTemplateWrapper<V>(
+abstract class ReactiveRedisTemplateWrapper<V : Any>(
     private val reactiveRedisTemplate: ReactiveRedisTemplate<String, V>,
     private val keyspace: String,
     private val ttl: Duration,
@@ -27,9 +27,9 @@ abstract class ReactiveRedisTemplateWrapper<V>(
     }
 
     fun deleteAll(): Mono<Long> {
-        return keysInKeyspace()
-            .collectList()
-            .flatMap { reactiveRedisTemplate.delete(Flux.fromIterable(it)) }
+        return keysInKeyspace().collectList().flatMap {
+            reactiveRedisTemplate.delete(Flux.fromIterable(it))
+        }
     }
 
     fun keysInKeyspace(): Flux<String> {
@@ -37,13 +37,13 @@ abstract class ReactiveRedisTemplateWrapper<V>(
     }
 
     fun getAllValues(): Flux<V> {
-        return keysInKeyspace()
-            .collectList()
-            .flatMapMany { keys ->
-                if (keys.isEmpty()) Flux.empty()
-                else reactiveRedisTemplate.opsForValue().multiGet(keys)
-                    .flatMapMany { Flux.fromIterable(it.filterNotNull()) }
-            }
+        return keysInKeyspace().collectList().flatMapMany { keys ->
+            if (keys.isEmpty()) Flux.empty()
+            else
+                reactiveRedisTemplate.opsForValue().multiGet(keys).flatMapMany {
+                    Flux.fromIterable(it.filterNotNull())
+                }
+        }
     }
 
     protected abstract fun getKeyFromEntity(value: V): String
