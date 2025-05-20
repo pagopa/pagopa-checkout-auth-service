@@ -55,6 +55,10 @@ class AuthenticationServiceTest {
         val expectedUrl = expectedUrl
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(loginData))
 
+        given(oidcAuthStateDataRepository.save(any())).willAnswer { invocation ->
+            Mono.just(invocation.getArgument<AuthenticatedUserSession>(0))
+        }
+
         StepVerifier.create(authenticationService.login())
             .expectNextMatches { response -> response.urlRedirect == expectedUrl }
             .verifyComplete()
@@ -64,6 +68,10 @@ class AuthenticationServiceTest {
     fun `login should return Mono with properly constructed LoginResponseDto`() {
         val expectedUrl = expectedUrl
         whenever(oneIdentityClient.buildLoginUrl()).thenReturn(Mono.just(loginData))
+
+        given(oidcAuthStateDataRepository.save(any())).willAnswer { invocation ->
+            Mono.just(invocation.getArgument<AuthenticatedUserSession>(0))
+        }
 
         StepVerifier.create(authenticationService.login())
             .expectNextMatches { response ->

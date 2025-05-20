@@ -37,18 +37,19 @@ class AuthenticationService(
     fun login(): Mono<LoginResponseDto> =
         oneIdentityClient
             .buildLoginUrl()
-            .map {
+            .flatMap {
                 val state = it.state
                 val nonce = it.nonce
                 val redirectionUrl = it.loginRedirectUri
                 logger.info(
-                    "Processing login request for state: [{}] and nonce: [{}] ",
+                    "Processing login request for state: [{}] and nonce: [{}]",
                     state.value,
                     nonce.value,
                 )
                 // save state and nonce association for later validation
-                oidcAuthStateDataRepository.save(OidcAuthStateData(state = state, nonce = nonce))
-                redirectionUrl
+                oidcAuthStateDataRepository
+                    .save(OidcAuthStateData(state = state, nonce = nonce))
+                    .thenReturn(redirectionUrl)
             }
             .map { LoginResponseDto().urlRedirect(it) }
 
