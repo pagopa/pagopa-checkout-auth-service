@@ -27,7 +27,7 @@ class WrappedRedisTemplateRepositoriesTests {
             )
         val extractedKey =
             AuthenticatedUserSessionRepository(
-                    redisTemplate = mock(),
+                    reactiveRedisTemplate = mock(),
                     Duration.ofSeconds(1),
                     "keyspace",
                 )
@@ -40,7 +40,11 @@ class WrappedRedisTemplateRepositoriesTests {
         val key = "key"
         val domainObject = OidcAuthStateData(state = OidcState(key), nonce = OidcNonce("nonce"))
         val extractedKey =
-            OIDCAuthStateDataRepository(redisTemplate = mock(), Duration.ofSeconds(1), "keyspace")
+            OIDCAuthStateDataRepository(
+                    reactiveRedisTemplate = mock(),
+                    Duration.ofSeconds(1),
+                    "keyspace",
+                )
                 .getKeyFromEntity(domainObject)
         assertEquals(key, extractedKey)
     }
@@ -50,7 +54,7 @@ class WrappedRedisTemplateRepositoriesTests {
         val key = "key"
         val domainObject = OidcKey(kid = key, e = "exponent", n = "modulus")
         val extractedKey =
-            OidcKeysRepository(redisTemplate = mock(), Duration.ofSeconds(1), "keyspace")
+            OidcKeysRepository(reactiveRedisTemplate = mock(), Duration.ofSeconds(1), "keyspace")
                 .getKeyFromEntity(domainObject)
         assertEquals(key, extractedKey)
     }

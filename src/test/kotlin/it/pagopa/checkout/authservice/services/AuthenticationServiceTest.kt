@@ -90,14 +90,16 @@ class AuthenticationServiceTest {
         val request = MockServerHttpRequest.get("/").build()
         val sessionToken = "valid-session-token"
         val authenticatedUserSession =
-            AuthenticatedUserSession(
-                userInfo =
-                    UserInfo(
-                        fiscalCode = UserFiscalCode("RSSMRA80A01H501U"),
-                        name = Name("Mario"),
-                        surname = Name("Rossi"),
-                    ),
-                sessionToken = SessionToken(sessionToken),
+            Mono.just(
+                AuthenticatedUserSession(
+                    userInfo =
+                        UserInfo(
+                            fiscalCode = UserFiscalCode("RSSMRA80A01H501U"),
+                            name = Name("Mario"),
+                            surname = Name("Rossi"),
+                        ),
+                    sessionToken = SessionToken(sessionToken),
+                )
             )
 
         whenever(sessionTokenUtils.getSessionTokenFromRequest(request))
@@ -124,7 +126,7 @@ class AuthenticationServiceTest {
 
         whenever(sessionTokenUtils.getSessionTokenFromRequest(request))
             .thenReturn(Mono.just(sessionToken))
-        whenever(authenticatedUserSessionRepository.findById(sessionToken)).thenReturn(null)
+        whenever(authenticatedUserSessionRepository.findById(sessionToken)).thenReturn(Mono.empty())
 
         val result = authenticationService.getUserInfo(request)
 
@@ -156,14 +158,16 @@ class AuthenticationServiceTest {
         val request = MockServerHttpRequest.get("/").build()
         val sessionToken = "valid-session-token"
         val authenticatedUserSession =
-            AuthenticatedUserSession(
-                userInfo =
-                    UserInfo(
-                        fiscalCode = UserFiscalCode("RSSMRA80A01H501U"),
-                        name = Name("Mario"),
-                        surname = Name("Rossi"),
-                    ),
-                sessionToken = SessionToken(sessionToken),
+            Mono.just(
+                AuthenticatedUserSession(
+                    userInfo =
+                        UserInfo(
+                            fiscalCode = UserFiscalCode("RSSMRA80A01H501U"),
+                            name = Name("Mario"),
+                            surname = Name("Rossi"),
+                        ),
+                    sessionToken = SessionToken(sessionToken),
+                )
             )
 
         whenever(sessionTokenUtils.getSessionTokenFromRequest(request))
@@ -189,7 +193,7 @@ class AuthenticationServiceTest {
         val oidcState = OidcState("state")
         val oidcNonce = OidcNonce("nonce")
         val authCode = AuthCode("authCode")
-        val oidcCacheAuthState = OidcAuthStateData(state = oidcState, nonce = oidcNonce)
+        val oidcCacheAuthState = Mono.just(OidcAuthStateData(state = oidcState, nonce = oidcNonce))
         val userName = "name"
         val userFamilyName = "familyName"
         val userFiscalCode = "userFiscalCode"
@@ -206,8 +210,8 @@ class AuthenticationServiceTest {
             .willReturn(Mono.just(tokenDataDtoResponse))
         given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
-        doNothing().`when`(authenticatedUserSessionRepository).save(any())
-        given(oidcAuthStateDataRepository.deleteById(any())).willReturn(true)
+        given(authenticatedUserSessionRepository.save(any())).willReturn(Mono.empty())
+        given(oidcAuthStateDataRepository.deleteById(any())).willReturn(Mono.just(true))
         // test
         val expectedAuthenticatedUserSession =
             AuthenticatedUserSession(
@@ -239,7 +243,7 @@ class AuthenticationServiceTest {
         val oidcState = OidcState("state")
         val oidcNonce = OidcNonce("nonce")
         val authCode = AuthCode("authCode")
-        val oidcCachedAuthState = OidcAuthStateData(state = oidcState, nonce = oidcNonce)
+        val oidcCachedAuthState = Mono.just(OidcAuthStateData(state = oidcState, nonce = oidcNonce))
 
         val userName = "name"
         val userFamilyName = "familyName"
@@ -259,7 +263,7 @@ class AuthenticationServiceTest {
 
         given(oidcAuthStateDataRepository.findById(oidcState.value))
             .willReturn(oidcCachedAuthState)
-            .willReturn(null)
+            .willReturn(Mono.empty())
 
         given(oneIdentityClient.retrieveOidcToken(authCode, oidcState))
             .willReturn(Mono.just(tokenDataDtoResponse))
@@ -268,8 +272,10 @@ class AuthenticationServiceTest {
             .willReturn(Mono.just(jwtResponseClaims))
 
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
-        given(oidcAuthStateDataRepository.deleteById(oidcState.value)).willReturn(true)
-
+        given(oidcAuthStateDataRepository.deleteById(oidcState.value)).willReturn(Mono.just(true))
+        given(authenticatedUserSessionRepository.save(any())).willAnswer { invocation ->
+            Mono.just(invocation.getArgument<AuthenticatedUserSession>(0))
+        }
         val expectedAuthenticatedUserSession =
             AuthenticatedUserSession(
                 sessionToken = sessionToken,
@@ -316,13 +322,13 @@ class AuthenticationServiceTest {
         jwtResponseClaims[JwtUtils.OI_JWT_USER_NAME_CLAIM_KEY] = userName
         jwtResponseClaims[JwtUtils.OI_JWT_USER_FAMILY_NAME_CLAIM_KEY] = userFamilyName
         jwtResponseClaims[JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY] = userFiscalCode
-        given(oidcAuthStateDataRepository.findById(any())).willReturn(oidcCacheAuthState)
+        given(oidcAuthStateDataRepository.findById(any())).willReturn(Mono.just(oidcCacheAuthState))
         given(oneIdentityClient.retrieveOidcToken(any(), any()))
             .willReturn(Mono.just(tokenDataDtoResponse))
         given(jwtUtils.validateAndParse(any())).willReturn(Mono.just(jwtResponseClaims))
         given(sessionTokenUtils.generateSessionToken()).willReturn(sessionToken)
-        doNothing().`when`(authenticatedUserSessionRepository).save(any())
-        given(oidcAuthStateDataRepository.deleteById(any())).willReturn(true)
+        given(authenticatedUserSessionRepository.save(any())).willReturn(Mono.empty())
+        given(oidcAuthStateDataRepository.deleteById(any())).willReturn(Mono.just(true))
         // test
         val expectedAuthenticatedUserSession =
             AuthenticatedUserSession(
@@ -360,14 +366,16 @@ class AuthenticationServiceTest {
         val request = MockServerHttpRequest.get("/").build()
         val bearerToken = "bearerToken"
         val authenticatedUserSession =
-            AuthenticatedUserSession(
-                userInfo =
-                    UserInfo(
-                        fiscalCode = UserFiscalCode("RSSMRA80A01H501U"),
-                        name = Name("Mario"),
-                        surname = Name("Rossi"),
-                    ),
-                sessionToken = SessionToken(bearerToken),
+            Mono.just(
+                AuthenticatedUserSession(
+                    userInfo =
+                        UserInfo(
+                            fiscalCode = UserFiscalCode("RSSMRA80A01H501U"),
+                            name = Name("Mario"),
+                            surname = Name("Rossi"),
+                        ),
+                    sessionToken = SessionToken(bearerToken),
+                )
             )
         // test mock
         given { sessionTokenUtils.getSessionTokenFromRequest(request) }
@@ -390,7 +398,7 @@ class AuthenticationServiceTest {
         // test mock
         given { sessionTokenUtils.getSessionTokenFromRequest(request) }
             .willReturn(Mono.just(bearerToken))
-        given { authenticatedUserSessionRepository.findById(bearerToken) }.willReturn(null)
+        given { authenticatedUserSessionRepository.findById(bearerToken) }.willReturn(Mono.empty())
         // test
         StepVerifier.create(authenticationService.validateAuthToken(request))
             .expectError(SessionValidationException::class.java)
@@ -407,7 +415,8 @@ class AuthenticationServiceTest {
         // test mock
         given { sessionTokenUtils.getSessionTokenFromRequest(request) }
             .willReturn(Mono.just(bearerToken))
-        given { authenticatedUserSessionRepository.deleteById(bearerToken) }.willReturn(true)
+        given { authenticatedUserSessionRepository.deleteById(bearerToken) }
+            .willReturn(Mono.just(true))
         // test
         StepVerifier.create(authenticationService.logout(request)).expectNext(Unit).verifyComplete()
         verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
@@ -422,7 +431,8 @@ class AuthenticationServiceTest {
         // test mock
         given { sessionTokenUtils.getSessionTokenFromRequest(request) }
             .willReturn(Mono.just(bearerToken))
-        given { authenticatedUserSessionRepository.deleteById(bearerToken) }.willReturn(false)
+        given { authenticatedUserSessionRepository.deleteById(bearerToken) }
+            .willReturn(Mono.just(false))
         // test
         StepVerifier.create(authenticationService.logout(request)).expectNext(Unit).verifyComplete()
         verify(sessionTokenUtils, times(1)).getSessionTokenFromRequest(request)
