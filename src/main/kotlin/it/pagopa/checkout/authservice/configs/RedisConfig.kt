@@ -48,6 +48,7 @@ class RedisConfig {
     }
 
     @Bean
+    @RegisterReflectionForBinding(OidcAuthStateData::class)
     fun oidcAuthStateDataRepository(
         redisConnectionFactory: ReactiveRedisConnectionFactory,
         @Value("\${oidc.auth-state.cache.ttlSeconds}") ttlSeconds: Long,
