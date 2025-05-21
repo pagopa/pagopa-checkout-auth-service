@@ -77,6 +77,7 @@ class JwtUtilsTest {
         expectedClaims["familyName"] = userFamilyName
         expectedClaims["fiscalNumber"] = userFiscalCode
         expectedClaims["nonce"] = nonce
+        expectedSavedKeys.forEach { given(oidcKeysRepository.save(it)).willReturn(Mono.just(true)) }
         StepVerifier.create(jwtUtils.validateAndParse(signedJwtToken))
             .expectNext(expectedClaims)
             .verifyComplete()
@@ -297,6 +298,7 @@ class JwtUtilsTest {
             oneIdentityResponse.keys.map {
                 OidcKey(kid = it["kid"]!!, n = it["n"]!!, e = it["e"]!!)
             }
+        expectedSavedKeys.forEach { given(oidcKeysRepository.save(it)).willReturn(Mono.just(true)) }
         expectedClaims["name"] = userName
         expectedClaims["familyName"] = userFamilyName
         expectedClaims["fiscalNumber"] = userFiscalCode
