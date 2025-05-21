@@ -37,35 +37,35 @@ class AuthenticationService(
     fun login(): Mono<LoginResponseDto> =
         oneIdentityClient
             .buildLoginUrl()
-            .map {
+            .flatMap {
                 val state = it.state
                 val nonce = it.nonce
                 val redirectionUrl = it.loginRedirectUri
                 logger.info(
-                    "Processing login request for state: [{}] and nonce: [{}] ",
+                    "Processing login request for state: [{}] and nonce: [{}]",
                     state.value,
                     nonce.value,
                 )
                 // save state and nonce association for later validation
-                oidcAuthStateDataRepository.save(OidcAuthStateData(state = state, nonce = nonce))
-                redirectionUrl
+                oidcAuthStateDataRepository
+                    .save(OidcAuthStateData(state = state, nonce = nonce))
+                    .thenReturn(redirectionUrl)
             }
             .map { LoginResponseDto().urlRedirect(it) }
 
     fun retrieveAuthToken(authCode: AuthCode, state: OidcState): Mono<AuthenticatedUserSession> {
         logger.info("Retrieving authorization data for auth with state: [{}]", state.value)
-        val oidcCachedAuthState =
-            Optional.ofNullable(oidcAuthStateDataRepository.findById(state.value))
-                .map { Mono.just(it) }
-                .orElse(
-                    Mono.error(
-                        AuthFailedException(
-                            state = state,
-                            message = "Cannot retrieve OIDC session for input auth state",
-                        )
+
+        return oidcAuthStateDataRepository
+            .findById(state.value)
+            .switchIfEmpty(
+                Mono.error(
+                    AuthFailedException(
+                        state = state,
+                        message = "Cannot retrieve OIDC session for input auth state",
                     )
                 )
-        return oidcCachedAuthState
+            )
             .flatMap { oidcAuthState ->
                 logger.info("Retrieve Oidc token from OI with state: [{}]", oidcAuthState)
                 oneIdentityClient
@@ -79,6 +79,7 @@ class AuthenticationService(
                             nonce,
                             cachedNonce,
                         )
+
                         if (nonce != cachedNonce) {
                             Mono.error(
                                 AuthFailedException(
@@ -91,7 +92,7 @@ class AuthenticationService(
                             Mono.just(it)
                         }
                     }
-                    .map {
+                    .flatMap {
                         val userInfo =
                             UserInfo(
                                 name =
@@ -118,43 +119,43 @@ class AuthenticationService(
                                 userInfo = userInfo,
                             )
                         // save user logged in information
-                        authenticatedUserSessionRepository.save(authenticatedUserSession)
-                        authenticatedUserSession
+                        authenticatedUserSessionRepository
+                            .save(authenticatedUserSession)
+                            .thenReturn(authenticatedUserSession)
                     }
-            }
-            .doOnNext {
-                logger.info("User logged successfully for state: [{}]", state.value)
-                // user logged in, delete authentication state-nonce from cache
-                oidcAuthStateDataRepository.deleteById(state.value)
+                    .flatMap { authenticatedUserSession ->
+                        logger.info("User logged successfully for state: [{}]", state.value)
+                        // user logged in, delete authentication state-nonce from cache
+                        oidcAuthStateDataRepository
+                            .deleteById(state.value)
+                            .thenReturn(authenticatedUserSession)
+                    }
             }
     }
 
     fun getUserInfo(request: ServerHttpRequest): Mono<UserInfoResponseDto> {
-        return sessionTokenUtils.getSessionTokenFromRequest(request).flatMap { bearerToken ->
-            Optional.ofNullable(authenticatedUserSessionRepository.findById(bearerToken))
-                .map { authenticatedUserSession ->
-                    Mono.just(
-                        UserInfoResponseDto(
-                            authenticatedUserSession.userInfo.fiscalCode.value,
-                            authenticatedUserSession.userInfo.name.value,
-                            authenticatedUserSession.userInfo.surname.value,
-                        )
+        return sessionTokenUtils
+            .getSessionTokenFromRequest(request)
+            .flatMap { bearerToken ->
+                authenticatedUserSessionRepository
+                    .findById(bearerToken)
+                    .switchIfEmpty(
+                        Mono.error(SessionValidationException("Invalid or missing session token"))
                     )
-                }
-                .orElse(
-                    Mono.error(
-                        SessionValidationException(message = "Invalid or missing session token")
-                    )
+            }
+            .map { authenticatedUserSession ->
+                UserInfoResponseDto(
+                    authenticatedUserSession.userInfo.fiscalCode.value,
+                    authenticatedUserSession.userInfo.name.value,
+                    authenticatedUserSession.userInfo.surname.value,
                 )
-        }
+            }
     }
 
     fun validateAuthToken(request: ServerHttpRequest): Mono<Unit> {
         return sessionTokenUtils
             .getSessionTokenFromRequest(request)
-            .flatMap { bearerToken ->
-                Mono.fromCallable { authenticatedUserSessionRepository.findById(bearerToken) }
-            }
+            .flatMap { bearerToken -> authenticatedUserSessionRepository.findById(bearerToken) }
             .switchIfEmpty {
                 Mono.error(SessionValidationException(message = "Invalid session token"))
             }
@@ -164,9 +165,7 @@ class AuthenticationService(
     fun logout(request: ServerHttpRequest): Mono<Unit> {
         return sessionTokenUtils
             .getSessionTokenFromRequest(request)
-            .flatMap { bearerToken ->
-                Mono.fromCallable { authenticatedUserSessionRepository.deleteById(bearerToken) }
-            }
+            .flatMap { bearerToken -> authenticatedUserSessionRepository.deleteById(bearerToken) }
             .then(Mono.just(Unit))
     }
 }

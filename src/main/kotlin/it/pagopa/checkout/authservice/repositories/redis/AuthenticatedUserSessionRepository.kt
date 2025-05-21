@@ -2,18 +2,18 @@ package it.pagopa.checkout.authservice.repositories.redis
 
 import it.pagopa.checkout.authservice.repositories.redis.bean.auth.AuthenticatedUserSession
 import java.time.Duration
-import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.ReactiveRedisTemplate
 
 /** Authenticated user session repository */
 class AuthenticatedUserSessionRepository(
-    redisTemplate: RedisTemplate<String, AuthenticatedUserSession>,
+    reactiveRedisTemplate: ReactiveRedisTemplate<String, AuthenticatedUserSession>,
     defaultTTL: Duration,
     keyspace: String,
 ) :
-    RedisTemplateWrapper<AuthenticatedUserSession>(
+    ReactiveRedisTemplateWrapper<AuthenticatedUserSession>(
         ttl = defaultTTL,
         keyspace = keyspace,
-        redisTemplate = redisTemplate,
+        reactiveRedisTemplate = reactiveRedisTemplate,
     ) {
-    override fun getKeyFromEntity(value: AuthenticatedUserSession) = value.sessionToken.value
+    public override fun getKeyFromEntity(value: AuthenticatedUserSession) = value.sessionToken.value
 }

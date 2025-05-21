@@ -61,19 +61,16 @@ class JwtUtils(
     }
 
     private fun retrieveTokenKeys(): Mono<List<PublicKey>> =
-        Mono.just(1)
-            .flatMap {
-                /*
-                 *   kid is an optional jwt token parameter, if present
-                 */
-                val cachedKeys = oidcKeysRepository.getAllValues()
+        oidcKeysRepository
+            .getAllValues()
+            .collectList()
+            .flatMap { cachedKeys ->
                 if (cachedKeys.isEmpty()) {
-                    // cache miss
                     logger.info("Cache miss for JWT token keys, recovering from One Identity")
                     oneIdentityClient.getKeys().flatMap { jwkResponse ->
                         val decodedKeys =
                             jwkResponse.keys
-                                .filter { it["kty"] == "RSA" } // filter for RSA keys only
+                                .filter { it["kty"] == "RSA" }
                                 .map {
                                     val kid = it["kid"]
                                     val n = it["n"]
@@ -83,19 +80,15 @@ class JwtUtils(
                                             n.isNullOrBlank() ||
                                             e.isNullOrBlank()
                                     ) {
-                                        throw OneIdentityServerException(
-                                            message =
-                                                "Invalid public key detected, null kid, n or e fields. Decoded key: $it",
-                                            state = null,
+                                        return@flatMap Mono.error<List<OidcKey>>(
+                                            OneIdentityServerException(
+                                                message =
+                                                    "Invalid public key detected, null kid, n or e fields. Decoded key: $it",
+                                                state = null,
+                                            )
                                         )
                                     }
-                                    val oidcKey =
-                                        OidcKey(
-                                            kid = it["kid"].toString(),
-                                            n = it["n"].toString(),
-                                            e = it["e"].toString(),
-                                        )
-                                    // and save each key into cache with its kid as id
+                                    val oidcKey = OidcKey(kid = kid, n = n, e = e)
                                     oidcKeysRepository.save(oidcKey)
                                     oidcKey
                                 }
@@ -115,8 +108,8 @@ class JwtUtils(
                     Mono.just(cachedKeys)
                 }
             }
-            .map { cachedKeys ->
-                cachedKeys.map { key ->
+            .map { keys ->
+                keys.map { key ->
                     val modulus = BigInteger(1, Base64.getUrlDecoder().decode(key.n))
                     val exponent = BigInteger(1, Base64.getUrlDecoder().decode(key.e))
                     rsaKeyFactory.generatePublic(RSAPublicKeySpec(modulus, exponent))
