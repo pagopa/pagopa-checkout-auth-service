@@ -27,9 +27,7 @@ abstract class ReactiveRedisTemplateWrapper<V : Any>(
     }
 
     fun deleteAll(): Mono<Long> {
-        return keysInKeyspace().collectList().flatMap {
-            reactiveRedisTemplate.delete(Flux.fromIterable(it))
-        }
+        return reactiveRedisTemplate.delete(keysInKeyspace())
     }
 
     fun keysInKeyspace(): Flux<String> {
