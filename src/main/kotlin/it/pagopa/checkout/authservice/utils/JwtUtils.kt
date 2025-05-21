@@ -14,6 +14,7 @@ import java.security.spec.RSAPublicKeySpec
 import java.util.*
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Component
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
 
 @Component
@@ -68,40 +69,36 @@ class JwtUtils(
                 if (cachedKeys.isEmpty()) {
                     logger.info("Cache miss for JWT token keys, recovering from One Identity")
                     oneIdentityClient.getKeys().flatMap { jwkResponse ->
-                        val decodedKeys =
-                            jwkResponse.keys
-                                .filter { it["kty"] == "RSA" }
-                                .map {
-                                    val kid = it["kid"]
-                                    val n = it["n"]
-                                    val e = it["e"]
-                                    if (
-                                        kid.isNullOrBlank() ||
-                                            n.isNullOrBlank() ||
-                                            e.isNullOrBlank()
-                                    ) {
-                                        return@flatMap Mono.error<List<OidcKey>>(
-                                            OneIdentityServerException(
-                                                message =
-                                                    "Invalid public key detected, null kid, n or e fields. Decoded key: $it",
-                                                state = null,
-                                            )
-                                        )
-                                    }
-                                    val oidcKey = OidcKey(kid = kid, n = n, e = e)
-                                    oidcKeysRepository.save(oidcKey)
-                                    oidcKey
-                                }
+                        val rsaKeys = jwkResponse.keys.filter { it["kty"] == "RSA" }
 
-                        if (decodedKeys.isEmpty()) {
-                            Mono.error(
+                        if (rsaKeys.isEmpty()) {
+                            return@flatMap Mono.error<List<OidcKey>>(
                                 OneIdentityConfigurationException(
                                     "Cannot find any key with type: [RSA] to be used for verify token"
                                 )
                             )
-                        } else {
-                            Mono.just(decodedKeys)
                         }
+
+                        Flux.fromIterable(rsaKeys)
+                            .flatMap { keyMap ->
+                                val kid = keyMap["kid"]
+                                val n = keyMap["n"]
+                                val e = keyMap["e"]
+
+                                if (kid.isNullOrBlank() || n.isNullOrBlank() || e.isNullOrBlank()) {
+                                    return@flatMap Mono.error<OidcKey>(
+                                        OneIdentityServerException(
+                                            message =
+                                                "Invalid public key detected, null kid, n or e fields. Decoded key: $keyMap",
+                                            state = null,
+                                        )
+                                    )
+                                }
+
+                                val oidcKey = OidcKey(kid = kid, n = n, e = e)
+                                oidcKeysRepository.save(oidcKey).thenReturn(oidcKey)
+                            }
+                            .collectList()
                     }
                 } else {
                     logger.info("Cache hit for keys")
