@@ -17,7 +17,7 @@ plugins {
 
 group = "it.pagopa.checkout.authservice"
 
-version = "1.0.1"
+version = "1.1.0"
 
 description = "pagopa-checkout-auth-service"
 
