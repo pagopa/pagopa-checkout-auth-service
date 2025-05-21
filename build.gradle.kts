@@ -11,7 +11,7 @@ plugins {
   id("org.openapi.generator") version "7.11.0"
   id("com.diffplug.spotless") version "7.0.2"
   id("com.dipien.semantic-version") version "2.0.0" apply false
-  id("org.sonarqube") version "6.0.1.5171"
+  id("org.sonarqube") version "4.0.0.2929"
   jacoco
 }
 
