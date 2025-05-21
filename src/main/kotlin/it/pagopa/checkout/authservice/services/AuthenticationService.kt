@@ -123,10 +123,12 @@ class AuthenticationService(
                             .save(authenticatedUserSession)
                             .thenReturn(authenticatedUserSession)
                     }
-                    .doOnSuccess {
+                    .flatMap { authenticatedUserSession ->
                         logger.info("User logged successfully for state: [{}]", state.value)
                         // user logged in, delete authentication state-nonce from cache
-                        oidcAuthStateDataRepository.deleteById(state.value)
+                        oidcAuthStateDataRepository
+                            .deleteById(state.value)
+                            .thenReturn(authenticatedUserSession)
                     }
             }
     }
