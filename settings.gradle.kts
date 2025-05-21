@@ -1,3 +1,8 @@
-rootProject.name = "pagopa-checkout-auth-service"
+pluginManagement {
+  repositories {
+    gradlePluginPortal()
+    mavenCentral()
+  }
+}
 
-pluginManagement { repositories { gradlePluginPortal() } }
+rootProject.name = "pagopa-checkout-auth-service"
