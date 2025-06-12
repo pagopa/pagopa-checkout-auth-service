@@ -284,7 +284,7 @@ stages:
 
   - stage: "Deploy_UAT_Green"
     displayName: "UAT green deployment"
-    dependsOn: [GreenDeployment_WaitForApproval, Get_Release_Version, Tag_Docker_Release]
+    dependsOn: [GreenDeployment_WaitForApproval]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
