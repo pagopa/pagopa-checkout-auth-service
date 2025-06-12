@@ -11,20 +11,20 @@ microservice-chart:
       headerName: deployment
       headerValue: blue
       weightPercent: 0
-      image:
-        repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
-        tag: "latest"
-      envConfig:
-        OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
-        ONE_IDENTITY_BASE_URL: "https://api.uat.platform.pagopa.it/checkout/identity-provider-mock/v1"
-        ONE_IDENTITY_CLIENT_ID: "oneidentity-client-id"
-        ONE_IDENTITY_SERVER_URI: "https://weuuat.checkout.internal.uat.platform.pagopa.it/pagopa-checkout-identity-provider-mock/"
-        #override default Redis entries keyspace in order to avoid cache collisions between green and blue instances
-        AUTHENTICATED_USER_SESSION_CACHE_KEYSPACE: "beta-authenticated-user-session"
-        OIDC_AUTH_STATE_CACHE_TTL_KEYSPACE: "beta-oidc-auth-session-data"
-        OIDC_KEYS_CACHE_TTL_KEYSPACE: "beta-oidc-keys"
-      envSecret:
-        ONE_IDENTITY_CLIENT_SECRET: checkout-one-identity-client-secret-test
+    image:
+      repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
+      tag: "latest"
+    envConfig:
+      OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
+      ONE_IDENTITY_BASE_URL: "https://api.uat.platform.pagopa.it/checkout/identity-provider-mock/v1"
+      ONE_IDENTITY_CLIENT_ID: "oneidentity-client-id"
+      ONE_IDENTITY_SERVER_URI: "https://weuuat.checkout.internal.uat.platform.pagopa.it/pagopa-checkout-identity-provider-mock/"
+      #override default Redis entries keyspace in order to avoid cache collisions between green and blue instances
+      AUTHENTICATED_USER_SESSION_CACHE_KEYSPACE: "beta-authenticated-user-session"
+      OIDC_AUTH_STATE_CACHE_TTL_KEYSPACE: "beta-oidc-auth-session-data"
+      OIDC_KEYS_CACHE_TTL_KEYSPACE: "beta-oidc-keys"
+    envSecret:
+      ONE_IDENTITY_CLIENT_SECRET: checkout-one-identity-client-secret-test
   image:
     repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
     tag: "1.1.1"
