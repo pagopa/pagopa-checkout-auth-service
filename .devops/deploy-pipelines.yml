@@ -433,7 +433,6 @@ stages:
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(${{parameters.PROD_SKIP_BLUE_DEPLOYMENT}}, False),
         eq(dependencies.Build_PROD_Blue.result, 'Succeeded'),
         eq(dependencies.Get_Release_Version.result, 'Succeeded')
       )
@@ -476,10 +475,7 @@ stages:
 
   - stage: "PROD_Green_WaitForApproval"
     displayName: 'PROD green approval deployment'
-    ${{ if eq(parameters['PROD_SKIP_BLUE_DEPLOYMENT'], True) }}:
-      dependsOn: Prod_WaitForApproval
-    ${{ if eq(parameters['PROD_SKIP_BLUE_DEPLOYMENT'], False) }}:
-      dependsOn: Deploy_PROD_Blue
+    dependsOn: Deploy_PROD_Blue
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
@@ -559,16 +555,15 @@ stages:
           runOnce:
             deploy:
               steps:
-                - ${{ if eq(parameters['PROD_SKIP_BLUE_DEPLOYMENT'], False) }}:
-                    # uninstall helm release used for blue instance
-                    - task: HelmDeploy@0
-                      displayName: Un-install PROD blue version
-                      continueOnError: false
-                      inputs:
-                        kubernetesServiceEndpoint: $(PROD_KUBERNETES_SERVICE_CONN)
-                        namespace: "ecommerce"
-                        command: uninstall
-                        arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
+                # uninstall helm release used for blue instance
+                - task: HelmDeploy@0
+                  displayName: Un-install PROD blue version
+                  continueOnError: false
+                  inputs:
+                    kubernetesServiceEndpoint: $(PROD_KUBERNETES_SERVICE_CONN)
+                    namespace: "ecommerce"
+                    command: uninstall
+                    arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
                 - checkout: self
                   displayName: "Checkout"
                 - task: Bash@3
