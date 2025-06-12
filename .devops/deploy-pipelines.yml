@@ -67,7 +67,7 @@ variables:
     - name: DOCKER_FILE_NAME
       value: "Dockerfile.jvm"
     - name: DOCKER_FILE_VERSION_SUFFIX
-      value: "-jvm"
+      value: "V-jvm"
 
 # --- START Deploy DEV --- #
 stages:
