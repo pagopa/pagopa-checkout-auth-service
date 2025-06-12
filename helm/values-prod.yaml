@@ -2,6 +2,21 @@ microservice-chart:
   namespace: "checkout"
   nameOverride: ""
   fullnameOverride: "pagopa-checkout-auth-service"
+  canaryDelivery:
+    create: false
+    ingress:
+      bluegreen: false
+      #set canary deployment with traffic balancing see https://github.com/kubernetes/ingress-nginx/blob/main/docs/user-guide/nginx-configuration/annotations.md#canary for more info
+      header: true
+      headerName: deployment
+      headerValue: blue
+      weightPercent: 10
+    image:
+      repository: pagopapcommonacr.azurecr.io/pagopacheckoutauthservice
+      tag: "latest"
+    envConfig:
+      OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
+    envSecret: { }
   image:
     repository: pagopapcommonacr.azurecr.io/pagopacheckoutauthservice
     tag: "1.1.1"

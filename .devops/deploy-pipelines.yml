@@ -67,7 +67,7 @@ variables:
     - name: DOCKER_FILE_NAME
       value: "Dockerfile.jvm"
     - name: DOCKER_FILE_VERSION_SUFFIX
-      value: "-jvm"
+      value: "V-jvm"
 
 # --- START Deploy DEV --- #
 stages:
@@ -142,11 +142,7 @@ stages:
     condition: and(
       succeeded(),
       eq(${{parameters.SKIP_BUILD}}, false),
-      eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-      or(
-      eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-      startsWith(variables['Build.SourceBranch'], 'refs/tags')
-      )
+      eq(${{parameters.UAT_PROD_DEPLOY}}, true)
       )
     jobs:
       - job: "build"
@@ -204,11 +200,7 @@ stages:
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped'),
-        or(
-          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-          startsWith(variables['Build.SourceBranch'], 'refs/tags')
-        )
+        in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped')
       )
     variables:
       app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
@@ -240,7 +232,7 @@ stages:
                     ENV: "UAT"
                     KUBERNETES_SERVICE_CONN: $(UAT_KUBERNETES_SERVICE_CONN)
                     NAMESPACE: checkout
-                    APP_NAME: beta-$(K8S_IMAGE_REPOSITORY_NAME)
+                    APP_NAME: $(K8S_IMAGE_REPOSITORY_NAME)-blue
                     VALUE_FILE: "helm/values-uat.yaml"
                     GREEN_VERSION: $(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
                     BLUE_VERSION: $(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
@@ -262,18 +254,121 @@ stages:
               ENV_FILE: "api-tests/uat.envs.json"
               TEST_FILE_PREFIX: "uat"
 
+  - stage: "ApproveCanaryTrafficWeight10Percent"
+    displayName: "Approve Canary Traffic weight to 10%"
+    dependsOn: [ Deploy_UAT_Blue ]
+    condition: eq(dependencies.Deploy_UAT_Blue.result, 'Succeeded')
+    jobs:
+      - job: TrafficCanaryTo10Percent_WaitForApproval
+        displayName: Canary traffic to 10 percent approval
+        pool: server
+        timeoutInMinutes: 180 # 3 hours
+        steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 180 # 3 hours
+            inputs:
+              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
+              instructions: "Please approve or reject UAT canary traffic to 10 percent"
+              onTimeout: "reject"
+
+  - stage: "CanaryTrafficWeight10Percent"
+    displayName: "Canary Traffic weight to 10%"
+    dependsOn: [ ApproveCanaryTrafficWeight10Percent ]
+    condition: eq(dependencies.ApproveCanaryTrafficWeight10Percent.result, 'Succeeded')
+    jobs:
+      - job: Set_TrafficCanaryTo10Percent
+        displayName: Set canary traffic to 10 percent
+        steps:
+          - task: Kubernetes@1
+            displayName: 'Kubernetes Login'
+            # This is needed to run kubectl command from bash.
+            inputs:
+              connectionType: Kubernetes Service Connection
+              kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
+              command: 'login'
+          - script: |
+              kubectl annotate -n checkout ingress/pagocheckoutauthservice-blue-microservice-chart nginx.ingress.kubernetes.io/canary-weight=10 --overwrite
+            displayName: Execute kubectl
+
+  - stage: "ApproveCanaryTrafficWeight50Percent"
+    displayName: "Approve Canary Traffic weight to 50%"
+    dependsOn: [ Deploy_UAT_Blue ]
+    condition: eq(dependencies.Deploy_UAT_Blue.result, 'Succeeded')
+    jobs:
+      - job: TrafficCanaryTo50Percent_WaitForApproval
+        displayName: Canary traffic to 50 percent approval
+        pool: server
+        timeoutInMinutes: 180 # 3 hours
+        steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 180 # 3 hours
+            inputs:
+              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
+              instructions: "Please approve or reject UAT canary traffic to 50 percent"
+              onTimeout: "reject"
+
+  - stage: "CanaryTrafficWeight50Percent"
+    displayName: "Canary Traffic weight to 50%"
+    dependsOn: [ ApproveCanaryTrafficWeight50Percent ]
+    condition: eq(dependencies.ApproveCanaryTrafficWeight50Percent.result, 'Succeeded')
+    jobs:
+      - job: Set_TrafficCanaryTo50Percent
+        displayName: Set canary traffic to 50 percent
+        steps:
+          - task: Kubernetes@1
+            displayName: 'Kubernetes Login'
+            # This is needed to run kubectl command from bash.
+            inputs:
+              connectionType: Kubernetes Service Connection
+              kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
+              command: 'login'
+          - script: |
+              kubectl annotate -n checkout ingress/pagocheckoutauthservice-blue-microservice-chart nginx.ingress.kubernetes.io/canary-weight=50 --overwrite
+            displayName: Execute kubectl
+
+  - stage: "ApproveCanaryTrafficWeight90Percent"
+    displayName: "Approve Canary Traffic weight to 90%"
+    dependsOn: [ Deploy_UAT_Blue ]
+    condition: eq(dependencies.Deploy_UAT_Blue.result, 'Succeeded')
+    jobs:
+      - job: TrafficCanaryTo90Percent_WaitForApproval
+        displayName: Canary traffic to 90 percent approval
+        pool: server
+        timeoutInMinutes: 180 # 3 hours
+        steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 180 # 3 hours
+            inputs:
+              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
+              instructions: "Please approve or reject UAT canary traffic to 90 percent"
+              onTimeout: "reject"
+
+  - stage: "CanaryTrafficWeight90Percent"
+    displayName: "Canary Traffic weight to 90%"
+    dependsOn: [ ApproveCanaryTrafficWeight90Percent ]
+    condition: eq(dependencies.ApproveCanaryTrafficWeight90Percent.result, 'Succeeded')
+    jobs:
+      - job: Set_TrafficCanaryTo90Percent
+        displayName: Set canary traffic to 90 percent
+        steps:
+          - task: Kubernetes@1
+            displayName: 'Kubernetes Login'
+            # This is needed to run kubectl command from bash.
+            inputs:
+              connectionType: Kubernetes Service Connection
+              kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
+              command: 'login'
+          - script: |
+              kubectl annotate -n checkout ingress/pagocheckoutauthservice-blue-microservice-chart nginx.ingress.kubernetes.io/canary-weight=90 --overwrite
+            displayName: Execute kubectl annotate
+
   - stage: "GreenDeployment_WaitForApproval"
     displayName: "UAT green approval deployment"
-    dependsOn: [API_UAT_test_blue, Get_Release_Version, Tag_Docker_Release]
+    dependsOn: [Get_Release_Version, Tag_Docker_Release]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        in(dependencies.API_UAT_test_blue.result, 'Succeeded', 'Skipped','Failed'),
-        in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped'),
-        or(
-          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-          startsWith(variables['Build.SourceBranch'], 'refs/tags')
-        )
+        in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped')
       )
     variables:
       app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
@@ -292,16 +387,12 @@ stages:
 
   - stage: "Deploy_UAT_Green"
     displayName: "UAT green deployment"
-    dependsOn: [GreenDeployment_WaitForApproval, Get_Release_Version, Tag_Docker_Release]
+    dependsOn: [GreenDeployment_WaitForApproval]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped'),
-        in(dependencies.GreenDeployment_WaitForApproval.result, 'Succeeded', 'Skipped'),
-        or(
-          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-          startsWith(variables['Build.SourceBranch'], 'refs/tags')
-        )
+        in(dependencies.GreenDeployment_WaitForApproval.result, 'Succeeded')
       )
     variables:
       app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
@@ -318,12 +409,12 @@ stages:
                 # uninstall helm release used for blue instance
                 - task: HelmDeploy@0
                   displayName: Un-install UAT blue version
-                  continueOnError: true
+                  continueOnError: false
                   inputs:
                     kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
                     namespace: checkout
                     command: uninstall
-                    arguments: beta-$(K8S_IMAGE_REPOSITORY_NAME)
+                    arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
                 - checkout: self
                   displayName: "Checkout"
                 - task: KubectlInstaller@0
@@ -368,11 +459,15 @@ stages:
   # --- START Deploy PROD --- #
   - stage: "Prod_WaitForApproval"
     displayName: "PROD approval deployment"
-    dependsOn: [Deploy_UAT_Green, Get_Release_Version, API_UAT_test_green]
+    dependsOn: [Deploy_UAT_Green, Get_Release_Version]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(dependencies.Deploy_UAT_Green.result, 'Succeeded')
+        eq(dependencies.Deploy_UAT_Green.result, 'Succeeded'),
+        or(
+          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags')
+        )
       )
     variables:
       app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
@@ -390,15 +485,19 @@ stages:
               onTimeout: "reject"
 
   # --- START Deploy PROD --- #
-  - stage: "Build_PROD_Green"
-    displayName: "PROD green Build"
+  - stage: "Build_PROD_Blue"
+    displayName: "PROD blue Build"
     dependsOn: [Prod_WaitForApproval, Get_Release_Version]
     variables:
-      prod_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
+      app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(dependencies.Prod_WaitForApproval.result, 'Succeeded')
+        eq(dependencies.Prod_WaitForApproval.result, 'Succeeded'),
+        or(
+          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags')
+        )
       )
     jobs:
       - job: "PROD_image"
@@ -427,22 +526,27 @@ stages:
               script: |
                 docker tag $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }} $(PROD_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
                 docker push $(PROD_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
-  - stage: "Deploy_PROD_Green"
-    displayName: "PROD green deployment"
-    dependsOn: [Build_PROD_Green, Get_Release_Version]
+  - stage: "Deploy_PROD_Blue"
+    displayName: 'PROD blue deployment'
+    dependsOn: [Build_PROD_Blue,Get_Release_Version]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(dependencies.Build_PROD_Green.result, 'Succeeded')
+        eq(dependencies.Build_PROD_Blue.result, 'Succeeded'),
+        eq(dependencies.Get_Release_Version.result, 'Succeeded'),
+        or(
+          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags')
+        )
       )
     variables:
-      prod_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
+      app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
     jobs:
-      - deployment: "Green_PROD_deployment"
-        displayName: "Green PROD deployment"
+      - deployment: "Blue_PROD_deployment"
+        displayName: "Blue PROD deployment"
         pool:
           name: pagopa-prod-linux
-        environment: "PROD"
+        environment: 'PROD'
         strategy:
           runOnce:
             deploy:
@@ -451,7 +555,124 @@ stages:
                   displayName: "Checkout"
                 - task: Bash@3
                   name: update_chart_version
-                  displayName: "Setup helm microservice chart"
+                  displayName: 'Setup helm microservice chart'
+                  inputs:
+                    targetType: "inline"
+                    script: |
+                      helm repo add microservice-chart https://pagopa.github.io/aks-microservice-chart-blueprint
+                      helm dep build helm
+                - template: azure-templates/helm-microservice-chart-deploy.yml
+                  parameters:
+                    DO_DEPLOY: true
+                    DO_BLUE_GREEN_DEPLOY: true
+                    ENV: 'PROD'
+                    KUBERNETES_SERVICE_CONN: $(PROD_KUBERNETES_SERVICE_CONN)
+                    NAMESPACE: checkout
+                    APP_NAME: $(K8S_IMAGE_REPOSITORY_NAME)-blue
+                    VALUE_FILE: "helm/values-prod.yaml"
+                    GREEN_VERSION: $(app_version)
+                    BLUE_VERSION: $(Build.SourceVersion)
+                    #for jvm build add --values option targeting containing overrides from native helm values, such as required resources etc
+                    ${{ if eq(parameters['NATIVE_COMPILATION'], False) }}:
+                      ARGUMENTS: "--timeout 5m0s --values helm/valuesOverrides/overrides-jvm-prod.yaml"
+
+  - stage: "PROD_Green_WaitForApproval"
+    displayName: 'PROD green approval deployment'
+    #dependsOn: Deploy_PROD_Blue
+    dependsOn: Prod_WaitForApproval
+    condition: |
+      and(
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
+        in(dependencies.Prod_WaitForApproval.result, 'Succeeded')
+      )
+    variables:
+      release_url: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.releaseUrl'] ]
+    jobs:
+      - job: Bluegreen_PROD_WaitForApproval
+        displayName: Manual green deploy approval
+        pool: server
+        timeoutInMinutes: 4320 # 3 days
+        steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 4320 # 3 days
+            inputs:
+              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
+              instructions: "Please approve or reject PROD green promotions for release $(release_url)"
+              onTimeout: 'reject'
+
+  - stage: "Build_PROD_Green"
+    displayName: 'PROD green Build'
+    dependsOn: [PROD_Green_WaitForApproval,Get_Release_Version]
+    condition: |
+      and(
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
+        eq(dependencies.PROD_Green_WaitForApproval.result, 'Succeeded'),
+        eq(dependencies.Get_Release_Version.result, 'Succeeded')
+      )
+    variables:
+      prod_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
+    jobs:
+      - job: "PROD_image"
+        displayName: 'Build PROD image'
+        steps:
+          - task: Docker@2
+            displayName: "docker login for UAT"
+            inputs:
+              containerRegistry: $(UAT_CONTAINER_REGISTRY_SERVICE_CONN)
+              command: "login"
+          - task: Bash@3
+            displayName: "docker tag new version for PROD"
+            inputs:
+              targetType: "inline"
+              script: |
+                docker pull $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)
+          - task: Docker@2
+            displayName: "docker login for PROD"
+            inputs:
+              containerRegistry: $(PROD_CONTAINER_REGISTRY_SERVICE_CONN)
+              command: "login"
+          - task: Bash@3
+            displayName: "docker tag new version for PROD"
+            inputs:
+              targetType: "inline"
+              script: |
+                docker tag $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version) $(PROD_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)
+                docker push $(PROD_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(prod_version)
+  - stage: "Deploy_PROD_Green"
+    displayName: 'PROD green deployment'
+    dependsOn: [Build_PROD_Green,Get_Release_Version]
+    condition: |
+      and(
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
+        eq(dependencies.Build_PROD_Green.result, 'Succeeded'),
+        eq(dependencies.Get_Release_Version.result, 'Succeeded')
+      )
+    variables:
+      prod_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
+    jobs:
+      - deployment: "Green_PROD_deployment"
+        displayName: "Green PROD deployment"
+        pool:
+          name: pagopa-prod-linux
+        environment: 'PROD'
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                # uninstall helm release used for blue instance
+                - task: HelmDeploy@0
+                  displayName: Un-install PROD blue version
+                  continueOnError: false
+                  inputs:
+                    kubernetesServiceEndpoint: $(PROD_KUBERNETES_SERVICE_CONN)
+                    namespace: checkout
+                    command: uninstall
+                    arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
+                - checkout: self
+                  displayName: "Checkout"
+                - task: Bash@3
+                  name: update_chart_version
+                  displayName: 'Setup helm microservice chart'
                   inputs:
                     targetType: "inline"
                     script: |
@@ -461,12 +682,12 @@ stages:
                   parameters:
                     DO_DEPLOY: true
                     DO_BLUE_GREEN_DEPLOY: false
-                    ENV: "PROD"
+                    ENV: 'PROD'
                     KUBERNETES_SERVICE_CONN: $(PROD_KUBERNETES_SERVICE_CONN)
                     NAMESPACE: checkout
                     APP_NAME: $(K8S_IMAGE_REPOSITORY_NAME)
                     VALUE_FILE: "helm/values-prod.yaml"
-                    GREEN_VERSION: $(prod_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
+                    GREEN_VERSION: $(prod_version)
                     #for jvm build add --values option targeting containing overrides from native helm values, such as required resources etc
                     ${{ if eq(parameters['NATIVE_COMPILATION'], False) }}:
                       ARGUMENTS: "--timeout 5m0s --values helm/valuesOverrides/overrides-jvm-prod.yaml"
