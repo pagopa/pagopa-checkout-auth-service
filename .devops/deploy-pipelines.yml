@@ -304,7 +304,7 @@ stages:
                   continueOnError: false
                   inputs:
                     kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
-                    namespace: "ecommerce"
+                    namespace: "checkout"
                     command: uninstall
                     arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
                 - checkout: self
@@ -557,7 +557,7 @@ stages:
                   continueOnError: false
                   inputs:
                     kubernetesServiceEndpoint: $(PROD_KUBERNETES_SERVICE_CONN)
-                    namespace: "ecommerce"
+                    namespace: "checkout"
                     command: uninstall
                     arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
                 - checkout: self
