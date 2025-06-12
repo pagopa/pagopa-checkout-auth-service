@@ -278,8 +278,6 @@ stages:
     jobs:
       - job: Set_TrafficCanaryTo10Percent
         displayName: Set canary traffic to 10 percent
-        pool: server
-        timeoutInMinutes: 180 # 3 hours
         steps:
           - task: Kubernetes@1
             displayName: 'Kubernetes Login'
@@ -316,8 +314,6 @@ stages:
     jobs:
       - job: Set_TrafficCanaryTo50Percent
         displayName: Set canary traffic to 50 percent
-        pool: server
-        timeoutInMinutes: 180 # 3 hours
         steps:
           - task: Kubernetes@1
             displayName: 'Kubernetes Login'
@@ -354,8 +350,6 @@ stages:
     jobs:
       - job: Set_TrafficCanaryTo90Percent
         displayName: Set canary traffic to 90 percent
-        pool: server
-        timeoutInMinutes: 180 # 3 days
         steps:
           - task: Kubernetes@1
             displayName: 'Kubernetes Login'
