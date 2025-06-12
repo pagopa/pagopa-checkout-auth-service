@@ -1,7 +1,7 @@
 microservice-chart:
   namespace: "checkout"
   nameOverride: ""
-  fullnameOverride: ""
+  fullnameOverride: "pagopa-checkout-auth-service"
   canaryDelivery:
     create: false
     ingress:

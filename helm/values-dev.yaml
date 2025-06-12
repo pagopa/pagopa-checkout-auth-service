@@ -2,29 +2,6 @@ microservice-chart:
   namespace: "checkout"
   nameOverride: ""
   fullnameOverride: "pagopa-checkout-auth-service"
-
-  canaryDelivery:
-    create: true
-    ingress:
-      create: true
-      # canary:
-      #   type: bluegreen
-      canary:
-        type: header
-        headerName: canary
-        headerValue: pagopa
-        weightPercent: 50
-    service:
-      create: true
-    deployment:
-      create: true
-      image:
-        repository: pagopadcommonacr.azurecr.io/pagopacheckoutauthservice
-        tag: "1.1.1"
-        pullPolicy: Always
-      envConfig:
-        OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
-
   image:
     repository: pagopadcommonacr.azurecr.io/pagopacheckoutauthservice
     tag: "1.1.1"
