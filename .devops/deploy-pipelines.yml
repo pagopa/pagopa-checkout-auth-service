@@ -505,44 +505,6 @@ stages:
               command: uninstall
               arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
 
-  - stage: "ApproveCanaryTrafficWeight0Percent"
-    displayName: "Approve removal of Canary Traffic"
-    dependsOn: [ Deploy_PROD_Blue ]
-    condition: eq(dependencies.Deploy_PROD_Blue.result, 'Succeeded')
-    jobs:
-      - job: RemoveCanaryTraffic_WaitForApproval
-        displayName: Canary traffic to 0 percent approval
-        pool: server
-        timeoutInMinutes: 180 # 3 hours
-        steps:
-          - task: ManualValidation@0
-            timeoutInMinutes: 180 # 3 hours
-            inputs:
-              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
-              instructions: "Please approve or reject PROD canary traffic to 0 percent"
-              onTimeout: "reject"
-
-  - stage: "CanaryTrafficWeight0Percent"
-    displayName: "Remove Canary Traffic"
-    dependsOn: [ ApproveCanaryTrafficWeight0Percent ]
-    condition: eq(dependencies.ApproveCanaryTrafficWeight0Percent.result, 'Succeeded')
-    jobs:
-      - job: Set_TrafficCanaryTo10Percent
-        displayName: Remove canary traffic
-        pool:
-          name: pagopa-prod-linux
-        steps:
-          - task: Kubernetes@1
-            displayName: 'Kubernetes Login'
-            # This is needed to run kubectl command from bash.
-            inputs:
-              connectionType: Kubernetes Service Connection
-              kubernetesServiceEndpoint: $(PROD_KUBERNETES_SERVICE_CONN)
-              command: 'login'
-          - script: |
-              kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue nginx.ingress.kubernetes.io/canary-weight=0 --overwrite
-            displayName: Remove canary traffic
-
   - stage: "ApproveCanaryTrafficWeight10Percent"
     displayName: "Approve Canary Traffic weight to 10%"
     dependsOn: [ Deploy_PROD_Blue ]
@@ -656,6 +618,44 @@ stages:
           - script: |
               kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue nginx.ingress.kubernetes.io/canary-weight=90 --overwrite
             displayName: Execute kubectl annotate to set traffic weight to 90 percent
+
+  - stage: "ApproveCanaryTrafficWeight0Percent"
+    displayName: "Approve removal of Canary Traffic"
+    dependsOn: [ Deploy_PROD_Blue ]
+    condition: eq(dependencies.Deploy_PROD_Blue.result, 'Succeeded')
+    jobs:
+      - job: RemoveCanaryTraffic_WaitForApproval
+        displayName: Canary traffic to 0 percent approval
+        pool: server
+        timeoutInMinutes: 180 # 3 hours
+        steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 180 # 3 hours
+            inputs:
+              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
+              instructions: "Please approve or reject PROD canary traffic to 0 percent"
+              onTimeout: "reject"
+
+  - stage: "CanaryTrafficWeight0Percent"
+    displayName: "Remove Canary Traffic"
+    dependsOn: [ ApproveCanaryTrafficWeight0Percent ]
+    condition: eq(dependencies.ApproveCanaryTrafficWeight0Percent.result, 'Succeeded')
+    jobs:
+      - job: Set_TrafficCanaryTo10Percent
+        displayName: Remove canary traffic
+        pool:
+          name: pagopa-prod-linux
+        steps:
+          - task: Kubernetes@1
+            displayName: 'Kubernetes Login'
+            # This is needed to run kubectl command from bash.
+            inputs:
+              connectionType: Kubernetes Service Connection
+              kubernetesServiceEndpoint: $(PROD_KUBERNETES_SERVICE_CONN)
+              command: 'login'
+          - script: |
+              kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue nginx.ingress.kubernetes.io/canary-weight=0 --overwrite
+            displayName: Remove canary traffic
 
   - stage: "PROD_Green_WaitForApproval"
     displayName: 'PROD green approval deployment'
