@@ -486,7 +486,7 @@ stages:
               onTimeout: "reject"
 
   - stage: "UninstallCanaryDeployment"
-    displayName: "Remove Canary Instance"
+    displayName: "Uninstall Canary Instance"
     dependsOn: [ ApproveUninstallCanaryDeployment ]
     condition: eq(dependencies.ApproveUninstallCanaryDeployment.result, 'Succeeded')
     jobs:
