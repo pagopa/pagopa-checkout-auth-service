@@ -487,8 +487,8 @@ stages:
 
   - stage: "CanaryTrafficWeight0Percent"
     displayName: "Remove Canary Traffic"
-    dependsOn: [ ApproveCanaryTrafficWeight10Percent ]
-    condition: eq(dependencies.ApproveCanaryTrafficWeight10Percent.result, 'Succeeded')
+    dependsOn: [ ApproveCanaryTrafficWeight0Percent ]
+    condition: eq(dependencies.ApproveCanaryTrafficWeight0Percent.result, 'Succeeded')
     jobs:
       - job: Set_TrafficCanaryTo10Percent
         displayName: Remove canary traffic
