@@ -255,6 +255,44 @@ stages:
               TEST_FILE_PREFIX: "uat"
 
   - stage: "ApproveCanaryTrafficWeight10Percent"
+    displayName: "Approve removal of Canary Traffic"
+    dependsOn: [ Deploy_UAT_Blue ]
+    condition: eq(dependencies.Deploy_UAT_Blue.result, 'Succeeded')
+    jobs:
+      - job: RemoveCanaryTraffic_WaitForApproval
+        displayName: Canary traffic to 0 percent approval
+        pool: server
+        timeoutInMinutes: 180 # 3 hours
+        steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 180 # 3 hours
+            inputs:
+              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
+              instructions: "Please approve or reject UAT canary traffic to 0 percent"
+              onTimeout: "reject"
+
+  - stage: "CanaryTrafficWeight0Percent"
+    displayName: "Remove Canary Traffic"
+    dependsOn: [ ApproveCanaryTrafficWeight10Percent ]
+    condition: eq(dependencies.ApproveCanaryTrafficWeight10Percent.result, 'Succeeded')
+    jobs:
+      - job: Set_TrafficCanaryTo10Percent
+        displayName: Set canary traffic to 0 percent
+        pool:
+          name: pagopa-uat-linux
+        steps:
+          - task: Kubernetes@1
+            displayName: 'Kubernetes Login'
+            # This is needed to run kubectl command from bash.
+            inputs:
+              connectionType: Kubernetes Service Connection
+              kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
+              command: 'login'
+          - script: |
+              kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue nginx.ingress.kubernetes.io/canary-weight=0 --overwrite
+            displayName: Remove canary traffic
+
+  - stage: "ApproveCanaryTrafficWeight10Percent"
     displayName: "Approve Canary Traffic weight to 10%"
     dependsOn: [ Deploy_UAT_Blue ]
     condition: eq(dependencies.Deploy_UAT_Blue.result, 'Succeeded')
@@ -290,7 +328,7 @@ stages:
               command: 'login'
           - script: |
               kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue nginx.ingress.kubernetes.io/canary-weight=10 --overwrite
-            displayName: Execute kubectl
+            displayName: Execute kubectl annotate to set traffic weight to 10 percent
 
   - stage: "ApproveCanaryTrafficWeight50Percent"
     displayName: "Approve Canary Traffic weight to 50%"
@@ -328,7 +366,7 @@ stages:
               command: 'login'
           - script: |
               kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue nginx.ingress.kubernetes.io/canary-weight=50 --overwrite
-            displayName: Execute kubectl
+            displayName: Execute kubectl annotate to set traffic weight to 50 percent
 
   - stage: "ApproveCanaryTrafficWeight90Percent"
     displayName: "Approve Canary Traffic weight to 90%"
@@ -366,7 +404,7 @@ stages:
               command: 'login'
           - script: |
               kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue nginx.ingress.kubernetes.io/canary-weight=90 --overwrite
-            displayName: Execute kubectl annotate
+            displayName: Execute kubectl annotate to set traffic weight to 90 percent
 
   - stage: "GreenDeployment_WaitForApproval"
     displayName: "UAT green approval deployment"
