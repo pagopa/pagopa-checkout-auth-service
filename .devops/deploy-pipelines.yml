@@ -289,7 +289,7 @@ stages:
               kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
               command: 'login'
           - script: |
-              kubectl annotate -n checkout ingress/pagocheckoutauthservice-blue-microservice-chart nginx.ingress.kubernetes.io/canary-weight=10 --overwrite
+              kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue-microservice-chart nginx.ingress.kubernetes.io/canary-weight=10 --overwrite
             displayName: Execute kubectl
 
   - stage: "ApproveCanaryTrafficWeight50Percent"
@@ -327,7 +327,7 @@ stages:
               kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
               command: 'login'
           - script: |
-              kubectl annotate -n checkout ingress/pagocheckoutauthservice-blue-microservice-chart nginx.ingress.kubernetes.io/canary-weight=50 --overwrite
+              kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue-microservice-chart nginx.ingress.kubernetes.io/canary-weight=50 --overwrite
             displayName: Execute kubectl
 
   - stage: "ApproveCanaryTrafficWeight90Percent"
@@ -365,7 +365,7 @@ stages:
               kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
               command: 'login'
           - script: |
-              kubectl annotate -n checkout ingress/pagocheckoutauthservice-blue-microservice-chart nginx.ingress.kubernetes.io/canary-weight=90 --overwrite
+              kubectl annotate -n checkout ingress/pagopa-checkout-auth-service-blue-microservice-chart nginx.ingress.kubernetes.io/canary-weight=90 --overwrite
             displayName: Execute kubectl annotate
 
   - stage: "GreenDeployment_WaitForApproval"
