@@ -10,7 +10,7 @@ microservice-chart:
       header: true
       headerName: deployment
       headerValue: blue
-      weightPercent: 10
+      weightPercent: 0
     image:
       repository: pagopapcommonacr.azurecr.io/pagopacheckoutauthservice
       tag: "latest"
