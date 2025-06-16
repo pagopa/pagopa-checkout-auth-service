@@ -14,6 +14,9 @@ microservice-chart:
     image:
       repository: pagopaucommonacr.azurecr.io/pagopacheckoutauthservice
       tag: "latest"
+    deployment:
+      create: true
+      replicas: 3
     envConfig:
       OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
       ONE_IDENTITY_BASE_URL: "https://api.uat.platform.pagopa.it/checkout/identity-provider-mock/v1"
