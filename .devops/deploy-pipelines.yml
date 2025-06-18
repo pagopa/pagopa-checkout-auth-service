@@ -742,7 +742,8 @@ stages:
               eq(dependencies.Prod_BlueWaitForApproval.result, 'Rejected'),      
               eq(dependencies.Deploy_PROD_Blue.result, 'Skipped'),
               eq(dependencies.UninstallCanaryDeployment.result, 'Skipped')      
-          ) 
+          ),
+          )  
         )
     variables:
       release_url: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.releaseUrl'] ]
