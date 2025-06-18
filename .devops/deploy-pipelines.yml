@@ -739,7 +739,7 @@ stages:
               eq(dependencies.UninstallCanaryDeployment.result, 'Succeeded')      
           ),
           and(
-              eq(dependencies.Prod_BlueWaitForApproval.result, 'Rejected')      
+              eq(dependencies.Prod_BlueWaitForApproval.result, 'Rejected'),      
               eq(dependencies.Deploy_PROD_Blue.result, 'Skipped'),
               eq(dependencies.UninstallCanaryDeployment.result, 'Skipped')      
           ),
