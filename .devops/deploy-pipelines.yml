@@ -41,6 +41,22 @@ parameters:
       - False
       - True
 
+  - name: "UAT_SKIP_BLUE_DEPLOYMENT"
+    displayName: "Boolean flag to skip blue deployment for uat env"
+    type: boolean
+    default: False
+    values:
+      - False
+      - True
+
+  - name: "PROD_SKIP_BLUE_DEPLOYMENT"
+    displayName: "Boolean flag to skip blue deployment for prod env"
+    type: boolean
+    default: True
+    values:
+      - False
+      - True
+
 resources:
   repositories:
     - repository: pagopaCommons
@@ -198,40 +214,13 @@ stages:
                 docker tag $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }} $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
                 docker push $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
 
-  - stage: "UatBlueDeploymentApproval"
-    displayName: "UAT blue deployment approval"
+  - stage: "Deploy_UAT_Blue"
+    displayName: "UAT blue deployment"
     dependsOn: [Tag_Docker_Release, Get_Release_Version]
     condition: |
       and(
+        eq(${{parameters.UAT_SKIP_BLUE_DEPLOYMENT}}, false),
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped'),
-        or(
-          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
-          startsWith(variables['Build.SourceBranch'], 'refs/tags')
-        )
-      )
-    variables:
-      app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
-    jobs:
-      - job: GreenDeployment_WaitForApproval
-        displayName: Manual blue deploy approval
-        pool: server
-        timeoutInMinutes: 4320 # 3 days
-        steps:
-          - task: ManualValidation@0
-            timeoutInMinutes: 4320 # 3 days
-            inputs:
-              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
-              instructions: "Please approve or reject UAT blue green promotions for version $(app_version)"
-              onTimeout: "reject"
-
-  - stage: "Deploy_UAT_Blue"
-    displayName: "UAT blue deployment"
-    dependsOn: [UatBlueDeploymentApproval]
-    condition: |
-      and(
-        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(dependencies.UatBlueDeploymentApproval.result, 'Succeeded'),
         in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
@@ -292,21 +281,11 @@ stages:
 
   - stage: "GreenDeployment_WaitForApproval"
     displayName: "UAT green approval deployment"
-    dependsOn: [Get_Release_Version, Tag_Docker_Release, UatBlueDeploymentApproval, Deploy_UAT_Blue]
+    dependsOn: [Get_Release_Version, Tag_Docker_Release]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped'),
-        or(
-          and(
-            eq(dependencies.UatBlueDeploymentApproval.result, 'Succeeded'),
-            eq(dependencies.Deploy_UAT_Blue.result, 'Succeeded')
-          ),
-          and(
-            eq(dependencies.UatBlueDeploymentApproval.result, 'Rejected'),
-            eq(dependencies.Deploy_UAT_Blue.result, 'Skipped')
-          )
-        ),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags')
@@ -427,34 +406,16 @@ stages:
               instructions: "Please approve or reject PROD promotions for release $(app_version)"
               onTimeout: "reject"
 
-  - stage: "Prod_BlueWaitForApproval"
-    displayName: "PROD Blue approval deployment"
-    dependsOn: [ Prod_WaitForApproval ]
-    condition: eq(dependencies.Prod_WaitForApproval.result, 'Succeeded')
-    variables:
-      app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
-    jobs:
-      - job: Prod_Approval
-        displayName: Manual prod blue instance deploy approval
-        pool: server
-        timeoutInMinutes: 4320 # 3 days
-        steps:
-          - task: ManualValidation@0
-            timeoutInMinutes: 4320 # 3 days
-            inputs:
-              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
-              instructions: "Please approve or reject PROD blu instance promotions for release $(app_version)"
-              onTimeout: "reject"
-
+  # --- START Deploy PROD --- #
   - stage: "Build_PROD_Blue"
     displayName: "PROD blue Build"
-    dependsOn: [Prod_BlueWaitForApproval]
+    dependsOn: [Prod_WaitForApproval, Get_Release_Version]
     variables:
       app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(dependencies.Prod_BlueWaitForApproval.result, 'Succeeded'),
+        eq(dependencies.Prod_WaitForApproval.result, 'Succeeded'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags')
@@ -729,23 +690,20 @@ stages:
 
   - stage: "PROD_Green_WaitForApproval"
     displayName: 'PROD green approval deployment'
-    dependsOn: [ UninstallCanaryDeployment, Prod_WaitForApproval, Deploy_PROD_Blue ]
-    condition: |
+    ${{ if eq(parameters['PROD_SKIP_BLUE_DEPLOYMENT'], True) }}:
+      dependsOn: Prod_WaitForApproval
+      condition: |
         and(
           eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-          eq(dependencies.Prod_WaitForApproval.result, 'Succeeded'),
-          or(
-            and(
-              eq(dependencies.Prod_BlueWaitForApproval.result, 'Succeeded')      
-              eq(dependencies.Deploy_PROD_Blue.result, 'Succeeded'),
-              eq(dependencies.UninstallCanaryDeployment.result, 'Succeeded')      
-          ),
-          and(
-              eq(dependencies.Prod_BlueWaitForApproval.result, 'Rejected')      
-              eq(dependencies.Deploy_PROD_Blue.result, 'Skipped'),
-              eq(dependencies.UninstallCanaryDeployment.result, 'Skipped')      
-          ),
-          )  
+          in(dependencies.Prod_WaitForApproval.result, 'Succeeded')
+        )
+    ${{ if eq(parameters['PROD_SKIP_BLUE_DEPLOYMENT'], False) }}:
+      dependsOn: [ UninstallCanaryDeployment, Prod_WaitForApproval ]
+      condition: |
+        and(
+          eq(${{parameters.UAT_PROD_DEPLOY}}, true),
+          in(dependencies.Prod_WaitForApproval.result, 'Succeeded'),
+          in(dependencies.UninstallCanaryDeployment.result, 'Succeeded')
         )
     variables:
       release_url: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.releaseUrl'] ]
