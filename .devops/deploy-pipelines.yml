@@ -454,7 +454,7 @@ stages:
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(${{parameters.PROD_SKIP_BLUE_DEPLOY}}, false),
+        eq(${{parameters.PROD_SKIP_BLUE_DEPLOYMENT}}, false),
         eq(dependencies.Build_PROD_Blue.result, 'Succeeded'),
         eq(dependencies.Get_Release_Version.result, 'Succeeded'),
         or(
