@@ -214,12 +214,40 @@ stages:
                 docker tag $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }} $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
                 docker push $(UAT_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(app_version)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
 
+  - stage: "UATBlueDeployment_WaitForApproval"
+    displayName: "UAT blue approval deployment"
+    dependsOn: [Get_Release_Version, Tag_Docker_Release]
+    condition: |
+      and(
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
+        in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped'),
+        or(
+          eq(variables['Build.SourceBranch'], 'refs/heads/main'),
+          startsWith(variables['Build.SourceBranch'], 'refs/tags')
+        )
+      )
+    variables:
+      app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
+    jobs:
+      - job: BlueDeployment_WaitForApproval
+        displayName: Manual blue deploy approval
+        pool: server
+        timeoutInMinutes: 4320 # 3 days
+        steps:
+          - task: ManualValidation@0
+            timeoutInMinutes: 4320 # 3 days
+            inputs:
+              notifyUsers: $(APPROVE_TOUCHPOINT_MAIL)
+              instructions: "Please approve or reject UAT blue green promotions for version $(app_version)"
+              onTimeout: "reject"
+
   - stage: "Deploy_UAT_Blue"
     displayName: "UAT blue deployment"
-    dependsOn: [Tag_Docker_Release, Get_Release_Version]
+    dependsOn: [Tag_Docker_Release, Get_Release_Version, UATBlueDeployment_WaitForApproval]
     condition: |
       and(
         eq(${{parameters.UAT_SKIP_BLUE_DEPLOYMENT}}, false),
+        eq(dependencies.UATBlueDeployment_WaitForApproval.result, 'Succeeded'),
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped'),
         or(
@@ -295,7 +323,7 @@ stages:
       app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
     jobs:
       - job: GreenDeployment_WaitForApproval
-        displayName: Manual blue deploy approval
+        displayName: Manual green deploy approval
         pool: server
         timeoutInMinutes: 4320 # 3 days
         steps:
