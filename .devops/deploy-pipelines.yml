@@ -314,7 +314,7 @@ stages:
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped'),
-        in(dependencies.Deploy_UAT_Blue.result, 'Succeeded', 'Skipped')
+        in(dependencies.Deploy_UAT_Blue.result, 'Succeeded', 'Skipped'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags')
