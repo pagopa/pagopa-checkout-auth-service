@@ -352,15 +352,16 @@ stages:
           runOnce:
             deploy:
               steps:
-                # uninstall helm release used for blue instance
-                - task: HelmDeploy@0
-                  displayName: Un-install UAT blue version
-                  continueOnError: true
-                  inputs:
-                    kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
-                    namespace: checkout
-                    command: uninstall
-                    arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
+                - ${{ if eq(parameters['UAT_SKIP_BLUE_DEPLOYMENT'], False) }}:
+                  # uninstall helm release used for blue instance
+                  - task: HelmDeploy@0
+                    displayName: Un-install UAT blue version
+                    continueOnError: false
+                    inputs:
+                      kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
+                      namespace: checkout
+                      command: uninstall
+                      arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
                 - checkout: self
                   displayName: "Checkout"
                 - task: KubectlInstaller@0
@@ -492,6 +493,7 @@ stages:
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
+        eq(${{parameters.PROD_SKIP_BLUE_DEPLOYMENT}}, false),
         eq(dependencies.Build_PROD_Blue.result, 'Succeeded'),
         eq(dependencies.Get_Release_Version.result, 'Succeeded'),
         or(
