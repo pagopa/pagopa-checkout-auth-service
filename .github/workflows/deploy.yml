@@ -24,7 +24,7 @@ jobs:
           echo "FORCE_REPLACE_DOCKER_IMAGE=False" >> $GITHUB_OUTPUT
           echo "SKIP_BUILD=False" >> $GITHUB_OUTPUT
           echo "UAT_SKIP_BLUE_DEPLOYMENT=False" >> $GITHUB_OUTPUT
-          echo "PROD_SKIP_BLUE_DEPLOYMENT=False" >> $GITHUB_OUTPUT
+          echo "PROD_SKIP_BLUE_DEPLOYMENT=True" >> $GITHUB_OUTPUT
         shell: bash
       - name: Log pipeline parameters
         run: |
