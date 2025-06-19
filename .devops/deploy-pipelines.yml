@@ -295,7 +295,7 @@ stages:
               instructions: "Please approve or reject PROD promotions for release $(app_version)"
               onTimeout: "reject"
 
-  - stage: "ProdBlue_WaitForApproval"
+  - stage: "ProdCanary_WaitForApproval"
     displayName: "PROD canary approval deployment"
     dependsOn: Prod_WaitForApproval
     condition: |
@@ -306,7 +306,7 @@ stages:
     variables:
       app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
     jobs:
-      - job: ProdBlue_Approval
+      - job: ProdCanary_Approval
         displayName: Manual prod canary deploy approval
         pool: server
         timeoutInMinutes: 4320 # 3 days
@@ -318,15 +318,15 @@ stages:
               instructions: "Please approve or reject PROD promotions for release $(app_version)"
               onTimeout: "reject"
 
-  - stage: "Build_PROD_Blue"
+  - stage: "Build_PROD_Canary"
     displayName: "PROD canary Build"
-    dependsOn: [ProdBlue_WaitForApproval, Get_Release_Version]
+    dependsOn: [ProdCanary_WaitForApproval, Get_Release_Version]
     variables:
       app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(dependencies.ProdBlue_WaitForApproval.result, 'Succeeded'),
+        eq(dependencies.ProdCanary_WaitForApproval.result, 'Succeeded'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
           startsWith(variables['Build.SourceBranch'], 'refs/tags')
@@ -360,13 +360,13 @@ stages:
               script: |
                 docker push $(PROD_CONTAINER_NAMESPACE)/$(K8S_IMAGE_REPOSITORY_NAME):$(Build.SourceVersion)${{ variables.DOCKER_FILE_VERSION_SUFFIX }}
 
-  - stage: "Deploy_PROD_Blue"
+  - stage: "Deploy_PROD_Canary"
     displayName: 'PROD canary deployment'
-    dependsOn: [Build_PROD_Blue,Get_Release_Version]
+    dependsOn: [Build_PROD_Canary,Get_Release_Version]
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(dependencies.Build_PROD_Blue.result, 'Succeeded'),
+        eq(dependencies.Build_PROD_Canary.result, 'Succeeded'),
         eq(dependencies.Get_Release_Version.result, 'Succeeded'),
         or(
           eq(variables['Build.SourceBranch'], 'refs/heads/main'),
@@ -376,7 +376,7 @@ stages:
     variables:
       app_version: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.appVersion'] ]
     jobs:
-      - deployment: "Blue_PROD_deployment"
+      - deployment: "Canary_PROD_deployment"
         displayName: "Canary PROD deployment"
         pool:
           name: pagopa-prod-linux
@@ -412,8 +412,8 @@ stages:
 
   - stage: "ApproveUninstallCanaryDeployment"
     displayName: "Approve uninstall of Canary instance"
-    dependsOn: [ Deploy_PROD_Blue ]
-    condition: eq(dependencies.Deploy_PROD_Blue.result, 'Succeeded')
+    dependsOn: [ Deploy_PROD_Canary ]
+    condition: eq(dependencies.Deploy_PROD_Canary.result, 'Succeeded')
     jobs:
       - job: UninstallCanaryDeployment_WaitForApproval
         displayName: Uninstall canary deployment approval
@@ -449,8 +449,8 @@ stages:
 
   - stage: "ApproveCanaryTrafficWeight10Percent"
     displayName: "Approve Canary Traffic weight to 10%"
-    dependsOn: [ Deploy_PROD_Blue ]
-    condition: eq(dependencies.Deploy_PROD_Blue.result, 'Succeeded')
+    dependsOn: [ Deploy_PROD_Canary ]
+    condition: eq(dependencies.Deploy_PROD_Canary.result, 'Succeeded')
     jobs:
       - job: TrafficCanaryTo10Percent_WaitForApproval
         displayName: Canary traffic to 10 percent approval
@@ -487,8 +487,8 @@ stages:
 
   - stage: "ApproveCanaryTrafficWeight50Percent"
     displayName: "Approve Canary Traffic weight to 50%"
-    dependsOn: [ Deploy_PROD_Blue ]
-    condition: eq(dependencies.Deploy_PROD_Blue.result, 'Succeeded')
+    dependsOn: [ Deploy_PROD_Canary ]
+    condition: eq(dependencies.Deploy_PROD_Canary.result, 'Succeeded')
     jobs:
       - job: TrafficCanaryTo50Percent_WaitForApproval
         displayName: Canary traffic to 50 percent approval
@@ -525,8 +525,8 @@ stages:
 
   - stage: "ApproveCanaryTrafficWeight90Percent"
     displayName: "Approve Canary Traffic weight to 90%"
-    dependsOn: [ Deploy_PROD_Blue ]
-    condition: eq(dependencies.Deploy_PROD_Blue.result, 'Succeeded')
+    dependsOn: [ Deploy_PROD_Canary ]
+    condition: eq(dependencies.Deploy_PROD_Canary.result, 'Succeeded')
     jobs:
       - job: TrafficCanaryTo90Percent_WaitForApproval
         displayName: Canary traffic to 90 percent approval
@@ -563,8 +563,8 @@ stages:
 
   - stage: "ApproveCanaryTrafficWeight0Percent"
     displayName: "Approve removal of Canary Traffic"
-    dependsOn: [ Deploy_PROD_Blue ]
-    condition: eq(dependencies.Deploy_PROD_Blue.result, 'Succeeded')
+    dependsOn: [ Deploy_PROD_Canary ]
+    condition: eq(dependencies.Deploy_PROD_Canary.result, 'Succeeded')
     jobs:
       - job: RemoveCanaryTraffic_WaitForApproval
         displayName: Canary traffic to 0 percent approval
@@ -608,17 +608,17 @@ stages:
         eq(dependencies.Prod_WaitForApproval.result, 'Succeeded'),
         or(and(
           eq(dependencies.UninstallCanaryDeployment.result, 'Succeeded'),
-          eq(dependencies.ProdBlue_WaitForApproval.result, 'Succeeded')
+          eq(dependencies.ProdCanary_WaitForApproval.result, 'Succeeded')
         ),
         and(
           eq(dependencies.UninstallCanaryDeployment.result, 'Skipped'),
-          ne(dependencies.ProdBlue_WaitForApproval.result, 'Succeeded')
+          ne(dependencies.ProdCanary_WaitForApproval.result, 'Succeeded')
         ))
       )
     variables:
       release_url: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.releaseUrl'] ]
     jobs:
-      - job: Bluegreen_PROD_WaitForApproval
+      - job: PROD_Green_WaitForApproval
         displayName: Manual green deploy approval
         pool: server
         timeoutInMinutes: 4320 # 3 days
