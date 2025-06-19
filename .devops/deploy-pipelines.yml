@@ -344,7 +344,7 @@ stages:
                   # uninstall helm release used for blue instance
                   - task: HelmDeploy@0
                     displayName: Un-install UAT blue version
-                    continueOnError: false
+                    continueOnError: true
                     inputs:
                       kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
                       namespace: checkout
