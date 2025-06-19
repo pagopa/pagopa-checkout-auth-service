@@ -23,8 +23,6 @@ jobs:
           echo "UAT_PROD_DEPLOY=True" >> $GITHUB_OUTPUT
           echo "FORCE_REPLACE_DOCKER_IMAGE=False" >> $GITHUB_OUTPUT
           echo "SKIP_BUILD=False" >> $GITHUB_OUTPUT
-          echo "UAT_SKIP_BLUE_DEPLOYMENT=False" >> $GITHUB_OUTPUT
-          echo "PROD_SKIP_BLUE_DEPLOYMENT=True" >> $GITHUB_OUTPUT
         shell: bash
       - name: Log pipeline parameters
         run: |
@@ -33,8 +31,6 @@ jobs:
           echo "UAT_PROD_DEPLOY=${{ steps.configure_pipeline_parameters.outputs.UAT_PROD_DEPLOY }}"
           echo "FORCE_REPLACE_DOCKER_IMAGE=${{ steps.configure_pipeline_parameters.outputs.FORCE_REPLACE_DOCKER_IMAGE }}"
           echo "SKIP_BUILD=${{ steps.configure_pipeline_parameters.outputs.SKIP_BUILD }}"
-          echo "UAT_SKIP_BLUE_DEPLOYMENT=${{ steps.configure_pipeline_parameters.outputs.UAT_SKIP_BLUE_DEPLOYMENT }}"
-          echo "PROD_SKIP_BLUE_DEPLOYMENT=${{ steps.configure_pipeline_parameters.outputs.PROD_SKIP_BLUE_DEPLOYMENT }}"
         shell: bash
       - name: Azure Pipelines Action
         uses: jacopocarlini/azure-pipelines@v1.3
@@ -48,6 +44,4 @@ jobs:
                 "SKIP_BUILD": "${{ steps.configure_pipeline_parameters.outputs.SKIP_BUILD }}",
                 "FORCE_REPLACE_DOCKER_IMAGE": "${{ steps.configure_pipeline_parameters.outputs.FORCE_REPLACE_DOCKER_IMAGE }}",
                 "UAT_PROD_DEPLOY": "${{ steps.configure_pipeline_parameters.outputs.UAT_PROD_DEPLOY }}"
-                "UAT_SKIP_BLUE_DEPLOYMENT": "${{ steps.configure_pipeline_parameters.outputs.UAT_SKIP_BLUE_DEPLOYMENT }}"
-                "PROD_SKIP_BLUE_DEPLOYMENT": "${{ steps.configure_pipeline_parameters.outputs.PROD_SKIP_BLUE_DEPLOYMENT }}"
             }

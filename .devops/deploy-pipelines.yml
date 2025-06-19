@@ -41,22 +41,6 @@ parameters:
       - False
       - True
 
-  - name: "UAT_SKIP_BLUE_DEPLOYMENT"
-    displayName: "Boolean flag to skip blue deployment for uat env"
-    type: boolean
-    default: False
-    values:
-      - False
-      - True
-
-  - name: "PROD_SKIP_BLUE_DEPLOYMENT"
-    displayName: "Boolean flag to skip blue deployment for prod env"
-    type: boolean
-    default: False
-    values:
-      - False
-      - True
-
 resources:
   repositories:
     - repository: pagopaCommons
@@ -238,7 +222,6 @@ stages:
     dependsOn: [Tag_Docker_Release, Get_Release_Version, UATBlueDeployment_WaitForApproval]
     condition: |
       and(
-        eq(${{parameters.UAT_SKIP_BLUE_DEPLOYMENT}}, false),
         eq(dependencies.UATBlueDeployment_WaitForApproval.result, 'Succeeded'),
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
         in(dependencies.Tag_Docker_Release.result, 'Succeeded', 'Skipped')
@@ -340,16 +323,14 @@ stages:
           runOnce:
             deploy:
               steps:
-                - ${{ if eq(parameters['UAT_SKIP_BLUE_DEPLOYMENT'], False) }}:
-                  # uninstall helm release used for blue instance
-                  - task: HelmDeploy@0
-                    displayName: Un-install UAT blue version
-                    continueOnError: true
-                    inputs:
-                      kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
-                      namespace: checkout
-                      command: uninstall
-                      arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
+                - task: HelmDeploy@0
+                  displayName: Un-install UAT blue version
+                  continueOnError: true
+                  inputs:
+                    kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
+                    namespace: checkout
+                    command: uninstall
+                    arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
                 - checkout: self
                   displayName: "Checkout"
                 - task: KubectlInstaller@0
@@ -482,7 +463,6 @@ stages:
     condition: |
       and(
         eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-        eq(${{parameters.PROD_SKIP_BLUE_DEPLOYMENT}}, false),
         eq(dependencies.Build_PROD_Blue.result, 'Succeeded'),
         eq(dependencies.Get_Release_Version.result, 'Succeeded')
       )
@@ -714,28 +694,20 @@ stages:
 
   - stage: "PROD_Green_WaitForApproval"
     displayName: 'PROD green approval deployment'
-    ${{ if eq(parameters['PROD_SKIP_BLUE_DEPLOYMENT'], True) }}:
-      dependsOn: Prod_WaitForApproval
-      condition: |
+    dependsOn: [ UninstallCanaryDeployment, Prod_WaitForApproval ]
+    condition: |
+      and(
+        eq(${{parameters.UAT_PROD_DEPLOY}}, true),
+        eq(dependencies.Prod_WaitForApproval.result, 'Succeeded'),
+        or(and(
+          eq(dependencies.UninstallCanaryDeployment.result, 'Succeeded'),
+          eq(dependencies.ProdBlue_WaitForApproval.result, 'Succeeded')
+        ),
         and(
-          eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-          in(dependencies.Prod_WaitForApproval.result, 'Succeeded')
-        )
-    ${{ if eq(parameters['PROD_SKIP_BLUE_DEPLOYMENT'], False) }}:
-      dependsOn: [ UninstallCanaryDeployment, Prod_WaitForApproval ]
-      condition: |
-        and(
-          eq(${{parameters.UAT_PROD_DEPLOY}}, true),
-          eq(dependencies.Prod_WaitForApproval.result, 'Succeeded'),
-          or(and(
-            eq(dependencies.UninstallCanaryDeployment.result, 'Succeeded'),
-            eq(dependencies.ProdBlue_WaitForApproval.result, 'Succeeded')
-          ),
-          and(
-            eq(dependencies.UninstallCanaryDeployment.result, 'Skipped'),
-            ne(dependencies.ProdBlue_WaitForApproval.result, 'Succeeded')
-          ))
-        )
+          eq(dependencies.UninstallCanaryDeployment.result, 'Skipped'),
+          ne(dependencies.ProdBlue_WaitForApproval.result, 'Succeeded')
+        ))
+      )
     variables:
       release_url: $[ stageDependencies.Get_Release_Version.get_version.outputs['chart_current_version.releaseUrl'] ]
     jobs:
