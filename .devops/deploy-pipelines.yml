@@ -92,7 +92,7 @@ stages:
     condition: |
       and(
         eq(${{parameters.DEV_DEPLOY}}, true),
-        or(succeeded(), ${{ parameters.SKIP_BUILD })
+        or(succeeded(), ${{ parameters.SKIP_BUILD }})
       )
     jobs:
       - deployment: "deploy"
