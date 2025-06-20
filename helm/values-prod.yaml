@@ -16,7 +16,7 @@ microservice-chart:
       tag: "latest"
     envConfig:
       OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
-    envSecret: { }
+    envSecret: {}
   image:
     repository: pagopapcommonacr.azurecr.io/pagopacheckoutauthservice
     tag: "1.1.1"
