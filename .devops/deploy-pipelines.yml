@@ -226,14 +226,6 @@ stages:
           runOnce:
             deploy:
               steps:
-                - task: HelmDeploy@0
-                  displayName: Un-install UAT canary version
-                  continueOnError: true
-                  inputs:
-                    kubernetesServiceEndpoint: $(UAT_KUBERNETES_SERVICE_CONN)
-                    namespace: checkout
-                    command: uninstall
-                    arguments: $(K8S_IMAGE_REPOSITORY_NAME)-blue
                 - checkout: self
                   displayName: "Checkout"
                 - task: KubectlInstaller@0
