@@ -11,13 +11,13 @@ plugins {
   id("org.openapi.generator") version "7.11.0"
   id("com.diffplug.spotless") version "7.0.2"
   id("com.dipien.semantic-version") version "2.0.0" apply false
-  id("org.sonarqube") version "6.0.1.5171"
+  id("org.sonarqube") version "6.2.0.5505"
   jacoco
 }
 
 group = "it.pagopa.checkout.authservice"
 
-version = "0.12.0"
+version = "1.1.1"
 
 description = "pagopa-checkout-auth-service"
 

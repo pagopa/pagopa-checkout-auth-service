@@ -2,18 +2,20 @@ package it.pagopa.checkout.authservice.repositories.redis
 
 import it.pagopa.checkout.authservice.repositories.redis.bean.oidc.OidcAuthStateData
 import java.time.Duration
-import org.springframework.data.redis.core.RedisTemplate
+import org.springframework.data.redis.core.ReactiveRedisTemplate
 
 /** OIDC auth se */
 class OIDCAuthStateDataRepository(
-    redisTemplate: RedisTemplate<String, OidcAuthStateData>,
+    reactiveRedisTemplate: ReactiveRedisTemplate<String, OidcAuthStateData>,
     defaultTTL: Duration,
     keyspace: String,
 ) :
-    RedisTemplateWrapper<OidcAuthStateData>(
-        redisTemplate = redisTemplate,
+    ReactiveRedisTemplateWrapper<OidcAuthStateData>(
+        reactiveRedisTemplate = reactiveRedisTemplate,
         ttl = defaultTTL,
         keyspace = keyspace,
     ) {
-    override fun getKeyFromEntity(value: OidcAuthStateData) = value.state.value
+    public override fun getKeyFromEntity(value: OidcAuthStateData): String {
+        return value.state.value
+    }
 }

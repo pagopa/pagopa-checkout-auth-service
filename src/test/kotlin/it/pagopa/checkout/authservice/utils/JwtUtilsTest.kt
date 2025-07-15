@@ -12,6 +12,7 @@ import java.security.interfaces.RSAPublicKey
 import java.util.*
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.*
+import reactor.core.publisher.Flux
 import reactor.core.publisher.Hooks
 import reactor.core.publisher.Mono
 import reactor.test.StepVerifier
@@ -63,9 +64,8 @@ class JwtUtilsTest {
                 .claim(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, nonce)
                 .claim(JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY, userFiscalCode)
                 .compact()
-        given(oidcKeysRepository.getAllValues()).willReturn(emptyList())
+        given(oidcKeysRepository.getAllValues()).willReturn(Flux.just())
         given(oneIdentityClient.getKeys()).willReturn(Mono.just(oneIdentityResponse))
-        doNothing().`when`(oidcKeysRepository).save(any())
         Hooks.onOperatorDebug()
         // test
         val expectedClaims = Jwts.claims()
@@ -77,6 +77,7 @@ class JwtUtilsTest {
         expectedClaims["familyName"] = userFamilyName
         expectedClaims["fiscalNumber"] = userFiscalCode
         expectedClaims["nonce"] = nonce
+        expectedSavedKeys.forEach { given(oidcKeysRepository.save(it)).willReturn(Mono.just(true)) }
         StepVerifier.create(jwtUtils.validateAndParse(signedJwtToken))
             .expectNext(expectedClaims)
             .verifyComplete()
@@ -102,7 +103,7 @@ class JwtUtilsTest {
         val userFamilyName = "userFamilyName"
         val userFiscalCode = "userFiscalCode"
         val cachedKeys =
-            keyPairs
+            Flux.fromIterable(keyPairs)
                 .map { it.public as RSAPublicKey }
                 .map {
                     OidcKey(
@@ -176,9 +177,8 @@ class JwtUtilsTest {
                 .claim(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, nonce)
                 .claim(JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY, userFiscalCode)
                 .compact()
-        given(oidcKeysRepository.getAllValues()).willReturn(emptyList())
+        given(oidcKeysRepository.getAllValues()).willReturn(Flux.just())
         given(oneIdentityClient.getKeys()).willReturn(Mono.just(oneIdentityResponse))
-        doNothing().`when`(oidcKeysRepository).save(any())
         Hooks.onOperatorDebug()
         // test
         val expectedClaims = Jwts.claims()
@@ -220,9 +220,8 @@ class JwtUtilsTest {
                 .claim(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, nonce)
                 .claim(JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY, userFiscalCode)
                 .compact()
-        given(oidcKeysRepository.getAllValues()).willReturn(emptyList())
+        given(oidcKeysRepository.getAllValues()).willReturn(Flux.just())
         given(oneIdentityClient.getKeys()).willReturn(Mono.just(oneIdentityResponse))
-        doNothing().`when`(oidcKeysRepository).save(any())
         Hooks.onOperatorDebug()
         // test
         val expectedClaims = Jwts.claims()
@@ -289,10 +288,9 @@ class JwtUtilsTest {
                 .claim(JwtUtils.OI_JWT_NONCE_CLAIM_KEY, nonce)
                 .claim(JwtUtils.OI_JWT_USER_FISCAL_CODE_CLAIM_KEY, userFiscalCode)
                 .compact()
-        given(oidcKeysRepository.getAllValues()).willReturn(emptyList())
+        given(oidcKeysRepository.getAllValues()).willReturn(Flux.just())
         given(oneIdentityClient.getKeys()).willReturn(Mono.just(oneIdentityResponse))
-        given(oidcKeysRepository.deleteAll()).willReturn(cachedKeys.size.toLong())
-        doNothing().`when`(oidcKeysRepository).save(any())
+        given(oidcKeysRepository.deleteAll()).willReturn(Mono.just(cachedKeys.size.toLong()))
         Hooks.onOperatorDebug()
         // test
         val expectedClaims = Jwts.claims()
@@ -300,6 +298,7 @@ class JwtUtilsTest {
             oneIdentityResponse.keys.map {
                 OidcKey(kid = it["kid"]!!, n = it["n"]!!, e = it["e"]!!)
             }
+        expectedSavedKeys.forEach { given(oidcKeysRepository.save(it)).willReturn(Mono.just(true)) }
         expectedClaims["name"] = userName
         expectedClaims["familyName"] = userFamilyName
         expectedClaims["fiscalNumber"] = userFiscalCode
