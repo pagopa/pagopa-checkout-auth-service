@@ -114,8 +114,8 @@ microservice-chart:
     ONE_IDENTITY_SERVER_CONNECTION_TIMEOUT_MILLIS: "9000"
     SESSION_TOKEN_LENGTH_IN_BYTES: "32"
   envSecret:
-    REDIS_HOST: redis-checkout-hostname
-    REDIS_PASSWORD: redis-checkout-access-key
+    REDIS_HOST: redis-std-checkout-hostname
+    REDIS_PASSWORD: redis-std-checkout-access-key
     ONE_IDENTITY_CLIENT_SECRET: checkout-one-identity-client-secret
   keyvault:
     name: "pagopa-p-checkout-kv"
