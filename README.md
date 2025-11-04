@@ -1,5 +1,8 @@
 # PagoPA Checkout Auth Service
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-checkout-auth-service&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=pagopa_pagopa-checkout-auth-service)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-checkout-auth-service&metric=coverage)](https://sonarcloud.io/summary/new_code?id=pagopa_pagopa-checkout-auth-service)
+
 ## Overview
 
 `pagopa-checkout-auth-service` is a Kotlin-based microservice designed to support authentication for the checkout
