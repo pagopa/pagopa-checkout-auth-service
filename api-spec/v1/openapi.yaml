@@ -8,9 +8,9 @@ contact:
     name: pagoPA - Touchpoints team
     url: https://www.pagopa.it/
 servers:
-  - url: https://${host}
+  - url: https://${server_url}
     variables:
-      host:
+      server_url:
           description: The hostname of the API server
           default: weuprod.checkout.internal.platform.pagopa.it
           enum:
