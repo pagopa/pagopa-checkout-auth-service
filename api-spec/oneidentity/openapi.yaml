@@ -8,6 +8,9 @@ info:
     - [One Identity repository](https://github.com/pagopa/oneidentity)
     - [The source API definition for OI](https://github.com/pagopa/oneidentity/blob/c2b7f398d36a0f259685e785c8f5a6b80ba8b9eb/src/infra/api/oi.tpl.json)
   termsOfService: http://pagopa.it/terms/
+  contact:
+    name: pagoPA - Touchpoints team
+    url: https://www.pagopa.it/
   license:
     name: Apache 2.0
     url: https://www.apache.org/licenses/LICENSE-2.0.html
@@ -16,7 +19,15 @@ externalDocs:
   description: Find out more about OI
   url: https://pagopa.it
 servers:
-  - url: ${server_url}
+  - url: https://${host}
+    variables:
+      host:
+          description: The hostname of the API server
+          default: weuprod.checkout.internal.platform.pagopa.it
+          enum:
+            - weudev.checkout.internal.dev.platform.pagopa.it
+            - weuuat.checkout.internal.uat.platform.pagopa.it
+            - weuprod.checkout.internal.platform.pagopa.it
 
 paths:
   /oidc/token:
