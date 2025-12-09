@@ -129,6 +129,11 @@ paths:
                         e: AQAB
                     description: JWK set in JSON array format
         '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                type: object
           $ref: '#/components/responses/unauthorized'
         '403':
           $ref: '#/components/responses/forbidden'
@@ -137,6 +142,11 @@ paths:
         '429':
           $ref: '#/components/responses/rateLimit'
         '500':
+          description: Server Error
+          content:
+            application/json:
+              schema:
+                type: object
           $ref: '#/components/responses/serverError'
       summary: OpenID Connect jwks endpoint
 components:
