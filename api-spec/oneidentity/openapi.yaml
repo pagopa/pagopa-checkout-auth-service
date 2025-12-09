@@ -140,6 +140,11 @@ paths:
           $ref: '#/components/responses/serverError'
       summary: OpenID Connect jwks endpoint
 components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
   responses:
     authToken200:
       description: A success response that includes the issued token, expire and other details from the OAuth Server
