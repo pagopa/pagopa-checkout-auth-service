@@ -26,6 +26,8 @@ tags:
       url: https://pagopa.atlassian.net/wiki/spaces/I/pages/1443463171/DR+-+Autenticazione+in+Checkout+-+Fase+1
       description: Technical specifications
 
+    security:
+      - ApiKeyAuth: []
 paths:
   /auth/login:
     get:
@@ -50,6 +52,12 @@ paths:
                 $ref: '#/components/schemas/LoginResponse'
         '400':
           description: Formally invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemJson'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
