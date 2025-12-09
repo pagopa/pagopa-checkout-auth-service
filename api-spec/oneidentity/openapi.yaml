@@ -197,6 +197,10 @@ components:
           description: Content type response.
           schema:
             type: string
+      content:
+        application/json:
+          schema:
+            type: object
     forbidden:
       description: Forbidden.
       headers:
@@ -231,6 +235,10 @@ components:
           description: Content type response.
           schema:
             type: string
+      content:
+        application/json:
+          schema:
+            type: object
     methodNotAllowed:
       description: The HTTP method is not valid
       headers:
