@@ -17,6 +17,8 @@ servers:
             - weudev.checkout.internal.dev.platform.pagopa.it
             - weuuat.checkout.internal.uat.platform.pagopa.it
             - weuprod.checkout.internal.platform.pagopa.it
+security:
+      - PagopaApiKeyAuth: []
 tags:
   - name: authService
     description: Api's used as interface towards the identity provider, it provides Login, Logout, Self information and token validation
@@ -25,9 +27,6 @@ tags:
     externalDocs:
       url: https://pagopa.atlassian.net/wiki/spaces/I/pages/1443463171/DR+-+Autenticazione+in+Checkout+-+Fase+1
       description: Technical specifications
-
-    security:
-      - ApiKeyAuth: []
 paths:
   /auth/login:
     get:
