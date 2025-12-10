@@ -239,6 +239,7 @@ components:
             type: string
             default: no-store
     keys200:
+      required: true
       content:
         application/json:
           schema:
