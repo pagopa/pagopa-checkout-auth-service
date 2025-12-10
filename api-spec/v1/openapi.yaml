@@ -4,7 +4,7 @@ info:
   title: Pagopa authService endpoints used by the checkout authenticated payment flow
 
   description: This microservice that expose authService services to allow authenticaded flow.
-contact:
+  contact:
     name: pagoPA - Touchpoints team
     url: https://www.pagopa.it/
 servers:
@@ -18,7 +18,7 @@ servers:
             - weuuat.checkout.internal.uat.platform.pagopa.it
             - weuprod.checkout.internal.platform.pagopa.it
 security:
-      - PagopaApiKeyAuth: []
+  - ApiKeyAuth: []
 tags:
   - name: authService
     description: Api's used as interface towards the identity provider, it provides Login, Logout, Self information and token validation
