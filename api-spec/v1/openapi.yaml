@@ -41,7 +41,7 @@ paths:
           required: false
           description: Optional RPT ID used to track login attempts to payment notices
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       responses:
         '200':
           description: Successful login
@@ -85,9 +85,8 @@ paths:
           name: x-rpt-ids
           required: false
           description: Optional RPT ID used to track get user information attempts to payment notices
-
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       security:
         - bearerAuth: []
       responses:
@@ -134,7 +133,7 @@ paths:
           required: false
           description: Optional RPT ID used to track logout attempts to payment notices
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       security:
         - bearerAuth: []
       responses:
@@ -171,7 +170,7 @@ paths:
           required: false
           description: Optional RPT ID used to track auth token generation attempts to payment notices
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       requestBody:
         $ref: '#/components/requestBodies/AuthRequest'
       responses:
@@ -224,7 +223,7 @@ paths:
           required: false
           description: Optional RPT ID used to track token validation attempts to payment notices
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       security:
         - bearerAuth: []
       responses:
@@ -341,6 +340,9 @@ components:
       required:
         - authToken
         - state
+      OptionalRptId:
+        type: string
+        description: 'Optional RPT ID string used to track various operations'
   requestBodies:
     AuthRequest:
       required: true
