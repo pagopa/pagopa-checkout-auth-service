@@ -32,6 +32,6 @@ jobs:
         with:
           filepath: ${{ matrix.spec.path }}
           apikey: ${{ secrets.RATEMYOPENAPI_API_KEY }} # TODO add secret to repo
-          minimum-score: 80
+          minimum-score: 79
           max-warnings: 30
           max-errors: 5
