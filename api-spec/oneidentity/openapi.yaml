@@ -243,6 +243,7 @@ components:
         application/json:
           schema:
             type: object
+            description: JWK set in JSON array format
             properties:
               keys:
                 type: array
@@ -256,7 +257,6 @@ components:
                     use: sig
                     'n': 58BezRBeYOM3rOo1vcllcLc8QAwz6AmQj4EvGUqATMUz4bfYJ9Lf2wb9xCQhSLSkndfFAF5V754G0mRelBGK7yIja-M-EBXoJeT3nvwA46g7MkZGf11uP2dz2k4CkLdFHnlGzvuLQVBQpqbz-O_hFfEDxBk9zV4shR8O_iGv4fDi0dNHZfXzxkr_iH8Oj2qQeZFvv61I4RffeNmx04lYea2KFsF_8rWDlENWAr8RbqpY_y5lbxgC_xyBunTkoIEommqz55ZFIcklYerJUVSeIA90KMyM60wZh0JF_T5kuXEs-3AWh8Bkx-sVE2hu5S5x4_lADsPojLwWTT7or_sw9Q
                     e: AQAB
-                description: JWK set in JSON array format
   schemas:
     TokenData:
       type: object
