@@ -92,7 +92,6 @@ paths:
             requestParameters: {}
       responses:
         '200':
-          description: JWK set containing public keys that enable clients to validate a JSON Web Token (JWT) issued by this OpenID Connect Provider
           $ref: '#/components/responses/keys200'
         '401':
           description: Unauthorized
@@ -239,7 +238,7 @@ components:
             type: string
             default: no-store
     keys200:
-      required: true
+      description: JWK set containing public keys that enable clients to validate a JSON Web Token (JWT) issued by this OpenID Connect Provider
       content:
         application/json:
           schema:
