@@ -48,7 +48,7 @@ paths:
           required: true
           description: 'The HTTP basic authorization header containing the client credentials as base64 encoded string (authorization: Basic base64(client_id:client_secret)). This can only be used INSTEAD of the parameters ''client_id'', ''client_secret''.'
           schema:
-            type: string
+            $ref: '#/components/schemas/AuthHeader'
       responses:
         "200":
           $ref: '#/components/responses/authToken200'
@@ -305,3 +305,6 @@ components:
           enum:
             - authorization_code
           default: authorization_code
+    AuthHeader:
+        type: string
+        description: 'Encoded String with client credentials'
