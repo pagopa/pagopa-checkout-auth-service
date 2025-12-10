@@ -41,24 +41,7 @@ paths:
         content:
           application/x-www-form-urlencoded:
             schema:
-              type: object
-              required:
-                - code
-                - redirect_uri
-                - grant_type
-              properties:
-                redirect_uri:
-                  type: string
-                  description: Required if grant_type is authorization_code. Must contain a valid auth code
-                code:
-                  type: string
-                  description: Required if grant_type is authorization_code
-                grant_type:
-                  type: string
-                  description: 'For grant_type=authorization_code: client_id, client_secret, code, and redirect_uri are required.'
-                  enum:
-                    - authorization_code
-                  default: authorization_code
+              $ref: '#/components/schemas/TokenRequestBody'
       parameters:
         - name: authorization
           in: header
@@ -113,27 +96,9 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  keys:
-                    type: array
-                    items:
-                      type: object
-                      additionalProperties:
-                        type: string
-                    example:
-                      - kty: RSA
-                        kid: default_ssl_key
-                        use: sig
-                        'n': 58BezRBeYOM3rOo1vcllcLc8QAwz6AmQj4EvGUqATMUz4bfYJ9Lf2wb9xCQhSLSkndfFAF5V754G0mRelBGK7yIja-M-EBXoJeT3nvwA46g7MkZGf11uP2dz2k4CkLdFHnlGzvuLQVBQpqbz-O_hFfEDxBk9zV4shR8O_iGv4fDi0dNHZfXzxkr_iH8Oj2qQeZFvv61I4RffeNmx04lYea2KFsF_8rWDlENWAr8RbqpY_y5lbxgC_xyBunTkoIEommqz55ZFIcklYerJUVSeIA90KMyM60wZh0JF_T5kuXEs-3AWh8Bkx-sVE2hu5S5x4_lADsPojLwWTT7or_sw9Q
-                        e: AQAB
-                    description: JWK set in JSON array format
+                $ref: '#/components/responses/keys200'
         '401':
           description: Unauthorized
-          content:
-            application/json:
-              schema:
-                type: object
           $ref: '#/components/responses/unauthorized'
         '403':
           $ref: '#/components/responses/forbidden'
@@ -143,10 +108,6 @@ paths:
           $ref: '#/components/responses/rateLimit'
         '500':
           description: Server Error
-          content:
-            application/json:
-              schema:
-                type: object
           $ref: '#/components/responses/serverError'
       summary: OpenID Connect jwks endpoint
 components:
@@ -280,6 +241,22 @@ components:
           schema:
             type: string
             default: no-store
+    keys200:
+      type: object
+      properties:
+        keys:
+          type: array
+          items:
+            type: object
+            additionalProperties:
+              type: string
+          example:
+            - kty: RSA
+              kid: default_ssl_key
+              use: sig
+              'n': 58BezRBeYOM3rOo1vcllcLc8QAwz6AmQj4EvGUqATMUz4bfYJ9Lf2wb9xCQhSLSkndfFAF5V754G0mRelBGK7yIja-M-EBXoJeT3nvwA46g7MkZGf11uP2dz2k4CkLdFHnlGzvuLQVBQpqbz-O_hFfEDxBk9zV4shR8O_iGv4fDi0dNHZfXzxkr_iH8Oj2qQeZFvv61I4RffeNmx04lYea2KFsF_8rWDlENWAr8RbqpY_y5lbxgC_xyBunTkoIEommqz55ZFIcklYerJUVSeIA90KMyM60wZh0JF_T5kuXEs-3AWh8Bkx-sVE2hu5S5x4_lADsPojLwWTT7or_sw9Q
+              e: AQAB
+          description: JWK set in JSON array format
   schemas:
     TokenData:
       type: object
@@ -309,3 +286,22 @@ components:
           type: string
           description: If the requested SCOPE included 'msso' or 'openid', response includes an id_token_type
       title: TokenData
+    TokenRequestBody:
+      type: object
+      required:
+        - code
+        - redirect_uri
+        - grant_type
+      properties:
+        redirect_uri:
+          type: string
+          description: Required if grant_type is authorization_code. Must contain a valid auth code
+        code:
+          type: string
+          description: Required if grant_type is authorization_code
+        grant_type:
+          type: string
+          description: 'For grant_type=authorization_code: client_id, client_secret, code, and redirect_uri are required.'
+          enum:
+            - authorization_code
+          default: authorization_code
