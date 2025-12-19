@@ -157,7 +157,7 @@
 							"    const userId = responseJson.userId;",
 							"    const name = responseJson.name;",
 							"    const familyName = responseJson.familyName;",
-							"    pm.expect(userId).to.be.eq(\"fiscalNumber\");",
+							"    pm.expect(userId).to.be.eq(\"RSSMRA00L05F511A\");",
 							"    pm.expect(name).to.be.eq(\"NomeTest\");",
 							"    pm.expect(familyName).to.be.eq(\"CognomeTest\");",
 							"});",
