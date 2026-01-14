@@ -249,6 +249,10 @@ components:
       scheme: bearer
       description: "authentication opaque token"
       bearerFormat: opaque token
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
   schemas:
     LoginResponse:
       type: object
