@@ -17,8 +17,6 @@ servers:
             - weudev.checkout.internal.dev.platform.pagopa.it
             - weuuat.checkout.internal.uat.platform.pagopa.it
             - weuprod.checkout.internal.platform.pagopa.it
-security:
-  - ApiKeyAuth: []
 tags:
   - name: authService
     description: Api's used as interface towards the identity provider, it provides Login, Logout, Self information and token validation
@@ -249,10 +247,6 @@ components:
       scheme: bearer
       description: "authentication opaque token"
       bearerFormat: opaque token
-    ApiKeyAuth:
-      type: apiKey
-      in: header
-      name: x-api-key
   schemas:
     LoginResponse:
       type: object
