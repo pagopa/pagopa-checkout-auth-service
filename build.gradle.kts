@@ -147,7 +147,7 @@ tasks.register<org.openapitools.generator.gradle.plugin.tasks.GenerateTask>("one
   description = "Generates the OneIdentity classes for this project."
   group = "openapi-generation"
   generatorName.set("java")
-  inputSpec.set("$rootDir/api-spec/oneidentity/openapi.yaml")
+  inputSpec.set("$rootDir/external-api-spec/oneidentity/openapi.yaml")
   outputDir.set(layout.buildDirectory.get().dir("generated").asFile.toString())
   apiPackage.set("it.pagopa.generated.checkout.oneidentity.api")
   modelPackage.set("it.pagopa.generated.checkout.oneidentity.model")
