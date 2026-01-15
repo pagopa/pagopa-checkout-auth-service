@@ -9,6 +9,7 @@ COPY settings.gradle.kts .
 COPY eclipse-style.xml eclipse-style.xml
 COPY src src
 COPY api-spec api-spec
+COPY external-api-spec external-api-spec
 RUN ./gradlew build -x test
 #remove plain jar, required by native compilations only
 RUN rm build/libs/*-plain.jar
