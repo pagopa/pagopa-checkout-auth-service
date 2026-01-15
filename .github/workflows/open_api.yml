@@ -19,7 +19,6 @@ jobs:
     strategy:
       matrix:
         spec:
-          - path: 'api-spec/oneidentity/openapi.yaml'
           - path: 'api-spec/v1/openapi.yaml'
             version: 'v1'
           
