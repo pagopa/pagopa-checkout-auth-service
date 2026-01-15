@@ -3,7 +3,15 @@ WORKDIR /workspace/app
 
 RUN microdnf install -y findutils
 
-COPY . .
+COPY gradlew .
+COPY gradle gradle
+COPY build.gradle.kts .
+COPY settings.gradle.kts .
+
+COPY eclipse-style.xml eclipse-style.xml
+COPY src src
+COPY api-spec api-spec
+COPY external-api-spec external-api-spec
 
 RUN chmod +x ./gradlew
 RUN ./gradlew :nativeCompile
