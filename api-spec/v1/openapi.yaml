@@ -4,8 +4,19 @@ info:
   title: Pagopa authService endpoints used by the checkout authenticated payment flow
 
   description: This microservice that expose authService services to allow authenticaded flow.
+  contact:
+    name: pagoPA - Touchpoints team
+    url: https://www.pagopa.it/
 servers:
   - url: https://${host}
+    variables:
+      host:
+          description: The hostname of the API server
+          default: weuprod.checkout.internal.platform.pagopa.it
+          enum:
+            - weudev.checkout.internal.dev.platform.pagopa.it
+            - weuuat.checkout.internal.uat.platform.pagopa.it
+            - weuprod.checkout.internal.platform.pagopa.it
 tags:
   - name: authService
     description: Api's used as interface towards the identity provider, it provides Login, Logout, Self information and token validation
@@ -14,7 +25,6 @@ tags:
     externalDocs:
       url: https://pagopa.atlassian.net/wiki/spaces/I/pages/1443463171/DR+-+Autenticazione+in+Checkout+-+Fase+1
       description: Technical specifications
-
 paths:
   /auth/login:
     get:
@@ -29,7 +39,7 @@ paths:
           required: false
           description: Optional RPT ID used to track login attempts to payment notices
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       responses:
         '200':
           description: Successful login
@@ -39,6 +49,12 @@ paths:
                 $ref: '#/components/schemas/LoginResponse'
         '400':
           description: Formally invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProblemJson'
+        '401':
+          description: Unauthorized
           content:
             application/json:
               schema:
@@ -67,9 +83,8 @@ paths:
           name: x-rpt-ids
           required: false
           description: Optional RPT ID used to track get user information attempts to payment notices
-
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       security:
         - bearerAuth: []
       responses:
@@ -116,7 +131,7 @@ paths:
           required: false
           description: Optional RPT ID used to track logout attempts to payment notices
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       security:
         - bearerAuth: []
       responses:
@@ -153,7 +168,7 @@ paths:
           required: false
           description: Optional RPT ID used to track auth token generation attempts to payment notices
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       requestBody:
         $ref: '#/components/requestBodies/AuthRequest'
       responses:
@@ -206,7 +221,7 @@ paths:
           required: false
           description: Optional RPT ID used to track token validation attempts to payment notices
           schema:
-            type: string
+            $ref: '#/components/schemas/OptionalRptId'
       security:
         - bearerAuth: []
       responses:
@@ -319,6 +334,9 @@ components:
       required:
         - authToken
         - state
+    OptionalRptId:
+        type: string
+        description: 'Optional RPT ID string used to track various operations'
   requestBodies:
     AuthRequest:
       required: true
