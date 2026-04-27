@@ -34,8 +34,7 @@ springBoot {
 
 object Deps {
   const val ecsLoggingVersion = "1.5.0"
-  const val openTelemetryVersion = "1.48.0"
-  const val openTelemetryInstrumentationVersion = "2.14.0-alpha"
+  const val openTelemetryInstrumentationVersion = "2.26.0-alpha"
   const val springBootVersion = "3.4.2"
   const val jsonWebTokenVersion = "0.11.5"
 }
