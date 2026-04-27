@@ -27,6 +27,8 @@ These are all environment variables needed by the application:
 | REDIS_PASSWORD                                | Redis server password                                                                                    | string  |                            |
 | REDIS_PORT                                    | Redis server listening port                                                                              | number  |                            |
 | REDIS_SSL_ENABLED                             | Redis server boolean value indicating if ssl connection is enabled                                       | boolean |                            |
+| REDIS_TIMEOUT                                 | Redis read timeout.                                                                                      | string  |                            |
+| REDIS_CONNECTION_TIMEOUT                      | Redis connection timeout.                                                                                | string  |                            |
 | AUTHENTICATED_USER_SESSION_CACHE_TTL_SECONDS  | Authenticated user session cache duration in seconds                                                     | number  |                            |
 | AUTHENTICATED_USER_SESSION_CACHE_KEYSPACE     | Authenticated user session cache entries keyspace                                                        | string  | authenticated-user-session |
 | OIDC_AUTH_STATE_CACHE_TTL_SECONDS             | OIDC authentication state cache duration in seconds                                                      | number  |                            |
