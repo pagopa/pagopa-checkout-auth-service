@@ -69,6 +69,7 @@ dependencies {
   // otel api
   implementation("io.opentelemetry.instrumentation:opentelemetry-reactor-3.1")
   implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-lettuce-5.1:2.28.1-alpha")
 
   // ECS logback encoder
   implementation("co.elastic.logging:logback-ecs-encoder:${Deps.ecsLoggingVersion}")
