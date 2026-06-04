@@ -20,7 +20,7 @@ class OpenTelemetryConfiguration {
 
     @Bean
     fun openTelemetryTracer(openTelemetry: OpenTelemetry): Tracer {
-        return openTelemetry.getTracer("pagopa-ecommerce-payment-requests-service")
+        return openTelemetry.getTracer("pagopa-checkout-auth-service")
     }
 
     // Manual configuration of Redis instrumentation
