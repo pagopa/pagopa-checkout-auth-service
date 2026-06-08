@@ -37,6 +37,11 @@ object Deps {
   const val openTelemetryInstrumentationVersion = "2.26.0-alpha"
   const val springBootVersion = "3.4.2"
   const val jsonWebTokenVersion = "0.11.5"
+  const val jacksonDatabindNullableVersion = "0.2.6"
+  const val arrowCoreVersion = "2.0.1"
+  const val swaggerAnnotationsVersion = "2.2.28"
+  const val openTelemetryLettuceVersion = "2.28.1-alpha"
+  const val mockitoKotlinVersion = "5.4.0"
 }
 
 repositories { mavenCentral() }
@@ -59,16 +64,21 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-actuator")
   implementation("org.springframework.boot:spring-boot-starter-data-redis")
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
-  implementation("org.openapitools:jackson-databind-nullable:0.2.6")
+  implementation(
+    "org.openapitools:jackson-databind-nullable:${Deps.jacksonDatabindNullableVersion}"
+  )
   implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
   implementation("org.jetbrains.kotlin:kotlin-reflect")
   implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-  implementation("io.arrow-kt:arrow-core:2.0.1")
-  implementation("io.swagger.core.v3:swagger-annotations:2.2.28")
+  implementation("io.arrow-kt:arrow-core:${Deps.arrowCoreVersion}")
+  implementation("io.swagger.core.v3:swagger-annotations:${Deps.swaggerAnnotationsVersion}")
 
   // otel api
   implementation("io.opentelemetry.instrumentation:opentelemetry-reactor-3.1")
   implementation("io.opentelemetry.instrumentation:opentelemetry-spring-boot-starter")
+  implementation(
+    "io.opentelemetry.instrumentation:opentelemetry-lettuce-5.1:${Deps.openTelemetryLettuceVersion}"
+  )
 
   // ECS logback encoder
   implementation("co.elastic.logging:logback-ecs-encoder:${Deps.ecsLoggingVersion}")
@@ -82,7 +92,7 @@ dependencies {
   testImplementation("io.projectreactor:reactor-test")
   testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
   testImplementation("org.jetbrains.kotlin:kotlin-test")
-  testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+  testImplementation("org.mockito.kotlin:mockito-kotlin:${Deps.mockitoKotlinVersion}")
   testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 
