@@ -89,6 +89,7 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "70"
   envConfig:
+    ACTIVE_PROFILE: k8s
     ROOT_LOGGING_LEVEL: "info"
     OTEL_RESOURCE_ATTRIBUTES_DEPLOYMENT_ENVIRONMENT: "uat"
     OTEL_SERVICE_NAME: "pagopa-checkout-auth-service"
