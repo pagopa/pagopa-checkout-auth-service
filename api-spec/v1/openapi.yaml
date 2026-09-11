@@ -9,6 +9,7 @@ info:
     url: https://www.pagopa.it/
 servers:
   - url: https://${host}
+    x-internal: true
     variables:
       host:
           description: The hostname of the API server
