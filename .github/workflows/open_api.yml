@@ -6,6 +6,7 @@ on:
     paths:
       - 'api-spec/**/*.yaml'
       - 'api-spec/**/*.yml'
+      - '.spectral.yaml'
       - '.github/workflows/open_api.yml'
 
 permissions:
