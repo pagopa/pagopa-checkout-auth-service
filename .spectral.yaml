@@ -1,0 +1,12 @@
+# extends the shared ruleset from github-actions-template/openapi-lint
+# The action copies default.spectral.yaml next to this file so extends resolves
+extends: ./default.spectral.yaml
+overrides:
+  # for POST /auth/token only, not disabled in general: a write endpoint
+  # added later still gets checked. The files glob matches on the spec filename
+  - files:
+      - "**/api-spec/v1/openapi.yaml#/paths/~1auth~1token"
+    rules:
+      # /auth/token issues the session token, so it cannot require a prior credential:
+      # the absence of a security scheme on it is by design.
+      owasp:api2:2023-write-restricted: off

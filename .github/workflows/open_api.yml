@@ -25,12 +25,11 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      # Report-only: owasp:api2:2023-write-restricted fires at error on POST /auth/token,
-      # the token endpoint, which cannot require prior authentication. Left visible rather
-      # than silenced; a path-scoped ruleset override and the gate flip are tracked in PIDM-2366.
+      # blocks on errors
       - name: Lint ${{ matrix.spec.path }}
-        # note: ruleset bundled with the shared action, can be overridden if needed
+        # note: extends the bundled ruleset via .spectral.yaml
         uses: pagopa/github-actions-template/openapi-lint@705d571bb13b279776fd20e9eb20232dc25679e4
         with:
           spec_path: ${{ matrix.spec.path }}
-          fail_on_violation: false
+          ruleset: .spectral.yaml
+          fail_severity: error
