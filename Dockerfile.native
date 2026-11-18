@@ -14,6 +14,7 @@ COPY api-spec api-spec
 COPY external-api-spec external-api-spec
 
 RUN chmod +x ./gradlew
+ENV JAVA_TOOL_OPTIONS="-XX:-UseBASE64Intrinsics"
 RUN ./gradlew :nativeCompile
 
 FROM debian:stable-20240701-slim@sha256:f8bbfa052db81e5b8ac12e4a1d8310a85d1509d4d0d5579148059c0e8b717d4e
