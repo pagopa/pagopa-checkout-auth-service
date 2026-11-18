@@ -66,6 +66,7 @@ microservice-chart:
           type: Utilization # Allowed types are 'Utilization' or 'AverageValue'
           value: "75"
   envConfig:
+    JAVA_TOOL_OPTIONS: "-XX:-UseBASE64Intrinsics -XX:UseAVX=2"
     ACTIVE_PROFILE: k8s
     ROOT_LOGGING_LEVEL: "info"
     OTEL_RESOURCE_ATTRIBUTES_DEPLOYMENT_ENVIRONMENT: "dev"
