@@ -15,6 +15,7 @@ microservice-chart:
       repository: pagopapcommonacr.azurecr.io/pagopacheckoutauthservice
       tag: "latest"
     envConfig:
+      JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
       OTEL_SERVICE_NAME: "pagopa-checkout-auth-service-blue"
     envSecret: {}
   image:
@@ -92,6 +93,7 @@ microservice-chart:
       maxSurge: 2
       maxUnavailable: 0
   envConfig:
+    JAVA_OPTS: "-XX:-UseBASE64Intrinsics"
     ACTIVE_PROFILE: k8s
     ROOT_LOGGING_LEVEL: "info"
     OTEL_RESOURCE_ATTRIBUTES_DEPLOYMENT_ENVIRONMENT: "prod"
