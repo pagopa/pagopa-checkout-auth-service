@@ -33,7 +33,7 @@ paths:
         - authService
       operationId: authLogin
       summary: Login endpoint
-      description: 'GET login endpoint with reCAPTCHA code'
+      description: 'GET login endpoint'
       parameters:
         - in: header
           name: x-rpt-ids
